@@ -3,24 +3,29 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { connect } from "react-redux";
-import { registerAdvertiser } from "../../actions/authActions";
+import { createAdvertisement } from "../../actions/advertisementActions";
 
 //import axios from "axios";
 //import classnames from "classnames";
 
 import TextFieldGroup from "../common/TextFieldGroup";
 
-class Register extends Component {
+class Advertisement extends Component {
   constructor() {
     super();
     this.state = {
       name: "",
       email: "",
-      password: "",
-      password2: "",
-      company: "",
-      companyId: "",
-      role: "",
+      description: "",
+      image: "",
+      telephone: "",
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+      latitude: "",
+      longitude: "",
+      ownerid: "",
       status: 0,
       errors: {}
     };
@@ -30,9 +35,9 @@ class Register extends Component {
   }
 
   componentDidMount() {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/dashboard");
-    }
+    // if (this.props.auth.isAuthenticated) {
+    //   this.props.history.push("/dashboard");
+    // }
   }
 
   // if we have errors this will run
@@ -51,20 +56,24 @@ class Register extends Component {
   onSubmit(e) {
     e.preventDefault();
 
-    const newAdvertiser = {
+    const newAdvertisement = {
       name: this.state.name,
       email: this.state.email,
-      password: this.state.password,
-      password2: this.state.password2,
-      company: this.state.company,
-      companyId: this.state.companyId,
-      role: this.state.role,
+      description: this.state.description,
+      image: this.state.image,
+      address: this.state.address,
+      city: this.state.city,
+      state: this.state.state,
+      zip: this.state.zip,
+      latitude: this.state.latitude,
+      longitude: this.state.longitude,
+      ownerid: this.props.auth.user.id,
       status: this.state.status
     };
 
     // this is the redux way.
     // the register user is in authActions
-    this.props.registerAdvertiser(newAdvertiser, this.props.history);
+    this.props.createAdvertisement(newAdvertisement, this.props.history);
     // we add this.props.history so the authActions will have it and be able to redirect
 
     // console.log(newUser);
@@ -90,8 +99,8 @@ class Register extends Component {
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
-              <h1 className="display-4 text-center">Sign Up</h1>
-              <p className="lead text-center">Create your Advertiser account</p>
+              <h1 className="display-4 text-center">Advertisement</h1>
+              <p className="lead text-center">Create an Advertisement</p>
               <form noValidate onSubmit={this.onSubmit}>
                 <div className="form-group">
                   <TextFieldGroup
@@ -116,41 +125,83 @@ class Register extends Component {
                 <div className="form-group">
                   <TextFieldGroup
                     type="text"
-                    placeholder="Company Name"
-                    name="company"
-                    value={this.state.company}
+                    placeholder="Description"
+                    name="description"
+                    value={this.state.description}
                     onChange={this.onChange}
-                    error={errors.company}
+                    error={errors.description}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    placeholder="Image"
+                    name="image"
+                    value={this.state.image}
+                    onChange={this.onChange}
+                    error={errors.image}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    placeholder="Address"
+                    name="address"
+                    value={this.state.address}
+                    onChange={this.onChange}
+                    error={errors.address}
                   />
                 </div>
                 <div className="form-group">
                   <TextFieldGroup
                     type="text"
-                    placeholder="Company Id"
-                    name="companyId"
-                    value={this.state.companyId}
+                    placeholder="City"
+                    name="city"
+                    value={this.state.city}
                     onChange={this.onChange}
-                    error={errors.companyId}
+                    error={errors.city}
                   />
                 </div>
                 <div className="form-group">
                   <TextFieldGroup
-                    type="password"
-                    placeholder="Password"
-                    name="password"
-                    value={this.state.password}
+                    type="text"
+                    placeholder="State"
+                    name="state"
+                    value={this.state.state}
                     onChange={this.onChange}
-                    error={errors.password}
+                    error={errors.state}
                   />
                 </div>
                 <div className="form-group">
                   <TextFieldGroup
-                    type="password"
-                    placeholder="Confirm Password"
-                    name="password2"
-                    value={this.state.password2}
+                    type="text"
+                    placeholder="Zip"
+                    name="zip"
+                    value={this.state.zip}
                     onChange={this.onChange}
-                    error={errors.password2}
+                    error={errors.zip}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    placeholder="Latitude"
+                    name="latitude"
+                    value={this.state.latitude}
+                    onChange={this.onChange}
+                    error={errors.latitude}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    placeholder="Longitude"
+                    name="longitude"
+                    value={this.state.longitude}
+                    onChange={this.onChange}
+                    error={errors.longitude}
                   />
                 </div>
                 <input type="submit" className="btn btn-info btn-block mt-4" />
@@ -165,8 +216,8 @@ class Register extends Component {
 
 // this is good practice because it will help debugging
 // it is not checked when in production mode.
-Register.propTypes = {
-  registerUser: PropTypes.func.isRequired,
+Advertisement.propTypes = {
+  createAdvertisement: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired
 };
@@ -182,6 +233,6 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { registerAdvertiser }
-)(withRouter(Register));
+  { createAdvertisement }
+)(withRouter(Advertisement));
 // wrap the Register with withRouter so the authAction can use history to redirect

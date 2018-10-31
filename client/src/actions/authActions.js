@@ -33,6 +33,20 @@ export const registerUser = (userData, history) => dispatch => {
     );
 };
 
+export const registerAdvertiser = (advertiserData, history) => dispatch => {
+  axios
+    .post("/api/users/register", advertiserData)
+    .then(res => history.push("/login"))
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
 // Login - Get User Token
 export const loginUser = userData => dispatch => {
   axios
@@ -40,14 +54,18 @@ export const loginUser = userData => dispatch => {
     .then(res => {
       // Save to localStorage
       const { token } = res.data;
+      const { role } = res.data;
       // Set token to ls  The localStorage method is built into react framework.  no need to create our own
       localStorage.setItem("jwtToken", token);
+      //console.log("user role is ", res.data.role);
+      localStorage.setItem("userRole", role);
       // Set token to Auth header
       // token includes user information
       setAuthToken(token);
       // Decode token to get user data
       const decoded = jwt_decode(token);
       // Set current user
+      console.log("decoded current user ", decoded);
       dispatch(setCurrentUser(decoded));
     })
     .catch(err =>

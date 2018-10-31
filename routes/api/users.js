@@ -10,7 +10,7 @@ const passport = require("passport");
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 
-const User = require("../../models/User");
+const Advertiser = require("../../models/Advertiser");
 
 // @route   GET api/users/test
 // @desc    Tests users route
@@ -32,29 +32,32 @@ router.post("/register", (req, res) => {
     return res.status(400).json(errors);
   }
 
-  User.findOne({ email: req.body.email }).then(user => {
-    if (user) {
+  Advertiser.findOne({ email: req.body.email }).then(advertiser => {
+    if (advertiser) {
       errors.email = "Email already exists";
       return res.status(400).json(errors);
     } else {
-      const avatar = gravatar.url(req.body.email, {
-        s: "200", // Size
-        r: "pg", // Rating
-        d: "mm" // Default
-      });
-      const newUser = new User({
+      // const avatar = gravatar.url(req.body.email, {
+      //   s: "200", // Size
+      //   r: "pg", // Rating
+      //   d: "mm" // Default
+      // });
+      const newAdvertiser = new Advertiser({
         name: req.body.name,
         email: req.body.email,
-        avatar,
-        password: req.body.password
+        company: req.body.company,
+        companyId: req.body.companyId,
+        password: req.body.password,
+        role: req.body.role,
+        status: req.body.status
       });
 
       // this user is what is returned from save
       bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
+        bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
           if (err) throw err;
-          newUser.password = hash;
-          newUser
+          newAdvertiser.password = hash;
+          newAdvertiser
             .save()
             .then(user => res.json(user))
             .catch(err => console.log(err));
@@ -80,7 +83,7 @@ router.post("/login", (req, res) => {
   const password = req.body.password;
 
   // Find user by email
-  User.findOne({ email }).then(user => {
+  Advertiser.findOne({ email }).then(user => {
     // Check for user
     if (!user) {
       errors.email = "User not found";
@@ -91,7 +94,12 @@ router.post("/login", (req, res) => {
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
         // User Matched
-        const payload = { id: user.id, name: user.name, avatar: user.avatar }; // Create JWT Payload
+        const payload = {
+          id: user.id,
+          role: user.role,
+          name: user.name,
+          avatar: user.avatar
+        }; // Create JWT Payload
         // Sign Token
         jwt.sign(
           payload,
@@ -100,7 +108,8 @@ router.post("/login", (req, res) => {
           (err, token) => {
             res.json({
               success: true,
-              token: "Bearer " + token
+              token: "Bearer " + token,
+              role: user.role
             });
             // Bearer us a special thing for header
           }

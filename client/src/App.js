@@ -14,6 +14,8 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Landing from "./components/layout/Landing";
 import Shuttles from "./components/shuttles/Shuttles";
+import Advertisers from "./components/advertisers/Advertisers";
+import Advertisement from "./components/advertisements/Advertisement";
 import Trips from "./components/shuttles/Trips";
 import Dashboard from "./components/dashboard/Dashboard";
 import TripEdit from "./components/shuttles/TripEdit";
@@ -57,10 +59,18 @@ class App extends Component {
             <div className="container">
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
+              {/* <Route exact path="/newadvertisement" component={Advertisement} /> */}
               {/* <Route exact path="/thumbs" component={Thumbs} /> */}
               <Switch>
                 <PrivateRoute exact path="/shuttles" component={Shuttles} />
                 <PrivateRoute exact path="/trips" component={Trips} />
+                <PrivateRoute
+                  exact
+                  path="/advertisers"
+                  component={Advertisers}
+                />
+
+                <PrivateRoute exact path="/newad" component={Advertisement} />
 
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
               </Switch>

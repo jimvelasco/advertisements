@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 
-const UserSchema = new Schema({
+const AdvertiserSchema = new Schema({
   name: {
     type: String,
     required: true
@@ -22,16 +22,22 @@ const UserSchema = new Schema({
   companyId: {
     type: String
   },
-  avatar: {
+  role: {
     type: String
   },
+
+  status: {
+    type: Number,
+    default: 0
+  },
+
   date: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = User = mongoose.model("users", UserSchema);
+module.exports = Advertiser = mongoose.model("advertisers", AdvertiserSchema);
 // the users name is used for passport or when
 // const User = mongoose.model("users");
 // also is the name of the document in mongodb

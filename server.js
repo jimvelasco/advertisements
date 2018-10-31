@@ -12,6 +12,9 @@ const posts = require("./routes/api/posts");
 const shuttles = require("./routes/api/shuttles");
 const trips = require("./routes/api/shuttles");
 
+const advertisers = require("./routes/api/advertisers");
+// const advertisement = require("./routes/api/advertisers");
+
 const app = express();
 
 // Body Parser middleware
@@ -43,6 +46,9 @@ app.use("/api/posts", posts);
 
 app.use("/api/shuttles", shuttles);
 app.use("/api/shuttles/trips", trips);
+
+app.use("/api/advertisers", advertisers);
+// app.use("/api/newadvertisement", advertisement);
 
 // Server static assets if in production
 if (process.env.NODE_ENV === "production") {
