@@ -4,23 +4,27 @@ import { connect } from "react-redux";
 
 //import Trips from "../shuttles/Trips";
 import Advertisers from "../advertisers/Advertisers";
-import Advertisements from "../advertisements/Advertisements";
+//import Advertisements from "../advertisements/Advertisements";
+
+import Businesses from "../businesses/Businesses";
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {}; //shuttles: ["one", "two", "three"] };
-    console.log("Dashboard props", props);
+    // console.log("Dashboard props", props);
   }
   render() {
     const userrole = this.props.auth.user.role;
     return (
       <div>
-        <h3 style={{ textAlign: "center" }}>Dispatch Dashboard</h3>
+        <h3 style={{ textAlign: "center" }}>
+          Dispatch Advertisements Dashboard
+        </h3>
 
-        {/* {userrole === "admin" ? <Advertisers /> : <Advertisements />} */}
-        <Advertisers />
-        <Advertisements />
+        {userrole === "admin" ? <Advertisers /> : null}
+        {/* <Advertisers />  */}
+        <Businesses />
       </div>
     );
   }

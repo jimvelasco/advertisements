@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
+import { withRouter } from "react-router-dom";
 
 class Navbar extends Component {
   onLogoutClick(e) {
@@ -11,6 +12,21 @@ class Navbar extends Component {
     this.props.logoutUser();
     window.location.href = "/";
     // this.props.history.push("/");
+  }
+
+  showModifyProfile(userid) {
+    // console.log("deleteAd", adid);
+    //let link = `/api/advertisers/modify-ad/${adid}`;
+    // console.log(link);
+    //let pobj = { pathname: "/newad", search: "?id=12345" };
+    //this.props.history.push(pobj);
+    let url = "/modifyprofile/" + userid;
+    console.log(url);
+    this.props.history.push(url);
+    // axios
+    //   .get(link)
+    //   .then(res => this.setState({ advertisements: res.data }))
+    //   .catch(err => console.log(err.response.data)); // to get actual errors from backend
   }
   render() {
     const { isAuthenticated, user } = this.props.auth; // shorthand
@@ -27,19 +43,30 @@ class Navbar extends Component {
             Dashboard
           </Link>
         </li>
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <Link className="nav-link" to="/shuttles">
             Shuttles
           </Link>
-        </li>
-        <li className="nav-item">
+        </li> */}
+        {/* <li className="nav-item">
           <Link className="nav-link" to="/trips">
             Trips
           </Link>
+        </li> */}
+        <li className="nav-item">
+          <Link className="nav-link" to="/businesses">
+            Businesses
+          </Link>
         </li>
         <li className="nav-item">
-          <Link className="nav-link" to="/advertisers">
-            Advertisers
+          <Link className="nav-link" to="/test">
+            Test
+          </Link>
+        </li>
+
+        <li className="nav-item">
+          <Link className="nav-link" to={`/modifyadvertiser/${user.id}`}>
+            {user.email}
           </Link>
         </li>
 
@@ -49,14 +76,14 @@ class Navbar extends Component {
             onClick={this.onLogoutClick.bind(this)}
             className="nav-link"
           >
-            <img
+            {/* <img
               className="rounded-circle"
               src={user.avatar}
               alt={user.name}
               style={{ width: "25px", marginRight: "5px" }}
               title="You must have a Gravatar connected to your email to display an image"
-            />{" "}
-            Logout
+            />{" "} */}
+            &nbsp;Logout
           </a>
         </li>
       </ul>

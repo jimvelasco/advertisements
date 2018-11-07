@@ -1,4 +1,5 @@
 const express = require("express");
+const fileUpload = require("express-fileupload");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const passport = require("passport");
@@ -6,13 +7,14 @@ const passport = require("passport");
 const path = require("path");
 
 const users = require("./routes/api/users");
-const profile = require("./routes/api/profile");
-const posts = require("./routes/api/posts");
+// const profile = require("./routes/api/profile");
+// const posts = require("./routes/api/posts");
 
-const shuttles = require("./routes/api/shuttles");
-const trips = require("./routes/api/shuttles");
+// const shuttles = require("./routes/api/shuttles");
+// const trips = require("./routes/api/shuttles");
 
-const advertisers = require("./routes/api/advertisers");
+const advertise = require("./routes/api/advertise");
+const business = require("./routes/api/business");
 // const advertisement = require("./routes/api/advertisers");
 
 const app = express();
@@ -20,6 +22,9 @@ const app = express();
 // Body Parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(express.static(__dirname));
+app.use(fileUpload());
 
 // DB config
 
@@ -41,13 +46,14 @@ app.use(passport.initialize());
 require("./config/passport")(passport);
 
 app.use("/api/users", users);
-app.use("/api/profile", profile);
-app.use("/api/posts", posts);
+// app.use("/api/profile", profile);
+// app.use("/api/posts", posts);
 
-app.use("/api/shuttles", shuttles);
-app.use("/api/shuttles/trips", trips);
+// app.use("/api/shuttles", shuttles);
+// app.use("/api/shuttles/trips", trips);
 
-app.use("/api/advertisers", advertisers);
+app.use("/api/advertise", advertise);
+app.use("/api/business", business);
 // app.use("/api/newadvertisement", advertisement);
 
 // Server static assets if in production

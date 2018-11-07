@@ -13,21 +13,20 @@ class Advertisements extends Component {
   }
 
   componentDidMount() {
-    this.getAdvertisements();
+    this.getBusinesses();
   }
 
   logConsole() {
     console.log("logging to console");
   }
 
-  getAdvertisements() {
-    // console.log(" Advertisements componentDidMount props", this.props);
+  getBusinesses() {
     let userrole = this.props.auth.user.role;
     let userid = this.props.auth.user.id;
     let status = this.props.auth.user.status;
-    let link = "/api/advertise/advertisements";
+    let link = "/api/business/businesses";
     if (userrole === "") {
-      link = "/api/advertise/advertisements/" + userid;
+      link = "/api/business/businesses/" + userid;
     }
 
     if (status !== "0") {
@@ -35,7 +34,8 @@ class Advertisements extends Component {
         .get(link)
         // .then(res => console.log(res.data))
         .then(res => {
-          this.setState({ advertisements: res.data });
+          // console.log(res.data);
+          this.setState({ businesses: res.data });
           //this.logConsole();
           // console.log(res.data);
         })
@@ -43,86 +43,69 @@ class Advertisements extends Component {
     }
   }
 
-  xdeleteAd(adid) {
-    console.log("deleteAd", adid);
-    let link = `/api/advertise/delete-ad/${adid}`;
+  deleteBusiness(adid) {
+    // let link = `/api/advertise/delete-advertiser/${adid}`;
+    let link = `/api/business/delete-business/${adid}`;
+    //console.log(link);
     axios
       .get(link)
-      .then(function(res) {
-        console.log("running getAdvertisements");
-        this.getAdvertisements;
+      .then(res => {
+        let oid = adid;
+        let newary = [];
+        let curbus = this.state.businesses;
+        curbus.forEach(a => {
+          a._id == oid ? null : newary.push(a);
+        });
+        this.setState({ businesses: newary });
       })
       .catch(err => console.log("error"));
   }
 
-  deleteAd(adid) {
-    // console.log("deleteAd", adid);
-    let userid = this.props.auth.user.id;
-    let link = `/api/advertise/delete-ad/${adid}`;
-    let link2 = "/api/advertise/advertisements/" + userid;
-    axios
-      .get(link)
-      .then(
-        axios
-          .get(link2)
-          .then(res => {
-            this.setState({ advertisements: res.data });
-            console.log("settubg state");
-          })
-          //.then(res => console.log(res.data))
-          .catch(err => console.log("error"))
-      )
-      .catch(err => console.log("error"));
-  }
-
-  changeAdStatus = (adid, status) => {
-    let link = `/api/advertise/change-advertisement-status/${adid}/${status}`;
+  changeBusinessStatus = (adid, status) => {
+    let link = `/api/business/change-business-status/${adid}/${status}`;
     axios
       .get(link)
       .then(res => {
-        let advertisement = res.data;
-        //console.log("the updated advertisement is ", sa);
-        let advertisements = this.state.advertisements;
-        advertisements.map((target, index) => {
-          if (target._id == advertisement._id) {
-            target.status = advertisement.status;
+        let business = res.data;
+        //console.log("the updated business is ", sa);
+        let businesses = this.state.businesses;
+        businesses.map((target, index) => {
+          if (target._id == business._id) {
+            target.status = business.status;
           }
         });
-        this.setState({ advertisements: advertisements });
+        this.setState({ businesses: businesses });
       })
       .catch(err => console.log("error"));
   };
 
-  showModifyAd(adid) {
+  showModifyBusiness(adid) {
     // console.log("deleteAd", adid);
     //let link = `/api/advertisers/modify-ad/${adid}`;
     // console.log(link);
     //let pobj = { pathname: "/newad", search: "?id=12345" };
     //this.props.history.push(pobj);
-    let url = "/modifyad/" + adid;
+    let url = "/modifybusiness/" + adid;
     this.props.history.push(url);
     // axios
     //   .get(link)
-    //   .then(res => this.setState({ advertisements: res.data }))
+    //   .then(res => this.setState({ businesss: res.data }))
     //   .catch(err => console.log(err.response.data)); // to get actual errors from backend
   }
 
   render() {
     if (this.props.auth.user.status == "0") {
-      return <div>User is not authorized to view or create advertisements</div>;
+      return <div>User is not authorized to view or create businesss</div>;
       // return <Spinner />;
     }
-    if (!this.state.advertisements) {
+    if (!this.state.businesses) {
       // return <div>Loading...</div>;
       return <Spinner />;
     }
 
-    let newbutton =
-      '<Link to="/newad" className="btn btn-lg btn-info mr-2">New Advertisement</Link>';
-
     return (
       <div className="container">
-        <h4>Advertisements</h4>
+        <h4>Businesses</h4>
         <table className="table table-bordered table-striped table-sm">
           <thead className="thead-dark">
             <tr>
@@ -137,21 +120,21 @@ class Advertisements extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.advertisements.map((advertisement, index) => (
-              //link = `/delete-ad/${advertisement._id}`
-              <tr key={advertisement._id}>
-                {/* <td>{advertisement._id}</td> */}
-                <td>{advertisement.ownerid}</td>
-                <td>{advertisement.name}</td>
-                <td>{advertisement.description}</td>
-                <td>{advertisement.address}</td>
-                <td>{advertisement.city}</td>
-                <td>{advertisement.status}</td>
+            {this.state.businesses.map((business, index) => (
+              //link = `/delete-ad/${business._id}`
+              <tr key={business._id}>
+                {/* <td>{business._id}</td> */}
+                <td>{business.ownerid}</td>
+                <td>{business.name}</td>
+                <td>{business.description}</td>
+                <td>{business.address}</td>
+                <td>{business.city}</td>
+                <td>{business.status}</td>
                 <td>
                   {/* <Link
-                    to={`/delete-ad/${advertisement._id}`}
+                    to={`/delete-ad/${business._id}`}
                     onClick={() => {
-                      this.deleteAd(advertisement._id);
+                      this.deleteAd(business._id);
                     }}
                   > 
                   <span
@@ -169,7 +152,7 @@ class Advertisements extends Component {
                   <a
                     href="#"
                     onClick={() => {
-                      this.showModifyAd(advertisement._id);
+                      this.showModifyBusiness(business._id);
                     }}
                   >
                     modify
@@ -178,10 +161,7 @@ class Advertisements extends Component {
                   <a
                     href="#"
                     onClick={() => {
-                      this.changeAdStatus(
-                        advertisement._id,
-                        advertisement.status
-                      );
+                      this.changeBusinessStatus(business._id, business.status);
                     }}
                   >
                     change
@@ -190,7 +170,7 @@ class Advertisements extends Component {
                   <a
                     href="#"
                     onClick={() => {
-                      this.deleteAd(advertisement._id);
+                      this.deleteBusiness(business._id);
                     }}
                   >
                     delete
@@ -201,8 +181,8 @@ class Advertisements extends Component {
           </tbody>
         </table>
         {this.props.auth.user.role == "" ? (
-          <Link to="/newad" className="btn btn-lg btn-info mr-2">
-            New Advertisement
+          <Link to="/newbusiness" className="btn btn-lg btn-info mr-2">
+            New Business
           </Link>
         ) : (
           <div />

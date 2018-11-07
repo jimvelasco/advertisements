@@ -9,7 +9,7 @@ class Login extends Component {
     super();
     this.state = {
       email: "",
-      password: "",
+      password: "123456",
       errors: {}
     };
 
@@ -63,7 +63,7 @@ class Login extends Component {
       <div className="register">
         <div className="container">
           <div className="row">
-            <div className="col-md-8 m-auto">
+            <div className="col-md-6 m-auto">
               <h1 className="display-4 text-center">Sign In</h1>
 
               <form noValidate onSubmit={this.onSubmit}>

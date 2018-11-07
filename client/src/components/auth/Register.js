@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import axios from "axios";
+import ImageDisplay from "../common/ImageDisplay";
 
 import { connect } from "react-redux";
 import { registerAdvertiser } from "../../actions/authActions";
+import { modifyAdvertiser } from "../../actions/authActions";
 
 //import axios from "axios";
 //import classnames from "classnames";
@@ -11,27 +14,54 @@ import { registerAdvertiser } from "../../actions/authActions";
 import TextFieldGroup from "../common/TextFieldGroup";
 
 class Register extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
+      id: "",
       name: "",
       email: "",
       password: "",
       password2: "",
       company: "",
-      companyId: "",
       role: "",
       status: 0,
-      errors: {}
+      changePassword: false,
+      errors: {},
+      file: null,
+      fname: null,
+      statusmsg: null,
+      imageBuffer: null
     };
 
     this.onChange = this.onChange.bind(this);
+    this.onFileInputChange = this.onFileInputChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
   componentDidMount() {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/dashboard");
+    // if (this.props.auth.isAuthenticated) {
+    //   this.props.history.push("/dashboard");
+    // }
+
+    const id = this.props.match.params.id;
+    if (id) {
+      let link = `/api/users/find-user/${id}`;
+      //console.log(link);
+      axios
+        .get(link)
+        .then(res =>
+          this.setState({
+            id: id,
+            name: res.data[0].name,
+            email: res.data[0].email,
+            company: res.data[0].company,
+            imageBuffer: res.data[0].imageBuffer,
+            width: res.data[0].width,
+            height: res.data[0].height,
+            imageFilename: res.data[0].imageFilename
+          })
+        )
+        .catch(err => console.log(err.res.data));
     }
   }
 
@@ -44,38 +74,96 @@ class Register extends Component {
     }
   }
 
-  onChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
+  onChange(event) {
+    const target = event.target;
+    const value = target.type === "checkbox" ? target.checked : target.value;
+    const name = target.name;
+    // console.log(name + " " + value);
+
+    // this.setState({ [e.target.name]: e.target.value });
+    this.setState({ [name]: value });
   }
 
-  onSubmit(e) {
+  onFileInputChange(e) {
+    console.log(e.target.files[0]);
+    if (e.target.files[0]) {
+      //let fileurlobj = URL.createObjectURL(e.target.files[0]);
+      this.setState({
+        file: e.target.files[0],
+        //fileurl: fileurlobj,
+        statusmsg: ""
+      });
+    }
+  }
+
+  // const anAdvertiser = {
+  //   id: this.state.id,
+  //   name: this.state.name,
+  //   email: this.state.email,
+  //   password: this.state.password,
+  //   password2: this.state.password2,
+  //   company: this.state.company,
+  //   companyId: this.state.companyId,
+  //   role: this.state.role,
+  //   status: this.state.status,
+  //   changePassword: this.state.changePassword
+  // };
+
+  // const id = this.props.match.params.id;
+  // if (id) {
+  //   this.props.modifyAdvertiser(anAdvertiser, this.props.history);
+  // } else {
+  //   this.props.registerAdvertiser(formdata, this.props.history);
+  // }
+
+  // };
+
+  onSubmit = e => {
     e.preventDefault();
+    let cpr = "No";
+    if (this.state.changePassword) {
+      cpr = "Yes";
+    }
+    let formdata = new FormData();
+    formdata.append("file", this.state.file);
+    formdata.append("filename", "another");
+    formdata.append("id", this.state.id);
+    formdata.append("name", this.state.name);
+    formdata.append("email", this.state.email);
+    formdata.append("password", this.state.password);
+    formdata.append("password2", this.state.password2);
+    formdata.append("company", this.state.company);
+    formdata.append("role", this.state.role);
+    formdata.append("status", this.state.status);
+    formdata.append("changePassword", this.state.changePassword);
+    formdata.append("changePasswordRequest", cpr);
 
-    const newAdvertiser = {
-      name: this.state.name,
-      email: this.state.email,
-      password: this.state.password,
-      password2: this.state.password2,
-      company: this.state.company,
-      companyId: this.state.companyId,
-      role: this.state.role,
-      status: this.state.status
-    };
+    // for (var key of formdata.entries()) {
+    //   console.log(key[0] + ", " + key[1]);
+    // }
 
-    // this is the redux way.
-    // the register user is in authActions
-    this.props.registerAdvertiser(newAdvertiser, this.props.history);
-    // we add this.props.history so the authActions will have it and be able to redirect
+    // const anAdvertiser = {
+    //   id: this.state.id,
+    //   name: this.state.name,
+    //   email: this.state.email,
+    //   password: this.state.password,
+    //   password2: this.state.password2,
+    //   company: this.state.company,
+    //   companyId: this.state.companyId,
+    //   role: this.state.role,
+    //   status: this.state.status,
+    //   changePassword: this.state.changePassword
+    // };
 
-    // console.log(newUser);
-    // axios
-    //   .post("/api/users/register", newUser)
-    //   .then(res => console.log(res.data))
-    //   //.catch(err => console.log(err.response.data)); // to get actual errors from backend
-    //   .catch(err => this.setState({ errors: err.response.data })); // to get actual errors from backend
+    // console.log(anAdvertiser);
 
-    // this.props.registerUser(newUser, this.props.history);
-  }
+    const id = this.props.match.params.id;
+    if (id) {
+      this.props.modifyAdvertiser(formdata, this.props.history);
+    } else {
+      this.props.registerAdvertiser(formdata, this.props.history);
+    }
+  }; // end submit
 
   render() {
     const { errors } = this.state;
@@ -85,13 +173,34 @@ class Register extends Component {
     // const { user } = this.props.auth; // const user = this.props.auth.user
     // this shows user {user ? user.name : null}
 
+    let title = "Create";
+    let changepassword = false;
+    let disabled = "";
+    let accountexists = false;
+    const id = this.props.match.params.id;
+    if (id) {
+      title = "Modify";
+      changepassword = true;
+      disabled = "disabled";
+      accountexists = true;
+    }
+    let hasimage = false;
+    if (this.state.imageBuffer) {
+      hasimage = true;
+    }
+
     return (
       <div className="register">
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
-              <h1 className="display-4 text-center">Sign Up</h1>
-              <p className="lead text-center">Create your Advertiser account</p>
+              <h1 className="display-6 text-center">
+                {title} Advertiser Account
+              </h1>
+              {errors.generic ? (
+                <h3 className="display-32 text-center">{errors.generic}</h3>
+              ) : null}
+
               <form noValidate onSubmit={this.onSubmit}>
                 <div className="form-group">
                   <TextFieldGroup
@@ -110,6 +219,7 @@ class Register extends Component {
                     name="email"
                     value={this.state.email}
                     onChange={this.onChange}
+                    disabled={disabled}
                     error={errors.email}
                   />
                 </div>
@@ -123,16 +233,23 @@ class Register extends Component {
                     error={errors.company}
                   />
                 </div>
-                <div className="form-group">
-                  <TextFieldGroup
-                    type="text"
-                    placeholder="Company Id"
-                    name="companyId"
-                    value={this.state.companyId}
-                    onChange={this.onChange}
-                    error={errors.companyId}
-                  />
-                </div>
+
+                {changepassword ? (
+                  <div className="form-group">
+                    <label>
+                      Change Password:&nbsp;
+                      <input
+                        name="changePassword"
+                        type="checkbox"
+                        checked={this.state.changePassword}
+                        onChange={this.onChange}
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <div />
+                )}
+
                 <div className="form-group">
                   <TextFieldGroup
                     type="password"
@@ -153,7 +270,38 @@ class Register extends Component {
                     error={errors.password2}
                   />
                 </div>
-                <input type="submit" className="btn btn-info btn-block mt-4" />
+
+                {hasimage ? (
+                  <div className="form-group">
+                    <ImageDisplay
+                      buf={this.state.imageBuffer}
+                      width={this.state.width}
+                      height={this.state.height}
+                      filename={this.state.imageFilename}
+                    />
+                  </div>
+                ) : (
+                  <div />
+                )}
+
+                <div>
+                  <div className="form-group">
+                    <input
+                      type="file"
+                      name="file"
+                      onChange={this.onFileInputChange}
+                    />
+                  </div>
+
+                  <div className="invalid-feedback">
+                    {this.state.errors.noimage}
+                  </div>
+
+                  <input
+                    type="submit"
+                    className="btn btn-info btn-block mt-4"
+                  />
+                </div>
               </form>
             </div>
           </div>
@@ -166,7 +314,8 @@ class Register extends Component {
 // this is good practice because it will help debugging
 // it is not checked when in production mode.
 Register.propTypes = {
-  registerUser: PropTypes.func.isRequired,
+  registerAdvertiser: PropTypes.func.isRequired,
+  modifyAdvertiser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired
 };
@@ -182,6 +331,6 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { registerAdvertiser }
+  { registerAdvertiser, modifyAdvertiser }
 )(withRouter(Register));
 // wrap the Register with withRouter so the authAction can use history to redirect

@@ -31,6 +31,22 @@ const AdvertiserSchema = new Schema({
     default: 0
   },
 
+  imageBuffer: {
+    type: Buffer,
+    required: false
+  },
+  imageFilename: {
+    type: String
+  },
+  width: {
+    type: Number,
+    required: false
+  },
+  height: {
+    type: Number,
+    required: false
+  },
+
   date: {
     type: Date,
     default: Date.now

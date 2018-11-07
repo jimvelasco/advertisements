@@ -47,6 +47,27 @@ export const registerAdvertiser = (advertiserData, history) => dispatch => {
     );
 };
 
+export const modifyAdvertiser = (advertiserData, history) => dispatch => {
+  // console.log("we are in modifyAdvertiser in authActions", advertiserData);
+  axios
+    .post("/api/users/modify", advertiserData)
+    .then(advertiser => {
+      //console.log("modify user response data", advertiser);
+      //return res.json(advertiser);
+      dispatch(logoutUser());
+      //.then(advertiser => res.json(advertiser))
+    })
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err => {
+      console.log("in modify user action error response ", err.response.data);
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      });
+    });
+};
+
 // Login - Get User Token
 export const loginUser = userData => dispatch => {
   axios
@@ -65,7 +86,7 @@ export const loginUser = userData => dispatch => {
       // Decode token to get user data
       const decoded = jwt_decode(token);
       // Set current user
-      console.log("decoded current user ", decoded);
+      // console.log("decoded current user ", decoded);
       dispatch(setCurrentUser(decoded));
     })
     .catch(err =>
@@ -88,7 +109,9 @@ export const setCurrentUser = decoded => {
 // Log user out
 export const logoutUser = () => dispatch => {
   // Remove token from localStorage
+  //console.log("logout user");
   localStorage.removeItem("jwtToken");
+  localStorage.removeItem("userRole");
   // Remove auth header for future requests
   setAuthToken(false);
   // Set current user to {} which will set isAuthenticated to false

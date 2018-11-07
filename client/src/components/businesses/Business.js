@@ -4,15 +4,19 @@ import { withRouter } from "react-router-dom";
 import axios from "axios";
 
 import { connect } from "react-redux";
-import { createAdvertisement } from "../../actions/advertisementActions";
-import { modifyAdvertisement } from "../../actions/advertisementActions";
 
+// import { createAdvertisement } from "../../actions/advertisementActions";
+// import { modifyAdvertisement } from "../../actions/advertisementActions";
+
+import { createBusiness } from "../../actions/advertisementActions";
+import { modifyBusiness } from "../../actions/advertisementActions";
 //import axios from "axios";
 //import classnames from "classnames";
 
 import TextFieldGroup from "../common/TextFieldGroup";
+import SelectListGroup from "../common/SelectListGroup";
 
-class Advertisement extends Component {
+class Business extends Component {
   constructor(props) {
     super(props);
     // console.log("props in advertisement", props);
@@ -24,6 +28,8 @@ class Advertisement extends Component {
       email: "",
       description: "",
       image: "",
+      photo: "",
+      category: "",
       telephone: "",
       address: "",
       city: "",
@@ -33,11 +39,16 @@ class Advertisement extends Component {
       longitude: "",
       ownerid: "",
       status: 0,
-      errors: {}
+      errors: {},
+      file: null,
+      fname: null,
+      statusmsg: null,
+      imageBuffer: null
     };
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onFileInputChange = this.onFileInputChange.bind(this);
   }
 
   componentDidMount() {
@@ -47,7 +58,7 @@ class Advertisement extends Component {
 
     const id = this.props.match.params.id;
     if (id) {
-      let link = `/api/advertise/find-ad/${id}`;
+      let link = `/api/business/find-business/${id}`;
       axios
         .get(link)
         //.then(res => this.setState(res.data))
@@ -61,10 +72,14 @@ class Advertisement extends Component {
             email: res.data[0].email,
             description: res.data[0].description,
             image: res.data[0].image,
+            photo: res.data[0].photo,
+            phone: res.data[0].phone,
+            category: res.data[0].category,
             address: res.data[0].address,
             city: res.data[0].city,
             state: res.data[0].state,
             zip: res.data[0].zip,
+
             latitude: res.data[0].latitude,
             longitude: res.data[0].longitude
           })
@@ -87,6 +102,18 @@ class Advertisement extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  onFileInputChange(e) {
+    console.log(e.target.files[0]);
+    if (e.target.files[0]) {
+      //let fileurlobj = URL.createObjectURL(e.target.files[0]);
+      this.setState({
+        file: e.target.files[0],
+        //fileurl: fileurlobj,
+        statusmsg: ""
+      });
+    }
+  }
+
   onSubmit(e) {
     e.preventDefault();
 
@@ -96,6 +123,9 @@ class Advertisement extends Component {
       email: this.state.email,
       description: this.state.description,
       image: this.state.image,
+      photo: this.state.photo,
+      category: this.state.category,
+      phone: this.state.phone,
       address: this.state.address,
       city: this.state.city,
       state: this.state.state,
@@ -110,9 +140,9 @@ class Advertisement extends Component {
     // the register user is in authActions
     const id = this.props.match.params.id;
     if (id) {
-      this.props.modifyAdvertisement(anAdvertisement, this.props.history);
+      this.props.modifyBusiness(anAdvertisement, this.props.history);
     } else {
-      this.props.createAdvertisement(anAdvertisement, this.props.history);
+      this.props.createBusiness(anAdvertisement, this.props.history);
     }
     // we add this.props.history so the authActions will have it and be able to redirect
 
@@ -149,8 +179,8 @@ class Advertisement extends Component {
                 border: "0px solid black"
               }}
             >
-              <h1 className="display-4 text-center">Advertisement</h1>
-              <p className="lead text-center">{title} an Advertisement</p>
+              <h1 className="display-4 text-center">{title} Business</h1>
+
               <form noValidate onSubmit={this.onSubmit}>
                 <div className="form-group">
                   <TextFieldGroup
@@ -174,6 +204,17 @@ class Advertisement extends Component {
                     error={errors.email}
                   />
                 </div>
+
+                <div className="form-group">
+                  <SelectListGroup
+                    label="Category"
+                    name="category"
+                    value={this.state.category}
+                    onChange={this.onChange}
+                    error={errors.category}
+                  />
+                </div>
+
                 <div className="form-group">
                   <TextFieldGroup
                     type="text"
@@ -195,6 +236,43 @@ class Advertisement extends Component {
                     value={this.state.image}
                     onChange={this.onChange}
                     error={errors.image}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <div className="row">
+                    <div className="col-md-3">Image</div>
+                    <div className="col-md-3">{this.state.image}</div>
+                    <div className="col-md-6">
+                      <input
+                        type="file"
+                        name="file"
+                        onChange={this.onFileInputChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    label="Photo"
+                    placeholder="Photo"
+                    name="photo"
+                    value={this.state.photo}
+                    onChange={this.onChange}
+                    error={errors.photo}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    label="Phone"
+                    placeholder="Phone"
+                    name="phone"
+                    value={this.state.phone}
+                    onChange={this.onChange}
+                    error={errors.phone}
                   />
                 </div>
 
@@ -276,8 +354,8 @@ class Advertisement extends Component {
 
 // this is good practice because it will help debugging
 // it is not checked when in production mode.
-Advertisement.propTypes = {
-  createAdvertisement: PropTypes.func.isRequired,
+Business.propTypes = {
+  createBusiness: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired
 };
@@ -293,6 +371,6 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { createAdvertisement, modifyAdvertisement }
-)(withRouter(Advertisement));
+  { createBusiness, modifyBusiness }
+)(withRouter(Business));
 // wrap the Register with withRouter so the authAction can use history to redirect

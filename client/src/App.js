@@ -9,13 +9,19 @@ import { Provider } from "react-redux";
 import store from "./store";
 
 import PrivateRoute from "./components/common/PrivateRoute";
-
+import Test from "./components/Test";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Landing from "./components/layout/Landing";
 import Shuttles from "./components/shuttles/Shuttles";
 import Advertisers from "./components/advertisers/Advertisers";
+
+import Advertisements from "./components/advertisements/Advertisements";
 import Advertisement from "./components/advertisements/Advertisement";
+
+import Businesses from "./components/businesses/Businesses";
+import Business from "./components/businesses/Business";
+
 import Trips from "./components/shuttles/Trips";
 import Dashboard from "./components/dashboard/Dashboard";
 import TripEdit from "./components/shuttles/TripEdit";
@@ -57,24 +63,42 @@ class App extends Component {
             <Navbar />
             <Route exact path="/" component={Landing} />
             <div className="container">
+              <Route exact path="/test" component={Test} />
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
               {/* <Route exact path="/newadvertisement" component={Advertisement} /> */}
               {/* <Route exact path="/thumbs" component={Thumbs} /> */}
               <Switch>
-                <PrivateRoute exact path="/shuttles" component={Shuttles} />
-                <PrivateRoute exact path="/trips" component={Trips} />
                 <PrivateRoute
                   exact
                   path="/advertisers"
                   component={Advertisers}
                 />
 
+                <PrivateRoute exact path="/businesses" component={Businesses} />
+
                 <PrivateRoute exact path="/newad" component={Advertisement} />
+                <PrivateRoute exact path="/newbusiness" component={Business} />
+                <PrivateRoute
+                  exact
+                  path="/modifyad/:id"
+                  component={Advertisement}
+                />
+
+                <PrivateRoute
+                  exact
+                  path="/modifybusiness/:id"
+                  component={Business}
+                />
+
+                <PrivateRoute
+                  exact
+                  path="/modifyadvertiser/:id"
+                  component={Register}
+                />
 
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
               </Switch>
-              <Route exact path="/tripedit" component={TripEdit} />
             </div>
 
             <Footer />

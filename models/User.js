@@ -19,9 +19,6 @@ const UserSchema = new Schema({
   company: {
     type: String
   },
-  companyId: {
-    type: String
-  },
   avatar: {
     type: String
   },
