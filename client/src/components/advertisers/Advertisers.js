@@ -6,6 +6,7 @@ import { withRouter } from "react-router-dom";
 import Spinner from "../common/Spinner";
 import AdverDetails from "./AdverDetails";
 import { getAdvertisers } from "../../actions/advertiseActions";
+import { deleteAdvertiser } from "../../actions/advertiseActions";
 import { changeAdvertiserStatus } from "../../actions/advertiseActions";
 
 class Advertisers extends Component {
@@ -54,19 +55,20 @@ class Advertisers extends Component {
   // }
 
   deleteAdvertiser(adid) {
-    let link = `/api/advertise/delete-advertiser/${adid}`;
-    axios
-      .get(link)
-      .then(res => {
-        let oid = res.data._id;
-        let newary = [];
-        let curadverts = this.state.advertisers;
-        curadverts.forEach(a => {
-          a._id == oid ? null : newary.push(a);
-        });
-        this.setState({ advertisers: newary });
-      })
-      .catch(err => console.log("error"));
+    // let link = `/api/advertise/delete-advertiser/${adid}`;
+    // axios
+    //   .get(link)
+    //   .then(res => {
+    //     let oid = res.data._id;
+    //     let newary = [];
+    //     let curadverts = this.state.advertisers;
+    //     curadverts.forEach(a => {
+    //       a._id == oid ? null : newary.push(a);
+    //     });
+    //     this.setState({ advertisers: newary });
+    //   })
+    //   .catch(err => console.log("error"));
+    this.props.deleteAdvertiser(adid);
   }
 
   changeAdvertiserStatus = (adid, status) => {
@@ -219,7 +221,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getAdvertisers, changeAdvertiserStatus }
+  { getAdvertisers, changeAdvertiserStatus, deleteAdvertiser }
 )(withRouter(Advertisers));
 
 //export default Advertisers;

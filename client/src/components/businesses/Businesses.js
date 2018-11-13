@@ -108,7 +108,8 @@ class Businesses extends Component {
   }
 
   managePhotos(bizid, name) {
-    //console.log("managePhotos for id ", bizid);
+    console.log("managePhotos for id ", bizid);
+    console.log("managePhotos for name ", name);
     let cursid = this.state.selectedBizid;
     if (cursid === null || cursid !== bizid) {
       return this.setState({
@@ -215,7 +216,7 @@ class Businesses extends Component {
   };
 
   showModifyBusiness(adid) {
-    // console.log("deleteAd", adid);
+    // console.log("showModifyBusiness", adid);
     //let link = `/api/advertisers/modify-ad/${adid}`;
     // console.log(link);
     //let pobj = { pathname: "/newad", search: "?id=12345" };

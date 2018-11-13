@@ -9,7 +9,8 @@ import {
   REMOVE_BUSINESS,
   CREATE_BUSINESS,
   SET_ADVERTISERS,
-  CHANGE_ADVERTISER_STATUS
+  CHANGE_ADVERTISER_STATUS,
+  REMOVE_ADVERTISER
 } from "../actions/types";
 
 // import { TEST_DISPATCH } from "../actions/types";
@@ -92,6 +93,10 @@ export default function(state = initialState, action) {
           //console.log("after status", biz.status);
         }
       });
+      return {
+        ...state,
+        businesses: bizs
+      };
 
     case CHANGE_ADVERTISER_STATUS:
       let advers = state.advertisers;
@@ -147,6 +152,16 @@ export default function(state = initialState, action) {
       return {
         ...state,
         advertisers: action.payload
+      };
+
+    case REMOVE_ADVERTISER:
+      workid = action.payload;
+      // let cimages = state.images;
+      // let rary = cimages.filter(item => item._id !== pid);
+
+      return {
+        ...state,
+        advertisers: state.advertisers.filter(item => item._id !== workid)
       };
     // case TEST_DISPATCH:
     //   console.log("we are in authreducer " + action.type);

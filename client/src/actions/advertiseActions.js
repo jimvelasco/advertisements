@@ -13,7 +13,8 @@ import {
   REMOVE_BUSINESS,
   CREATE_BUSINESS,
   SET_ADVERTISERS,
-  CHANGE_ADVERTISER_STATUS
+  CHANGE_ADVERTISER_STATUS,
+  REMOVE_ADVERTISER
 } from "./types";
 
 export const createBusiness = (advertisementData, history) => dispatch => {
@@ -255,6 +256,25 @@ export const changeAdvertiserStatus = (adid, status) => dispatch => {
       })
     );
 };
+
+export const deleteAdvertiser = adid => dispatch => {
+  //let link = "/api/business/deletePhoto/" + id;
+  let link = `/api/advertise/delete-advertiser/${adid}`;
+  axios
+    .get(link)
+    .then(res => {
+      dispatch({ type: REMOVE_ADVERTISER, payload: adid });
+    })
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
 //console.log("link we are using in actions ", link);
 
 // if (status !== "0") {

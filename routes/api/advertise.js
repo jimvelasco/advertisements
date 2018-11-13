@@ -141,13 +141,34 @@ router.get("/delete-ad/:id", (req, res) => {
     .catch(err => res.status(404).json({ nousersfound: "no ads found" }));
 });
 
+// router.get("/delete-advertiser/:id", (req, res) => {
+//   console.log("in advertise get delete-advertiser", req.params);
+//   let id = req.params.id;
+//   let query = { _id: id };
+//   let query2 = { ownerid: id };
+//   Advertiser.deleteOne(query)
+//     .then(rid => res.json(query))
+//     .catch(err => res.status(404).json({ nousersfound: "no ads found" }));
+// });
+
 router.get("/delete-advertiser/:id", (req, res) => {
-  console.log("in advertise get delete-advertiser", req.params);
+  //console.log("in advertise get delete-ad", req.params);
   let id = req.params.id;
   let query = { _id: id };
+  let query2 = { ownerid: id };
   Advertiser.deleteOne(query)
-    .then(rid => res.json(query))
-    .catch(err => res.status(404).json({ nousersfound: "no ads found" }));
+    .then(biz => {
+      Business.deleteMany(query2)
+        .then(di => {
+          res.json(biz);
+        })
+        .catch(err =>
+          res.status(404).json({ message: "Problem Deleting Businesses" })
+        );
+    })
+    .catch(err =>
+      res.status(404).json({ message: "Problem Deleting Advertiser" })
+    );
 });
 
 router.get("/xchange-advertiser-status/:id/:status", (req, res) => {
