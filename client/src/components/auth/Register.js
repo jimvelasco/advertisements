@@ -30,7 +30,10 @@ class Register extends Component {
       file: null,
       fname: null,
       statusmsg: null,
-      imageBuffer: null
+      imageBuffer: null,
+      imageWidth: null,
+      imageHeight: null,
+      imageFilename: null
     };
 
     this.onChange = this.onChange.bind(this);
@@ -46,22 +49,27 @@ class Register extends Component {
     const id = this.props.match.params.id;
     if (id) {
       let link = `/api/users/find-user/${id}`;
-      //console.log(link);
+      // console.log("component did mount", link);
       axios
         .get(link)
-        .then(res =>
+        .then(res => {
+          // console.log("cdm data", res);
+          // console.log("returned inamge name ", res.data.imageFilename);
+          let resdata = res.data[0];
+          let img = res.data[1];
           this.setState({
             id: id,
-            name: res.data[0].name,
-            email: res.data[0].email,
-            company: res.data[0].company,
-            imageBuffer: res.data[0].imageBuffer,
-            width: res.data[0].width,
-            height: res.data[0].height,
-            imageFilename: res.data[0].imageFilename
-          })
-        )
-        .catch(err => console.log(err.res.data));
+            name: resdata.name,
+            email: resdata.email,
+            company: resdata.company,
+            imageBuffer: img.imageBuffer,
+            imageWidth: img.width,
+            imageHeight: img.height,
+            imageFilename: img.imageFilename
+          });
+        })
+        // .catch(err => console.log(err.res.data));
+        .catch(err => console.log(err));
     }
   }
 
@@ -271,37 +279,36 @@ class Register extends Component {
                   />
                 </div>
 
-                {hasimage ? (
-                  <div className="form-group">
-                    <ImageDisplay
-                      buf={this.state.imageBuffer}
-                      width={this.state.width}
-                      height={this.state.height}
-                      filename={this.state.imageFilename}
-                    />
+                <div className="form-group">
+                  <div className="row">
+                    <div className="col-md-3">Logo</div>
+                    <div className="col-md-4">
+                      {hasimage ? (
+                        <ImageDisplay
+                          buf={this.state.imageBuffer}
+                          width={this.state.imageWidth}
+                          height={this.state.imageHeight}
+                          filename={this.state.imageFilename}
+                        />
+                      ) : (
+                        <div>No Logo</div>
+                      )}
+                    </div>
+                    <div className="col-md-5">
+                      <input
+                        type="file"
+                        name="file"
+                        onChange={this.onFileInputChange}
+                      />
+                    </div>
                   </div>
-                ) : (
-                  <div />
-                )}
-
-                <div>
-                  <div className="form-group">
-                    <input
-                      type="file"
-                      name="file"
-                      onChange={this.onFileInputChange}
-                    />
-                  </div>
-
-                  <div className="invalid-feedback">
-                    {this.state.errors.noimage}
-                  </div>
-
-                  <input
-                    type="submit"
-                    className="btn btn-info btn-block mt-4"
-                  />
                 </div>
+
+                <div className="invalid-feedback">
+                  {this.state.errors.noimage}
+                </div>
+
+                <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>
             </div>
           </div>

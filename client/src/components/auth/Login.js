@@ -28,7 +28,7 @@ class Login extends Component {
   }
   // so after successful login we go to shuttles
   componentWillReceiveProps(nextProps) {
-    //console.log("login component will receive props");
+    // console.log("login component will receive props");
     if (nextProps.auth.isAuthenticated) {
       this.props.history.push("/dashboard");
     }

@@ -12,40 +12,15 @@ const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 
 const Advertiser = require("../../models/Advertiser");
+const Image = require("../../models/Image");
 
 // @route   GET api/users/test
 // @desc    Tests users route
 // @access  Public
 
-router.get("/test", (req, res) => res.json({ msg: "users works" }));
-
-router.get("/", (req, res) => res.json({ msg: "gets all users" }));
-
-// @route   GET api/users/register
-// @desc    Tests users route
-// @access  Public
-
-router.post("/test_register", (req, res) => {
-  //console.log("in user api about to register");
-
-  const newAdvertiser = new Advertiser({
-    name: req.body.name,
-    email: req.body.email,
-    company: req.body.company,
-    password: req.body.password,
-    role: req.body.role,
-    status: req.body.status,
-    imageBuffer: "buf",
-    imageFilename: "what",
-    width: 100,
-    height: 200
-  });
-
-  newAdvertiser
-    .save()
-    .then(user => res.json(user))
-    .catch(err => console.log(err));
-});
+//**************************
+// CREATE
+//**************************
 
 router.post("/register", (req, res) => {
   //console.log("in user api about to register");
@@ -60,7 +35,6 @@ router.post("/register", (req, res) => {
     return res.status(400).json(errors);
   }
   let imageFile = req.files.file;
-
   let fname = imageFile.name;
 
   Advertiser.findOne({ email: req.body.email }).then(advertiser => {
@@ -68,31 +42,49 @@ router.post("/register", (req, res) => {
       errors.email = "Email already exists";
       return res.status(400).json(errors);
     } else {
-      Jimp.read(imageFile.data).then(lenna => {
-        lenna
-          .resize(200, Jimp.AUTO) // resize
-          .quality(80); // set JPEG quality
+      const newAdvertiser = new Advertiser({
+        name: req.body.name,
+        email: req.body.email,
+        company: req.body.company,
+        password: req.body.password,
+        role: req.body.role,
+        status: req.body.status
+      });
 
-        lenna.getBufferAsync(Jimp.MIME_JPEG).then(buf => {
-          const newAdvertiser = new Advertiser({
-            name: req.body.name,
-            email: req.body.email,
-            company: req.body.company,
-            password: req.body.password,
-            role: req.body.role,
-            status: req.body.status,
-            imageBuffer: buf,
-            imageFilename: fname,
-            width: lenna.bitmap.width,
-            height: lenna.bitmap.height
-          });
-          bcrypt.genSalt(10, (err, salt) => {
-            bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
-              if (err) throw err;
-              newAdvertiser.password = hash;
-              newAdvertiser
-                .save()
-                .then(user => res.json(user))
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
+          if (err) throw err;
+          newAdvertiser.password = hash;
+          newAdvertiser.save().then(user => {
+            Jimp.read(imageFile.data).then(lenna => {
+              lenna
+                .resize(200, Jimp.AUTO) // resize
+                .quality(80); // set JPEG quality
+
+              lenna
+                .getBufferAsync(Jimp.MIME_JPEG)
+                .then(imagebuf => {
+                  const newImage = new Image({
+                    ownerid: user._id,
+                    owneremail: user.email,
+                    type: "logo",
+                    category: "",
+                    imageBuffer: imagebuf,
+                    imageFilename: fname,
+                    width: lenna.bitmap.width,
+                    height: lenna.bitmap.height,
+                    child: 0
+                  });
+                  newImage
+                    .save()
+                    .then(newi => {
+                      let rary = [];
+                      rary.push(user);
+                      rary.push(newi);
+                      res.json(rary);
+                    })
+                    .catch(err => console.log(err));
+                })
                 .catch(err => console.log(err));
             });
           });
@@ -101,100 +93,81 @@ router.post("/register", (req, res) => {
     }
   });
 });
+// router.post("/register", (req, res) => {
+//   //console.log("in user api about to register");
+//   const { errors, isValid } = validateRegisterInput(req.body, true);
+//   //console.log("request body", req.body);
+//   if (!isValid) {
+//     return res.status(400).json(errors);
+//   }
+//   if (!req.files) {
+//     let errors = {};
+//     errors.noimage = "Please select an image file";
+//     return res.status(400).json(errors);
+//   }
+//   let imageFile = req.files.file;
+//   let fname = imageFile.name;
 
-router.post("/workmodify", (req, res) => {
-  let updatepw = false;
-  let checkpw = true;
-  if (req.body.changePassword) {
-    updatepw = true;
-    checkpw = false;
-  }
-  const { errors, isValid } = validateRegisterInput(req.body, checkpw);
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
+//   Advertiser.findOne({ email: req.body.email }).then(advertiser => {
+//     if (advertiser) {
+//       errors.email = "Email already exists";
+//       return res.status(400).json(errors);
+//     } else {
+//       Jimp.read(imageFile.data).then(lenna => {
+//         lenna
+//           .resize(200, Jimp.AUTO) // resize
+//           .quality(80); // set JPEG quality
 
-  let uploadimage = false;
-  let imageFile = null;
-  let filename = "";
+//         lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
+//           const newAdvertiser = new Advertiser({
+//             name: req.body.name,
+//             email: req.body.email,
+//             company: req.body.company,
+//             password: req.body.password,
+//             role: req.body.role,
+//             status: req.body.status
+//             // imageBuffer: imagebuf,
+//             // imageFilename: fname,
+//             // width: lenna.bitmap.width,
+//             // height: lenna.bitmap.height
+//           });
+//           bcrypt.genSalt(10, (err, salt) => {
+//             bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
+//               if (err) throw err;
+//               newAdvertiser.password = hash;
+//               newAdvertiser
+//                 .save()
+//                 .then(user => {
+//                   const newImage = new Image({
+//                     ownerid: user._id,
+//                     owneremail: user.email,
+//                     type: "logo",
+//                     category: "",
+//                     imageBuffer: imagebuf,
+//                     imageFilename: fname,
+//                     width: lenna.bitmap.width,
+//                     height: lenna.bitmap.height
+//                   });
+//                   newImage
+//                     .save()
+//                     .then(newi => {
+//                       res.json(user);
+//                     })
+//                     .catch(err => console.log(err));
+//                   // res.json(user);
+//                 })
+//                 .catch(err => console.log(err));
+//             });
+//           });
+//         });
+//       });
+//     }
+//   });
+// });
 
-  if (req.files) {
-    uploadimage = true;
-    imageFile = req.files.file;
-    filename = imageFile.name;
-  }
-
-  console.log("uploadimage", uploadimage);
-  console.log("filename", filename);
-
-  let id = req.body.id;
-  let query = { _id: id };
-
-  var options = { new: true };
-
-  const updateobj = {
-    name: req.body.name,
-    email: req.body.email,
-    company: req.body.company,
-    companyId: req.body.companyId
-  };
-
-  if (updatepw) {
-    let tpw = req.body.password;
-    let hpw = "";
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(tpw, salt, (err, hash) => {
-        if (err) {
-          throw err;
-        }
-        hpw = hash;
-        updateobj.password = hpw;
-        Advertiser.findOneAndUpdate(query, updateobj, options)
-          .then(newAd => {
-            return res.json(newAd);
-          })
-          .catch(err => {
-            return res.status(400).json(err);
-          });
-      });
-    }); // end of salt
-  }
-
-  // if (uploadimage) {
-  //   Jimp.read(imageFile.data).then(lenna => {
-  //     lenna
-  //       .resize(200, Jimp.AUTO) // resize
-  //       .quality(80);
-  //     lenna
-  //       .getBufferAsync(Jimp.MIME_JPEG)
-  //       .then(buf => {
-  //         console.log("image buffer", buf);
-  //         updateobj.imageBuffer = buf;
-  //         updateobj.imageFilename = filename;
-  //         updateobj.width = lenna.bitmap.width;
-  //         updateobj.height = lenna.bitmap.height;
-  //       })
-  //       .catch(err => {
-  //         return res.status(400).json(err);
-  //       });
-
-  //     Advertiser.findOneAndUpdate(query, updateobj, options)
-  //       .then(newAd => {
-  //         return res.json(newAd);
-  //       })
-  //       .catch(err => {
-  //         return res.status(400).json(err);
-  //       });
-  //   });
-  // }
-  else {
-    Advertiser.findOneAndUpdate(query, updateobj, options)
-      .then(newAd => {
-        res.json(newAd);
-      })
-      .catch(err => console.log(err));
-  }
-}); // end of post modify
+//**************************
+// MODIFY
+//**************************
 
 router.post("/modify", (req, res) => {
   let checkpw = false;
@@ -206,13 +179,6 @@ router.post("/modify", (req, res) => {
     checkpw = true;
     changepassword = true;
   }
-
-  // console.log("req.body.changePassword", formchange);
-  // console.log("changepassword", changepassword);
-  // console.log("checkpw", checkpw);
-
-  // changepassword = false;
-  // checkpw = false;
 
   let uploadimage = false;
   let imageFile = null;
@@ -244,16 +210,13 @@ router.post("/modify", (req, res) => {
   var options = { new: true };
 
   if (uploadimage && changepassword) {
-    // Advertiser.findOneAndUpdate(query, updateobj, options)
-    //   .then(newAd => {
-    //     res.json(newAd);
-    //   })
-    //   .catch(err => console.log(err));
     let errors = {};
     errors.generic =
       "You cannot update your password and update your image at the same time";
     return res.status(400).json(errors);
   } else if (uploadimage) {
+    query = { ownerid: id, type: "logo" };
+    console.log("update image ", query);
     Jimp.read(imageFile.data).then(lenna => {
       lenna
         .resize(200, Jimp.AUTO) // resize
@@ -265,7 +228,8 @@ router.post("/modify", (req, res) => {
           updateobj.imageFilename = filename;
           updateobj.width = lenna.bitmap.width;
           updateobj.height = lenna.bitmap.height;
-          Advertiser.findOneAndUpdate(query, updateobj, options)
+          // Advertiser.findOneAndUpdate(query, updateobj, options)
+          Image.findOneAndUpdate(query, updateobj, options)
             .then(newAd => {
               return res.json(newAd);
             })
@@ -304,45 +268,12 @@ router.post("/modify", (req, res) => {
       })
       .catch(err => console.log(err));
   }
-
   // end this block works
 }); // end of post modify
 
-router.post("/good_register", (req, res) => {
-  const { errors, isValid } = validateRegisterInput(req.body, true);
-
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-
-  Advertiser.findOne({ email: req.body.email }).then(advertiser => {
-    if (advertiser) {
-      errors.email = "Email already exists";
-      return res.status(400).json(errors);
-    } else {
-      const newAdvertiser = new Advertiser({
-        name: req.body.name,
-        email: req.body.email,
-        company: req.body.company,
-        companyId: req.body.companyId,
-        password: req.body.password,
-        role: req.body.role,
-        status: req.body.status
-      });
-
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newAdvertiser.password = hash;
-          newAdvertiser
-            .save()
-            .then(user => res.json(user))
-            .catch(err => console.log(err));
-        });
-      });
-    }
-  });
-});
+//**************************
+// CHANGE STATUS
+//**************************
 
 router.get("/change-advertiser-status/:id/:status", (req, res) => {
   //console.log("in advertisers get change-advertiser-status", req.params);
@@ -353,7 +284,6 @@ router.get("/change-advertiser-status/:id/:status", (req, res) => {
     updatestat = 1;
   }
   let query = { _id: id };
-
   var updateobj = { status: updatestat };
   var options = { new: true };
 
@@ -366,91 +296,39 @@ router.get("/change-advertiser-status/:id/:status", (req, res) => {
     );
 });
 
-router.post("/formbueno_modify", (req, res) => {
-  let checkpw = false;
-  let changepassword = false;
-
-  let formchange = req.body.changePasswordRequest;
-
-  if (formchange === "Yes") {
-    checkpw = true;
-    changepassword = true;
-  }
-
-  console.log("req.body.changePassword", formchange);
-  console.log("changepassword", changepassword);
-  console.log("checkpw", checkpw);
-
-  changepassword = false;
-  checkpw = false;
-
-  let uploadimage = false;
-  let imageFile = null;
-  let filename = "now is the time";
-
-  if (req.files) {
-    uploadimage = true;
-    imageFile = req.files.file;
-    filename = imageFile.name;
-  }
-
-  console.log("uploadimage", uploadimage);
-
-  console.log("filename", filename);
-
-  const { errors, isValid } = validateRegisterInput(req.body, checkpw);
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-  let id = req.body.id;
-  let query = { _id: id };
-  const updateobj = {
-    name: req.body.name,
-    email: req.body.email,
-    company: req.body.company,
-    companyId: req.body.companyId
-  };
-  var options = { new: true };
-
-  if (changepassword) {
-    let tpw = req.body.password;
-    let hpw = "";
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(tpw, salt, (err, hash) => {
-        if (err) {
-          throw err;
-        }
-        hpw = hash;
-        updateobj.password = hpw;
-        Advertiser.findOneAndUpdate(query, updateobj, options)
-          .then(newAd => {
-            res.json(newAd);
-          })
-          .catch(err => console.log(err));
-      });
-    }); // end of salt
-  } else {
-    Advertiser.findOneAndUpdate(query, updateobj, options)
-      .then(newAd => {
-        res.json(newAd);
-      })
-      .catch(err => console.log(err));
-  }
-}); // end of post modify
+//**************************
+// FIND USER AND IMAGE
+//**************************
 
 router.get("/find-user/:id", (req, res) => {
-  //console.log("in advertisers get delete-ad", req.params);
   let id = req.params.id;
   let query = { _id: id };
-  Advertiser.find(query)
-    .then(advertiser => res.json(advertiser))
-    .catch(err => res.status(404).json({ nousersfound: "no ads found" }));
+  let query2 = { ownerid: id, type: "logo" };
+  // console.log("find advertiser query", query);
+  Advertiser.findOne(query)
+    .then(advertiser => {
+      // console.log("here is the found advertiser", advertiser);
+      Image.findOne(query2)
+        .then(img => {
+          let rary = [];
+          rary.push(advertiser);
+          rary.push(img);
+          res.json(rary);
+        })
+        .catch(err => res.status(404).json({ msg: "no1 ads found" }));
+      // .catch(err => res.json({ msg: "no1 ads found" }));
+    })
+    .catch(err => res.status(404).json({ msg: "no2 ads found" }));
+  // .catch(err => res.json({ msg: "no ads2 found" }));
 });
 
 // @route   GET api/users/login
 // @desc    Login User / return jwt token
 // @access  Public
 
+//**************************
+// LOGIN
+//**************************
 router.post("/login", (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
 
@@ -505,6 +383,214 @@ router.post("/login", (req, res) => {
   });
 });
 
+// **********************************************
+// **********************************************
+// here and below are not being used
+// **********************************************
+// **********************************************
+
+router.get("/test", (req, res) => res.json({ msg: "users works" }));
+
+router.get("/", (req, res) => res.json({ msg: "gets all users" }));
+
+// @route   GET api/users/register
+// @desc    Tests users route
+// @access  Public
+
+router.post("/test_register", (req, res) => {
+  //console.log("in user api about to register");
+
+  const newAdvertiser = new Advertiser({
+    name: req.body.name,
+    email: req.body.email,
+    company: req.body.company,
+    password: req.body.password,
+    role: req.body.role,
+    status: req.body.status,
+    imageBuffer: "buf",
+    imageFilename: "what",
+    width: 100,
+    height: 200
+  });
+
+  newAdvertiser
+    .save()
+    .then(user => res.json(user))
+    .catch(err => console.log(err));
+});
+
+router.post("/thisoneworks_register", (req, res) => {
+  //console.log("in user api about to register");
+  const { errors, isValid } = validateRegisterInput(req.body, true);
+  //console.log("request body", req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+  if (!req.files) {
+    let errors = {};
+    errors.noimage = "Please select an image file";
+    return res.status(400).json(errors);
+  }
+  let imageFile = req.files.file;
+
+  let fname = imageFile.name;
+
+  Advertiser.findOne({ email: req.body.email }).then(advertiser => {
+    if (advertiser) {
+      errors.email = "Email already exists";
+      return res.status(400).json(errors);
+    } else {
+      Jimp.read(imageFile.data).then(lenna => {
+        lenna
+          .resize(200, Jimp.AUTO) // resize
+          .quality(80); // set JPEG quality
+
+        lenna.getBufferAsync(Jimp.MIME_JPEG).then(buf => {
+          const newAdvertiser = new Advertiser({
+            name: req.body.name,
+            email: req.body.email,
+            company: req.body.company,
+            password: req.body.password,
+            role: req.body.role,
+            status: req.body.status,
+            imageBuffer: buf,
+            imageFilename: fname,
+            width: lenna.bitmap.width,
+            height: lenna.bitmap.height
+          });
+          bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
+              if (err) throw err;
+              newAdvertiser.password = hash;
+              newAdvertiser
+                .save()
+                .then(user => res.json(user))
+                .catch(err => console.log(err));
+            });
+          });
+        });
+      });
+    }
+  });
+});
+
+// router.post("/good_register", (req, res) => {
+//   const { errors, isValid } = validateRegisterInput(req.body, true);
+
+//   if (!isValid) {
+//     return res.status(400).json(errors);
+//   }
+
+//   Advertiser.findOne({ email: req.body.email }).then(advertiser => {
+//     if (advertiser) {
+//       errors.email = "Email already exists";
+//       return res.status(400).json(errors);
+//     } else {
+//       const newAdvertiser = new Advertiser({
+//         name: req.body.name,
+//         email: req.body.email,
+//         company: req.body.company,
+//         companyId: req.body.companyId,
+//         password: req.body.password,
+//         role: req.body.role,
+//         status: req.body.status
+//       });
+
+//       bcrypt.genSalt(10, (err, salt) => {
+//         bcrypt.hash(newAdvertiser.password, salt, (err, hash) => {
+//           if (err) throw err;
+//           newAdvertiser.password = hash;
+//           newAdvertiser
+//             .save()
+//             .then(user => res.json(user))
+//             .catch(err => console.log(err));
+//         });
+//       });
+//     }
+//   });
+// });
+// router.post("/formbueno_modify", (req, res) => {
+//   let checkpw = false;
+//   let changepassword = false;
+
+//   let formchange = req.body.changePasswordRequest;
+
+//   if (formchange === "Yes") {
+//     checkpw = true;
+//     changepassword = true;
+//   }
+
+//   console.log("req.body.changePassword", formchange);
+//   console.log("changepassword", changepassword);
+//   console.log("checkpw", checkpw);
+
+//   changepassword = false;
+//   checkpw = false;
+
+//   let uploadimage = false;
+//   let imageFile = null;
+//   let filename = "now is the time";
+
+//   if (req.files) {
+//     uploadimage = true;
+//     imageFile = req.files.file;
+//     filename = imageFile.name;
+//   }
+
+//   console.log("uploadimage", uploadimage);
+
+//   console.log("filename", filename);
+
+//   const { errors, isValid } = validateRegisterInput(req.body, checkpw);
+//   if (!isValid) {
+//     return res.status(400).json(errors);
+//   }
+//   let id = req.body.id;
+//   let query = { _id: id };
+//   const updateobj = {
+//     name: req.body.name,
+//     email: req.body.email,
+//     company: req.body.company,
+//     companyId: req.body.companyId
+//   };
+//   var options = { new: true };
+
+//   if (changepassword) {
+//     let tpw = req.body.password;
+//     let hpw = "";
+//     bcrypt.genSalt(10, (err, salt) => {
+//       bcrypt.hash(tpw, salt, (err, hash) => {
+//         if (err) {
+//           throw err;
+//         }
+//         hpw = hash;
+//         updateobj.password = hpw;
+//         Advertiser.findOneAndUpdate(query, updateobj, options)
+//           .then(newAd => {
+//             res.json(newAd);
+//           })
+//           .catch(err => console.log(err));
+//       });
+//     }); // end of salt
+//   } else {
+//     Advertiser.findOneAndUpdate(query, updateobj, options)
+//       .then(newAd => {
+//         res.json(newAd);
+//       })
+//       .catch(err => console.log(err));
+//   }
+// }); // end of post modify
+
+router.get("/xxxfind-user/:id", (req, res) => {
+  //console.log("in advertisers get delete-ad", req.params);
+  let id = req.params.id;
+  let query = { _id: id };
+  Advertiser.find(query)
+    .then(advertiser => res.json(advertiser))
+    .catch(err => res.status(404).json({ nousersfound: "no ads found" }));
+});
+
+// 5be5d1873dc07606f782f44e
 // @route   GET api/users/current
 // @desc    Return current user
 // @access  Private

@@ -1,19 +1,48 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Spinner from "../common/Spinner";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { triggerError } from "../../actions/advertiseActions";
+import { getBusinesses } from "../../actions/advertiseActions";
+import { changeBusinessStatus } from "../../actions/advertiseActions";
+import { deleteBusiness } from "../../actions/advertiseActions";
+import ManagePhotos from "../common/ManagePhotos";
+import isEmpty from "../../validation/is-empty";
 
-class Advertisements extends Component {
+class Businesses extends Component {
   constructor(props) {
     super(props);
-    this.state = {}; //shuttles: ["one", "two", "three"] };
+    // console.log("Businesses props", props);
+    this.state = {
+      businesses: null,
+      errors: null,
+      showPhotos: false,
+      selectedBizid: null,
+      selectedName: null
+    }; //shuttles: ["one", "two", "three"] };
     // this.getAdvertisements = this.getAdvertisements.bind(this);
   }
 
   componentDidMount() {
+    //console.log("component did mount ", this.props);
+    //if (!this.props.advertise.businesses) {
+    //  console.log("component did mount getting businesses");
     this.getBusinesses();
+    //}
+  }
+
+  componentWillReceiveProps(nextProps) {
+    //console.log("register componentWillReceiveProps");
+    //console.log("current props ", this.props);
+    //console.log("nextProps ", nextProps);
+    // if (nextProps.errors) {
+    //   this.setState({ errors: nextProps.errors });
+    //   // setState triggers a render
+    // }
   }
 
   logConsole() {
@@ -21,6 +50,12 @@ class Advertisements extends Component {
   }
 
   getBusinesses() {
+    let userrole = this.props.auth.user.role;
+    let userid = this.props.auth.user.id;
+    this.props.getBusinesses(userrole, userid, this.props.history);
+  }
+
+  XgetBusinesses() {
     let userrole = this.props.auth.user.role;
     let userid = this.props.auth.user.id;
     let status = this.props.auth.user.status;
@@ -39,44 +74,144 @@ class Advertisements extends Component {
           //this.logConsole();
           // console.log(res.data);
         })
-        .catch(err => console.log(err.response.data));
+        .catch(err => {
+          //console.log(err.response.data);
+          let errors = {};
+          errors.errormsg = "Problem Getting Businesses";
+          this.setState({ errors: errors });
+        });
     }
   }
 
   deleteBusiness(adid) {
-    // let link = `/api/advertise/delete-advertiser/${adid}`;
-    let link = `/api/business/delete-business/${adid}`;
-    //console.log(link);
+    // // let link = `/api/advertise/delete-advertiser/${adid}`;
+    // let link = `/api/business/delete-business/${adid}`;
+    // //console.log(link);
+    // axios
+    //   .get(link)
+    //   .then(res => {
+    //     let oid = adid;
+    //     let newary = [];
+    //     let curbus = this.state.businesses;
+    //     curbus.forEach(a => {
+    //       a._id == oid ? null : newary.push(a);
+    //     });
+    //     this.setState({ businesses: newary });
+    //   })
+    //   .catch(err => {
+    //     let errors = {};
+    //     errors.errormsg = "Problem Deleting Business";
+    //     this.setState({ errors: errors });
+    //   });
+
+    this.props.deleteBusiness(adid);
+  }
+
+  managePhotos(bizid, name) {
+    //console.log("managePhotos for id ", bizid);
+    let cursid = this.state.selectedBizid;
+    if (cursid === null || cursid !== bizid) {
+      return this.setState({
+        showPhotos: true,
+        selectedBizid: bizid,
+        selectedName: name
+      });
+    }
+    if (cursid === bizid) {
+      return this.setState({
+        showPhotos: false,
+        selectedBizid: null,
+        selectedName: name
+      });
+    }
+
+    // this.setState({
+    //   showPhotos: true,
+    //   selectedBizid: bizid,
+    //   selectedName: name
+    // });
+  }
+
+  triggerError() {
+    this.props.triggerError();
+  }
+
+  triggerError2() {
+    axios
+      .get("/api/business/trigger_error2")
+      .then(res => {
+        // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
+        console.log("response trig 2", res);
+      })
+      // thunk lets us do a dispatch
+      // .then(res => console.log(res.data))
+      .catch(err => {
+        console.log("triggering error in actions", err.message);
+
+        let errors = {};
+        errors.errormsg = "we have a major problem";
+        console.log("return errors", errors);
+        this.setState({ errors: errors });
+      });
+  }
+
+  trigger2(id) {
+    axios
+      .get("/api/business/dojoin")
+      .then(res => {
+        // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
+        console.log("response trig 2", res.data);
+      })
+      // thunk lets us do a dispatch
+      // .then(res => console.log(res.data))
+      .catch(err => {
+        console.log("triggering error in actions", err.message);
+
+        let errors = {};
+        errors.errormsg = "we have a major problem";
+        console.log("return errors", errors);
+        this.setState({ errors: errors });
+      });
+  }
+
+  doJoin(bizid, ownerid) {
+    let link = `/api/business/dojoin/${bizid}/${ownerid}`;
+    console.log("do join link", link);
     axios
       .get(link)
       .then(res => {
-        let oid = adid;
-        let newary = [];
-        let curbus = this.state.businesses;
-        curbus.forEach(a => {
-          a._id == oid ? null : newary.push(a);
-        });
-        this.setState({ businesses: newary });
+        // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
+        console.log("do join ", res.data);
       })
-      .catch(err => console.log("error"));
+      // thunk lets us do a dispatch
+      // .then(res => console.log(res.data))
+      .catch(err => {
+        console.log("triggering error in actions", err.message);
+
+        let errors = {};
+        errors.errormsg = "we have a major problem";
+        console.log("return errors", errors);
+        this.setState({ errors: errors });
+      });
   }
 
   changeBusinessStatus = (adid, status) => {
-    let link = `/api/business/change-business-status/${adid}/${status}`;
-    axios
-      .get(link)
-      .then(res => {
-        let business = res.data;
-        //console.log("the updated business is ", sa);
-        let businesses = this.state.businesses;
-        businesses.map((target, index) => {
-          if (target._id == business._id) {
-            target.status = business.status;
-          }
-        });
-        this.setState({ businesses: businesses });
-      })
-      .catch(err => console.log("error"));
+    // let link = `/api/business/change-business-status/${adid}/${status}`;
+    // axios
+    //   .get(link)
+    //   .then(res => {
+    //     let business = res.data;
+    //     //console.log("the updated business is ", sa);
+    //     let businesses = this.state.businesses;
+    //     businesses.map((target, index) => {
+    //       if (target._id == business._id) {
+    //         target.status = business.status;
+    //       }
+    //     });
+    //     this.setState({ businesses: businesses });
+    //   })
+    //   .catch(err => console.log("error"));
+    this.props.changeBusinessStatus(adid, status);
   };
 
   showModifyBusiness(adid) {
@@ -94,13 +229,24 @@ class Advertisements extends Component {
   }
 
   render() {
-    if (this.props.auth.user.status == "0") {
-      return <div>User is not authorized to view or create businesss</div>;
-      // return <Spinner />;
-    }
-    if (!this.state.businesses) {
-      // return <div>Loading...</div>;
-      return <Spinner />;
+    //const { errors } = this.props;
+    // console.log("rendering businesses state", this.state);
+    // console.log("rendering businesses props", this.props.advertise.businesses);
+
+    const { errors } = this.props;
+    // console.log("businesses render", errors);
+    const { businesses } = this.props.advertise;
+
+    // if (!this.state.businesses) {
+    //   return <Spinner />;
+    // }
+
+    //let businesses = this.state.businesses;
+    let selectedBizid = this.state.selectedBizid;
+    let selectedName = this.state.selectedName;
+    let errormsg = "";
+    if (!isEmpty(errors)) {
+      errormsg = errors.message;
     }
 
     return (
@@ -115,12 +261,13 @@ class Advertisements extends Component {
               <th>Description</th>
               <th>Address</th>
               <th>City</th>
+              <th>Email</th>
               <th>Status</th>
               <th>&nbsp;</th>
             </tr>
           </thead>
           <tbody>
-            {this.state.businesses.map((business, index) => (
+            {businesses.map((business, index) => (
               //link = `/delete-ad/${business._id}`
               <tr key={business._id}>
                 {/* <td>{business._id}</td> */}
@@ -129,26 +276,18 @@ class Advertisements extends Component {
                 <td>{business.description}</td>
                 <td>{business.address}</td>
                 <td>{business.city}</td>
+                <td>{business.email}</td>
                 <td>{business.status}</td>
                 <td>
-                  {/* <Link
-                    to={`/delete-ad/${business._id}`}
+                  <a
+                    href="#"
                     onClick={() => {
-                      this.deleteAd(business._id);
+                      this.managePhotos(business._id, business.name);
                     }}
-                  > 
-                  <span
-                      style={{
-                        textDecoration: "underline",
-                        cursor: "pointer"
-                      }}
-                    >
-                      delete
-                    </span>
-                
-                 </Link> 
-                
-                */}
+                  >
+                    photos
+                  </a>
+                  &nbsp;
                   <a
                     href="#"
                     onClick={() => {
@@ -175,15 +314,55 @@ class Advertisements extends Component {
                   >
                     delete
                   </a>
+                  &nbsp;
+                  <a
+                    href="#"
+                    onClick={() => {
+                      this.doJoin(business._id, business.ownerid);
+                    }}
+                  >
+                    join
+                  </a>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        {!isEmpty(errors) ? (
+          <div className="message-display">{errors.message}</div>
+        ) : (
+          <div />
+        )}
+        <a
+          href="#"
+          onClick={() => {
+            this.triggerError();
+          }}
+        >
+          trigger
+        </a>
+        <a
+          href="#"
+          onClick={() => {
+            this.trigger2();
+          }}
+        >
+          trigger2
+        </a>
+
+        <br />
         {this.props.auth.user.role == "" ? (
           <Link to="/newbusiness" className="btn btn-lg btn-info mr-2">
             New Business
           </Link>
+        ) : (
+          <div />
+        )}
+        {this.state.showPhotos ? (
+          <ManagePhotos
+            selectedBizid={selectedBizid}
+            selectedName={selectedName}
+          />
         ) : (
           <div />
         )}
@@ -192,15 +371,27 @@ class Advertisements extends Component {
   }
 }
 
+Businesses.propTypes = {
+  getBusinesses: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+  advertise: PropTypes.object.isRequired
+};
+
 //export default withRouter(Advertisements);
 const mapStateToProps = state => ({
   auth: state.auth,
-  errors: state.errors
+  errors: state.errors,
+  advertise: state.advertise
 });
+
+// function mapDispatchToProps(dispatch) {
+//   return bindActionCreators({ getBusinesses }, dispatch);
+// }
 
 export default connect(
   mapStateToProps,
-  {}
-)(withRouter(Advertisements));
+  { getBusinesses, changeBusinessStatus, deleteBusiness, triggerError }
+)(withRouter(Businesses));
 
 //Advertisements;

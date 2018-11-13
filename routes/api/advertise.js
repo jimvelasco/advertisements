@@ -5,14 +5,28 @@ const router = express.Router();
 // const Trip = require("../../models/Trip");
 const Advertiser = require("../../models/Advertiser");
 const Advertisement = require("../../models/Advertisement");
+const Image = require("../../models/Image");
 
 const validateAdvertisementInput = require("../../validation/advertisement");
+
+router.get("/get-images/:id", (req, res) => {
+  let id = req.params.id;
+  let query = { ownerid: id, type: "logo" };
+  Image.findOne(query)
+    .then(data => {
+      // dispatch({ type: SET_CURRENT_ADVERTISEMENTs, payload: advertisements });
+      res.json(data);
+    })
+    .catch(err => res.status(404).json({ nousersfound: "No shuttle found" }));
+});
+
+// USED BY ADMIN TO GET LIST OF ALL ADVERTISERS
 
 router.get("/advertisers", (req, res) => {
   // console.log("getting advertisers");
   Advertiser.find()
     .then(advertisers => res.json(advertisers))
-    .catch(err => res.status(404).json({ nousersfound: "No shuttle found" }));
+    .catch(err => res.status(404).json({ message: "No Advertisers Found" }));
 });
 
 router.get("/advertisements", (req, res) => {

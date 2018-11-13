@@ -18,7 +18,8 @@ class AdverDetails extends Component {
     super(props);
     // console.log("AdverDeails props", props);
     this.state = {
-      selectedAdvertiser: props.selectedAdvertiser
+      selectedAdvertiser: props.selectedAdvertiser,
+      images: null
     };
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -33,41 +34,73 @@ class AdverDetails extends Component {
   //   this.props.passedFunction(sa);
   // }
 
-  changeStatus(adid, status) {
-    //  console.log("changeStatus", adid);
-    // this.props.passedFunction();
+  // changeStatus(adid, status) {
+  //   //  console.log("changeStatus", adid);
+  //   // this.props.passedFunction();
 
-    let link = `/api/advertise/change-advertiser-status/${adid}/${status}`;
+  //   let link = `/api/advertise/change-advertiser-status/${adid}/${status}`;
+  //   axios
+  //     .get(link)
+  //     .then(res => {
+  //       let sa = res.data;
+  //       this.setState({ selectedAdvertiser: sa });
+  //       this.props.passedFunction(sa);
+  //     })
+  //     .catch(err => console.log("error"));
+  // }
+
+  componentDidMount() {
+    //console.log("Component did mount **********");
+    console.log("adverdetails", this.props);
+    let sa = this.props.selectedAdvertiser;
+    let said = sa._id;
+    this.getImage(said);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    //console.log("adverdetails current props ", this.props);
+    //console.log("adverdetails nextProps ", nextProps);
+    if (this.props.selectedAdvertiser._id != nextProps.selectedAdvertiser._id) {
+      //this.props.getBusinessPhotos(nextProps.selectedBizid);
+      //console.log("we have to get next props images");
+      this.getImage(nextProps.selectedAdvertiser._id);
+      // console.log("WE NEED TO REFRSH THE SCREEN WITH STATE OR SOMETHING");
+      // console.log("this props ", this.props.advertise.images.length);
+      // console.log("next props ", nextProps.advertise.images.length);
+    }
+  }
+
+  getImage(id) {
+    // console.log("getImage", id);
+    let link = `/api/advertise/get-images/${id}`;
     axios
       .get(link)
       .then(res => {
-        let sa = res.data;
-        this.setState({ selectedAdvertiser: sa });
-        this.props.passedFunction(sa);
+        let img = res.data;
+        this.setState({ image: img });
+        // console.log(img);
       })
       .catch(err => console.log("error"));
   }
 
-  componentDidMount() {
-    //console.log("Component did mount **********");
-    console.log(this.props);
-  }
-
   // if we have errors this will run
-  componentWillReceiveProps(nextProps) {
-    // console.log("Component will receive **********");
-    // console.log(this.props);
-    // console.log("**********");
-    // console.log(nextProps);
-    // console.log("**********");
-    this.props.selectedAdvertiser._id !== nextProps.selectedAdvertiser._id
-      ? this.setState({ selectedAdvertiser: nextProps.selectedAdvertiser })
-      : null;
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   // console.log("Component will receive **********");
+  //   // console.log(this.props);
+  //   // console.log("**********");
+  //   // console.log(nextProps);
+  //   // console.log("**********");
+  //   this.props.selectedAdvertiser._id !== nextProps.selectedAdvertiser._id
+  //     ? this.setState({ selectedAdvertiser: nextProps.selectedAdvertiser })
+  //     : null;
+  // }
 
   render() {
     // const { errors } = this.state;
-    const advertiser = this.state.selectedAdvertiser;
+    const advertiser = this.props.selectedAdvertiser;
+    const img = this.state.image;
+    let showimage = false;
+    if (img) showimage = true;
     // same as const errors = this.state.errors
 
     // this was used to show user from props
@@ -84,7 +117,6 @@ class AdverDetails extends Component {
               <thead className="thead-light">
                 <tr>
                   <th>_id</th>
-                  <th>ID</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Company</th>
@@ -96,31 +128,34 @@ class AdverDetails extends Component {
               <tbody>
                 <tr key={advertiser._id}>
                   <td>{advertiser._id}</td>
-                  <td>{advertiser.companyId}</td>
                   <td>{advertiser.name}</td>
                   <td>{advertiser.email}</td>
                   <td>{advertiser.company}</td>
                   <td>{advertiser.role}</td>
                   <td>{advertiser.status}</td>
                   <td>
-                    <a
+                    {/* <a
                       href="#"
                       onClick={() => {
                         this.changeStatus(advertiser._id, advertiser.status);
                       }}
                     >
                       change
-                    </a>
+                    </a> */}
                   </td>
                 </tr>
               </tbody>
             </table>
-            <ImageDisplay
-              buf={advertiser.imageBuffer}
-              width={advertiser.width}
-              height={advertiser.height}
-              filename={advertiser.imageFilename}
-            />
+            {showimage ? (
+              <ImageDisplay
+                buf={img.imageBuffer}
+                width={img.width}
+                height={img.height}
+                filename={img.imageFilename}
+              />
+            ) : (
+              <div />
+            )}
           </div>
         </div>
       </div>
@@ -142,7 +177,7 @@ class AdverDetails extends Component {
 const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors,
-  selectedAdvisor: state.selectedAdvertiser
+  advertise: state.advertise
 });
 // the state.auth above comes from rootReducer in index.js in reducers.
 

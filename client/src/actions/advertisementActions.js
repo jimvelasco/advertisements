@@ -35,6 +35,24 @@ export const modifyBusiness = (advertisementData, history) => dispatch => {
     );
 };
 
+export const triggerError = () => dispatch => {
+  //console.log("modify advertisement in actions ", advertisementData);
+  axios
+    .get("/api/business/trigger_error")
+    .then(res => {
+      // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
+    })
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err => {
+      console.log("triggering error in actions");
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      });
+    });
+};
+
 export const createAdvertisement = (advertisementData, history) => dispatch => {
   axios
     .post("/api/advertise/createAdvertisement", advertisementData)

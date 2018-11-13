@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import Spinner from "../common/Spinner";
 import AdverDetails from "./AdverDetails";
+import { getAdvertisers } from "../../actions/advertiseActions";
+import { changeAdvertiserStatus } from "../../actions/advertiseActions";
 
 class Advertisers extends Component {
   constructor(props) {
@@ -18,7 +20,7 @@ class Advertisers extends Component {
 
   componentDidMount() {
     // console.log("thumbs did mount");
-    this.getAdvertisers();
+    //this.getAdvertisers();
     // axios
     //   .get("/api/advertise/advertisers")
     //   // .then(res => console.log(res.data))
@@ -26,14 +28,15 @@ class Advertisers extends Component {
     //   .then(res => this.setState({ advertisers: res.data }))
     //   .catch(err => console.log(err.response.data)); // to get actual errors from backend
     // this.setState({ shuttles: ["one", "two", "three"] });
+    this.props.getAdvertisers();
   }
 
-  getAdvertisers() {
-    axios
-      .get("/api/advertise/advertisers")
-      .then(res => this.setState({ advertisers: res.data }))
-      .catch(err => console.log(err.response.data)); // to get actual errors from backend
-  }
+  // getAdvertisers() {
+  //   axios
+  //     .get("/api/advertise/advertisers")
+  //     .then(res => this.setState({ advertisers: res.data }))
+  //     .catch(err => console.log(err.response.data)); // to get actual errors from backend
+  // }
 
   // good_deleteAdvertiser(adid) {
   //   let link = `/api/advertise/delete-advertiser/${adid}`;
@@ -65,6 +68,10 @@ class Advertisers extends Component {
       })
       .catch(err => console.log("error"));
   }
+
+  changeAdvertiserStatus = (adid, status) => {
+    this.props.changeAdvertiserStatus(adid, status);
+  };
 
   detailsAdvertiser(advertiser) {
     let cursid = this.state.selectedId;
@@ -102,20 +109,20 @@ class Advertisers extends Component {
   //     .catch(err => console.log("error"));
   // }
 
-  passedFunction = advertiser => {
-    // console.log("we hit passed function", advertiser);
-    // console.log("we hit passed function state", this.state);
-    //this.getAdvertisers();
-    let advertisers = this.state.advertisers;
-    // console.log("pif current advertisers", advertisers);
-    advertisers.map((target, index) => {
-      if (target._id == advertiser._id) {
-        target.status = advertiser.status;
-      }
-    });
-    // console.log("pif updated advertisers", advertisers);
-    this.setState({ advertisers: advertisers });
-  };
+  // passedFunction = advertiser => {
+  //   // console.log("we hit passed function", advertiser);
+  //   // console.log("we hit passed function state", this.state);
+  //   //this.getAdvertisers();
+  //   let advertisers = this.state.advertisers;
+  //   // console.log("pif current advertisers", advertisers);
+  //   advertisers.map((target, index) => {
+  //     if (target._id == advertiser._id) {
+  //       target.status = advertiser.status;
+  //     }
+  //   });
+  //   // console.log("pif updated advertisers", advertisers);
+  //   this.setState({ advertisers: advertisers });
+  // };
 
   render() {
     if (!this.state.advertisers) {
@@ -129,6 +136,10 @@ class Advertisers extends Component {
     if (selectedAdvertiser) {
       showdetails = true;
     }
+
+    const { errors } = this.props;
+    // console.log("businesses render", errors);
+    const { advertisers } = this.props.advertise;
 
     return (
       <div className="container">
@@ -146,7 +157,7 @@ class Advertisers extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.advertisers.map((advertiser, index) => (
+            {advertisers.map((advertiser, index) => (
               <tr key={advertiser._id}>
                 <td>{advertiser._id}</td>
                 <td>{advertiser.name}</td>
@@ -167,6 +178,18 @@ class Advertisers extends Component {
                   <a
                     href="#"
                     onClick={() => {
+                      this.changeAdvertiserStatus(
+                        advertiser._id,
+                        advertiser.status
+                      );
+                    }}
+                  >
+                    change
+                  </a>
+                  &nbsp;
+                  <a
+                    href="#"
+                    onClick={() => {
                       this.deleteAdvertiser(advertiser._id);
                     }}
                   >
@@ -179,10 +202,7 @@ class Advertisers extends Component {
         </table>
 
         {showdetails ? (
-          <AdverDetails
-            selectedAdvertiser={selectedAdvertiser}
-            passedFunction={this.passedFunction}
-          />
+          <AdverDetails selectedAdvertiser={selectedAdvertiser} />
         ) : (
           <div />
         )}
@@ -191,15 +211,17 @@ class Advertisers extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
-//   auth: state.auth,
-//   errors: state.errors,
-//   selectedAdvisor: state.selectedAdvertiser
-// });
+const mapStateToProps = state => ({
+  auth: state.auth,
+  errors: state.errors,
+  advertise: state.advertise
+});
 
-// export default connect(
-//   mapStateToProps,
-//   null
-// )(withRouter(Advertisers));
+export default connect(
+  mapStateToProps,
+  { getAdvertisers, changeAdvertiserStatus }
+)(withRouter(Advertisers));
 
-export default Advertisers;
+//export default Advertisers;
+
+// passedFunction={this.passedFunction}
