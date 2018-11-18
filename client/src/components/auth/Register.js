@@ -46,7 +46,9 @@ class Register extends Component {
     //   this.props.history.push("/dashboard");
     // }
 
-    const id = this.props.match.params.id;
+    const id = this.props.auth.user.id; //this.props.match.params.id;
+
+    console.log("Register cdm id ", id);
     if (id) {
       let link = `/api/users/find-user/${id}`;
       // console.log("component did mount", link);
@@ -175,6 +177,7 @@ class Register extends Component {
 
   render() {
     const { errors } = this.state;
+    const perrors = this.props.errors;
     // same as const errors = this.state.errors
 
     // this was used to show user from props
@@ -310,6 +313,9 @@ class Register extends Component {
 
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>
+              {perrors && (
+                <div className="error-display">{perrors.message}</div>
+              )}
             </div>
           </div>
         </div>
@@ -332,7 +338,8 @@ Register.propTypes = {
 // since we mapped error, we can use componentWillReceiveProps method
 const mapStateToProps = state => ({
   auth: state.auth,
-  errors: state.errors
+  errors: state.errors,
+  advertise: state.advertise
 });
 // the state.auth above comes from rootReducer in index.js in reducers.
 

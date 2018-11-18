@@ -1,16 +1,21 @@
 import {
-  SET_CURRENT_ADVERTISEMENTS,
-  SET_CURRENT_ADVERTISEMENT,
+  SET_ADVERTISERS,
+  CHANGE_ADVERTISER_STATUS,
+  REMOVE_ADVERTISER,
+  SET_BUSINESS,
   SET_BUSINESSES,
-  SET_IMAGES,
-  SET_NEW_IMAGE,
-  REMOVE_IMAGE,
   CHANGE_BUSINESS_STATUS,
   REMOVE_BUSINESS,
   CREATE_BUSINESS,
-  SET_ADVERTISERS,
-  CHANGE_ADVERTISER_STATUS,
-  REMOVE_ADVERTISER
+  SET_CURRENT_ADVERTISEMENTS,
+  SET_CURRENT_ADVERTISEMENT,
+  REMOVE_ADVERTISEMENT,
+  CREATE_ADVERTISEMENT,
+  MODIFY_ADVERTISEMENT,
+  CHANGE_ADVERTISEMENT_STATUS,
+  SET_IMAGES,
+  SET_NEW_IMAGE,
+  REMOVE_IMAGE
 } from "../actions/types";
 
 // import { TEST_DISPATCH } from "../actions/types";
@@ -19,61 +24,75 @@ const initialState = {
   advertisements: [],
   advertisers: [],
   businesses: [],
+  business: {},
   images: [],
   image: {},
-  advertisement: {}
+  advertisement: { image: {} }
 };
-
+// let bizid = "";
+// let workid = "";
+// let workobj = {};
 export default function(state = initialState, action) {
   // console.log("adverreducer ", action.type);
   // console.log("adverreducer ", action.payload);
   let bizid = "";
   let workid = "";
+  let status = 0;
+  let updatestatus = 0;
+  let workary = [];
   switch (action.type) {
-    case SET_CURRENT_ADVERTISEMENTS:
+    // *************************
+    // ADVERTISER
+    // *************************
+
+    case SET_ADVERTISERS:
       return {
         ...state,
-        advertisements: action.payload
-      };
-    case SET_CURRENT_ADVERTISEMENT:
-      //console.log("SET_CURRENT_ADVERTISEMENT", action.payload);
-      return {
-        ...state,
-        advertisement: action.payload
+        advertisers: action.payload
       };
 
+    case REMOVE_ADVERTISER:
+      workid = action.payload;
+      return {
+        ...state,
+        advertisers: state.advertisers.filter(item => item._id !== workid),
+        businesses: state.businesses.filter(item => item._id !== workid),
+        images: state.images.filter(item => item._id !== workid)
+      };
+
+    case CHANGE_ADVERTISER_STATUS:
+      let advers = state.advertisers;
+      workid = action.payload.adid;
+      let astatus = action.payload.status;
+      let aupstatus = 0;
+      if (astatus == 0) {
+        aupstatus = 1;
+      }
+      advers.map((biz, index) => {
+        if (biz._id == workid) {
+          biz.status = aupstatus;
+        }
+      });
+      return {
+        ...state,
+        advertisers: advers
+      };
+
+    // *************************
+    // BUSINESSES
+    // *************************
+
     case SET_BUSINESSES:
-      // console.log("action set business cur state", state);
-      // let newstate =  {...state,action.payload};
-      // const newState = Object.assign({}, state, { businesses: action.payload });
-      // console.log("new state is", newState);
-      // return newState;
       return {
         ...state,
         businesses: action.payload
       };
-    case SET_IMAGES:
-      return {
-        ...state,
-        images: action.payload
-      };
-    case REMOVE_IMAGE:
-      workid = action.payload;
-      // let cimages = state.images;
-      // let rary = cimages.filter(item => item._id !== pid);
 
+    case SET_BUSINESS:
       return {
         ...state,
-        images: state.images.filter(item => item._id !== workid)
-      };
-    case SET_NEW_IMAGE:
-      let curimages = state.images;
-      curimages.push(action.payload);
-
-      return {
-        ...state,
-        image: action.payload,
-        images: curimages
+        business: action.payload[0],
+        image: action.payload[1]
       };
 
     case CHANGE_BUSINESS_STATUS:
@@ -87,10 +106,7 @@ export default function(state = initialState, action) {
       //console.log("incoming payload", action.payload);
       bizs.map((biz, index) => {
         if (biz._id == workid) {
-          // console.log("we found a hit for ", bizid);
-          // console.log("before status", biz.status);
           biz.status = upstatus;
-          //console.log("after status", biz.status);
         }
       });
       return {
@@ -98,37 +114,11 @@ export default function(state = initialState, action) {
         businesses: bizs
       };
 
-    case CHANGE_ADVERTISER_STATUS:
-      let advers = state.advertisers;
-      workid = action.payload.adid;
-      let astatus = action.payload.status;
-      let aupstatus = 0;
-      if (astatus == 0) {
-        aupstatus = 1;
-      }
-      //console.log("incoming payload", action.payload);
-      advers.map((biz, index) => {
-        if (biz._id == workid) {
-          // console.log("we found a hit for ", bizid);
-          // console.log("before status", biz.status);
-          biz.status = aupstatus;
-          //console.log("after status", biz.status);
-        }
-      });
-
-      return {
-        ...state,
-        advertisers: advers
-      };
-
     case REMOVE_BUSINESS:
       workid = action.payload;
-      // let cimages = state.images;
-      // let rary = cimages.filter(item => item._id !== pid);
-
       return {
         ...state,
-        images: state.images.filter(item => item.ownerid !== workid),
+        images: state.images.filter(item => item.businessId !== workid),
         businesses: state.businesses.filter(item => item._id !== workid)
       };
 
@@ -138,31 +128,149 @@ export default function(state = initialState, action) {
       let stateimages = state.images;
       curbizes.push(workobj.business);
       stateimages.push(workobj.image);
-
-      // let cimages = state.images;
-      // let rary = cimages.filter(item => item._id !== pid);
-
       return {
         ...state,
         images: stateimages,
         businesses: curbizes
       };
 
-    case SET_ADVERTISERS:
+    case SET_CURRENT_ADVERTISEMENTS:
       return {
         ...state,
-        advertisers: action.payload
+        advertisements: action.payload
       };
 
-    case REMOVE_ADVERTISER:
+    // *************************
+    // ADVERTISEMENTS
+    // *************************
+
+    case SET_CURRENT_ADVERTISEMENT:
       workid = action.payload;
-      // let cimages = state.images;
-      // let rary = cimages.filter(item => item._id !== pid);
+      // console.log("SET_CURRENT_ADVERTISEMENT workid", workid);
+      workary = state.advertisements;
+      let target = null;
+      workary.map((ad, index) => {
+        if (ad._id == workid) {
+          target = ad;
+        }
+      });
+      return {
+        ...state,
+        advertisement: target
+      };
+
+    case CREATE_ADVERTISEMENT:
+      workobj = action.payload;
+      let acurads = state.advertisements;
+      let astateimages = state.images;
+
+      let combined = workobj.ad;
+      combined.image = workobj.image;
+
+      acurads.push(combined);
+      astateimages.push(workobj.image);
+      return {
+        ...state,
+        //images: astateimages,
+        advertisements: acurads
+      };
+
+    case REMOVE_ADVERTISEMENT:
+      bizid = action.payload;
+      return {
+        ...state,
+        advertisements: state.advertisements.filter(item => item._id !== bizid)
+      };
+
+    case CHANGE_ADVERTISEMENT_STATUS:
+      workary = state.advertisements;
+      workid = action.payload.adid;
+      status = action.payload.status;
+      //upstatus = 0;
+      if (status == 0) {
+        updatestatus = 1;
+      }
+      workary.map((biz, index) => {
+        if (biz._id == workid) {
+          biz.status = updatestatus;
+        }
+      });
+      return {
+        ...state,
+        advertisements: workary
+      };
+
+    case MODIFY_ADVERTISEMENT:
+      // console.log("MODIFY_ADVERTISEMENT incoming payload", action.payload);
+      workary = state.advertisements;
+      let modobj = action.payload;
+      let adobj = modobj.ad;
+      let imgobj = modobj.img;
+      workid = adobj._id;
+      let wehaveimage = false;
+
+      let imgary = state.images;
+      if (imgobj) {
+        wehaveimage = true;
+        //console.log("we are doing something with image");
+        // imgary.map((img, index) => {
+        //   if (img.advertisementId === workid) {
+        //     imgary[index] = imgobj;
+        //   }
+        // });
+      } else {
+        //console.log("we are not doing anything with image");
+      }
+
+      // console.log("we have image is ", wehaveimage);
+      // console.log("workarybefore", workary);
+
+      workary.map((biz, index) => {
+        if (biz._id === workid) {
+          if (wehaveimage) {
+            adobj.image = imgobj;
+          } else {
+            adobj.image = biz.image;
+          }
+          workary[index] = adobj;
+        }
+      });
+      // console.log("workaryafter", workary);
 
       return {
         ...state,
-        advertisers: state.advertisers.filter(item => item._id !== workid)
+        advertisements: workary,
+        advertisement: adobj
+        // images: imgary
       };
+
+    // *************************
+    // IMAGES
+    // *************************
+
+    case SET_IMAGES:
+      return {
+        ...state,
+        images: action.payload
+      };
+
+    case REMOVE_IMAGE:
+      workid = action.payload;
+      return {
+        ...state,
+        images: state.images.filter(item => item._id !== workid)
+      };
+
+    case SET_NEW_IMAGE:
+      let curimages = state.images;
+      curimages.push(action.payload);
+
+      return {
+        ...state,
+        image: action.payload,
+        images: curimages
+      };
+
     // case TEST_DISPATCH:
     //   console.log("we are in authreducer " + action.type);
     //   return {

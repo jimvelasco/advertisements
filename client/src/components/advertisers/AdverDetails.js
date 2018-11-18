@@ -54,7 +54,7 @@ class AdverDetails extends Component {
     console.log("adverdetails", this.props);
     let sa = this.props.selectedAdvertiser;
     let said = sa._id;
-    this.getImage(said);
+    // this.getImage(said);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -63,7 +63,7 @@ class AdverDetails extends Component {
     if (this.props.selectedAdvertiser._id != nextProps.selectedAdvertiser._id) {
       //this.props.getBusinessPhotos(nextProps.selectedBizid);
       //console.log("we have to get next props images");
-      this.getImage(nextProps.selectedAdvertiser._id);
+      // this.getImage(nextProps.selectedAdvertiser._id);
       // console.log("WE NEED TO REFRSH THE SCREEN WITH STATE OR SOMETHING");
       // console.log("this props ", this.props.advertise.images.length);
       // console.log("next props ", nextProps.advertise.images.length);
@@ -71,7 +71,7 @@ class AdverDetails extends Component {
   }
 
   getImage(id) {
-    // console.log("getImage", id);
+    console.log("getImage", id);
     let link = `/api/advertise/get-images/${id}`;
     axios
       .get(link)

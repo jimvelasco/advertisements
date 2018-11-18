@@ -15,11 +15,17 @@ import jwt_decode from "jwt-decode";
 //   };
 //};
 
-import { GET_ERRORS, SET_CURRENT_USER } from "./types";
+import {
+  GET_ERRORS,
+  SET_CURRENT_USER,
+  SET_STATUS_MESSAGE,
+  CLEAR_ERRORS
+} from "./types";
 
 // Register User
 // we passed in the history for Register component so now we can redirect
 export const registerUser = (userData, history) => dispatch => {
+  dispatch({ type: CLEAR_ERRORS });
   axios
     .post("/api/users/register", userData)
     .then(res => history.push("/login"))
@@ -34,6 +40,7 @@ export const registerUser = (userData, history) => dispatch => {
 };
 
 export const registerAdvertiser = (advertiserData, history) => dispatch => {
+  dispatch({ type: CLEAR_ERRORS });
   axios
     .post("/api/users/register", advertiserData)
     .then(res => history.push("/login"))
@@ -49,12 +56,18 @@ export const registerAdvertiser = (advertiserData, history) => dispatch => {
 
 export const modifyAdvertiser = (advertiserData, history) => dispatch => {
   // console.log("we are in modifyAdvertiser in authActions", advertiserData);
+  dispatch({ type: CLEAR_ERRORS });
   axios
     .post("/api/users/modify", advertiserData)
     .then(advertiser => {
       //console.log("modify user response data", advertiser);
       //return res.json(advertiser);
+
       dispatch(logoutUser());
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Account Update Successfull.  Please Login." }
+      });
       //.then(advertiser => res.json(advertiser))
     })
     // thunk lets us do a dispatch
@@ -70,6 +83,7 @@ export const modifyAdvertiser = (advertiserData, history) => dispatch => {
 
 // Login - Get User Token
 export const loginUser = userData => dispatch => {
+  dispatch({ type: CLEAR_ERRORS });
   axios
     .post("/api/users/login", userData)
     .then(res => {

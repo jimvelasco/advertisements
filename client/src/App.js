@@ -1,9 +1,11 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 // we need these so app remembers if person is logged on
 import jwt_decode from "jwt-decode";
 import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./actions/authActions";
+//import { clearErrors } from "./actions/advertiseActions";
 
 import { Provider } from "react-redux";
 import store from "./store";
@@ -13,7 +15,9 @@ import Test from "./components/Test";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Landing from "./components/layout/Landing";
-import Shuttles from "./components/shuttles/Shuttles";
+import StatusMessage from "./components/common/StatusMessage";
+import TestLinks from "./components/common/TestLinks";
+//import Shuttles from "./components/shuttles/Shuttles";
 import Advertisers from "./components/advertisers/Advertisers";
 
 import Advertisements from "./components/advertisements/Advertisements";
@@ -44,6 +48,7 @@ if (localStorage.jwtToken) {
 
   // Check for expired token
   const currentTime = Date.now() / 1000;
+  //console.log("current time ", currentTime);
   if (decoded.exp < currentTime) {
     // Logout user
     store.dispatch(logoutUser());
@@ -53,6 +58,8 @@ if (localStorage.jwtToken) {
     window.location.href = "/login";
   }
 }
+// console.log("about to call clear errors");
+// store.dispatch(clearErrors());
 // we need to wrap privateroutes in switch because pr has a redirect in it.
 class App extends Component {
   render() {
@@ -61,8 +68,12 @@ class App extends Component {
         <Router>
           <div className="App">
             <Navbar />
+            <StatusMessage />
+            {/* <TestLinks /> */}
+
             <Route exact path="/" component={Landing} />
             <div className="container">
+              {/* <h3>status message</h3> */}
               <Route exact path="/test" component={Test} />
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
@@ -109,4 +120,14 @@ class App extends Component {
   }
 }
 
+// const mapStateToProps = state => ({
+//   auth: state.auth,
+//   errors: state.errors,
+//   advertise: state.advertise
+// });
+
+// export default connect(
+//   mapStateToProps,
+//   {}
+// )(App);
 export default App;

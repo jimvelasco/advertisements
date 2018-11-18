@@ -5,7 +5,13 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 // Create Schema
 // 5be5f047eff1540afc58e0dd
 const ImageSchema = new Schema({
-  ownerid: {
+  advertiserId: {
+    type: ObjectId
+  },
+  businessId: {
+    type: ObjectId
+  },
+  advertisementId: {
     type: ObjectId
   },
   owneremail: {

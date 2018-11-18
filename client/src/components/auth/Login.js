@@ -59,6 +59,8 @@ class Login extends Component {
   }
   render() {
     const { errors } = this.state;
+    const perrors = this.props.errors;
+
     return (
       <div className="register">
         <div className="container">
@@ -90,6 +92,9 @@ class Login extends Component {
 
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>
+              {perrors && (
+                <div className="error-display">{perrors.message}</div>
+              )}
             </div>
           </div>
         </div>

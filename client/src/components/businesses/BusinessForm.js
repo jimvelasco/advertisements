@@ -137,24 +137,6 @@ class Business extends Component {
   onSubmit(e) {
     e.preventDefault();
 
-    // const anAdvertisement = {
-    //   id: this.state.id,
-    //   name: this.state.name,
-    //   email: this.state.email,
-    //   description: this.state.description,
-    //   category: this.state.category,
-    //   phone: this.state.phone,
-    //   address: this.state.address,
-    //   city: this.state.city,
-    //   state: this.state.state,
-    //   zip: this.state.zip,
-    //   latitude: this.state.latitude,
-    //   longitude: this.state.longitude,
-    //   ownerid: this.props.auth.user.id,
-    //   owneremail: this.props.auth.user.email,
-    //   status: this.state.status
-    // };
-
     let formdata = new FormData();
     formdata.append("file", this.state.file);
     formdata.append("filename", "another");
@@ -196,8 +178,6 @@ class Business extends Component {
 
   render() {
     const { errors } = this.state;
-    const perrors = this.props.errors;
-
     // same as const errors = this.state.errors
 
     // this was used to show user from props
@@ -379,9 +359,9 @@ class Business extends Component {
                 </div>
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>
-              {perrors && (
-                <div className="error-display">{perrors.message}</div>
-              )}
+              <div className="xinvalid-feedback">
+                {this.state.errors.errormessage}
+              </div>
             </div>
           </div>
         </div>

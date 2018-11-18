@@ -65,7 +65,7 @@ router.post("/register", (req, res) => {
                 .getBufferAsync(Jimp.MIME_JPEG)
                 .then(imagebuf => {
                   const newImage = new Image({
-                    ownerid: user._id,
+                    advertiserId: user._id,
                     owneremail: user.email,
                     type: "logo",
                     category: "",
@@ -204,8 +204,8 @@ router.post("/modify", (req, res) => {
   const updateobj = {
     name: req.body.name,
     email: req.body.email,
-    company: req.body.company,
-    companyId: req.body.companyId
+    company: req.body.company
+    //companyId: req.body.companyId
   };
   var options = { new: true };
 
@@ -215,7 +215,7 @@ router.post("/modify", (req, res) => {
       "You cannot update your password and update your image at the same time";
     return res.status(400).json(errors);
   } else if (uploadimage) {
-    query = { ownerid: id, type: "logo" };
+    query = { advertiserId: id, type: "logo" };
     console.log("update image ", query);
     Jimp.read(imageFile.data).then(lenna => {
       lenna
@@ -303,7 +303,7 @@ router.get("/change-advertiser-status/:id/:status", (req, res) => {
 router.get("/find-user/:id", (req, res) => {
   let id = req.params.id;
   let query = { _id: id };
-  let query2 = { ownerid: id, type: "logo" };
+  let query2 = { advertiserId: id, type: "logo" };
   // console.log("find advertiser query", query);
   Advertiser.findOne(query)
     .then(advertiser => {
@@ -356,6 +356,7 @@ router.post("/login", (req, res) => {
           id: user.id,
           role: user.role,
           name: user.name,
+          company: user.company,
           email: user.email,
           avatar: user.avatar,
           status: user.status

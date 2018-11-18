@@ -27,12 +27,22 @@ import PropTypes from "prop-types";
 const ImageDisplayObj = ({ obj }) => {
   //console.log("buf", buf);
 
-  let buffer = obj.imageBuffer.data;
+  let buffer = null;
   let binary = "";
-  let bytes = [].slice.call(new Uint8Array(buffer));
-  bytes.forEach(b => (binary += String.fromCharCode(b)));
-  let binarybuf = window.btoa(binary);
-  let imagestr = "data:image/jpeg;base64," + binarybuf;
+  let binarybuf = null;
+  let bytes = [];
+  let imagestr = "";
+  buffer = obj.imageBuffer.data;
+  if (buffer) {
+    // let buffer = obj.imageBuffer;
+    bytes = [].slice.call(new Uint8Array(buffer));
+    bytes.forEach(b => (binary += String.fromCharCode(b)));
+    binarybuf = window.btoa(binary);
+    imagestr = "data:image/jpeg;base64," + binarybuf;
+  } else {
+    buffer = obj.imageBuffer;
+    imagestr = "data:image/jpeg;base64," + buffer;
+  }
   return (
     <div>
       <img
@@ -41,7 +51,8 @@ const ImageDisplayObj = ({ obj }) => {
         className="App-image"
         alt="logo"
       />
-      <div>{obj.imageFilename}</div>
+      <div className="smallfont">{obj.imageFilename}</div>
+      <div className="smallfont">{obj.description}</div>
     </div>
   );
 };

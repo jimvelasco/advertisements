@@ -1,80 +1,53 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
-import { GET_ERRORS, SET_CURRENT_ADVERTISEMENT } from "./types";
+import {
+  GET_ERRORS,
+  CLEAR_ERRORS,
+  SET_CURRENT_ADVERTISEMENT,
+  SET_CURRENT_ADVERTISEMENTS,
+  CREATE_ADVERTISEMENT,
+  MODIFY_ADVERTISEMENT,
+  REMOVE_ADVERTISEMENT,
+  CHANGE_ADVERTISEMENT_STATUS,
+  SET_STATUS_MESSAGE
+} from "./types";
 
-export const createBusiness = (advertisementData, history) => dispatch => {
+export const getAdvertisements = bizid => dispatch => {
+  //console.log("getAdvertisements");
+  let link = "/api/advertise/advertisements/" + bizid;
+
   axios
-    .post("/api/business/createBusiness", advertisementData)
-    .then(res => history.push("/dashboard"))
-    // thunk lets us do a dispatch
+    .get(link)
     // .then(res => console.log(res.data))
-    .catch(err =>
-      dispatch({
-        type: GET_ERRORS,
-        payload: err.response.data
-      })
-    );
-};
-
-export const modifyBusiness = (advertisementData, history) => dispatch => {
-  //console.log("modify advertisement in actions ", advertisementData);
-  axios
-    .post("/api/business/modifyBusiness", advertisementData)
     .then(res => {
-      dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
-      history.push("/dashboard");
+      //console.log("getAdvertisements we have success", res.data);
+      //this.setState({ businesses: res.data });
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({ type: SET_CURRENT_ADVERTISEMENTS, payload: res.data });
+      // history.push("/dashboard");
+      //this.logConsole();
+      // console.log(res.data);
     })
-    // thunk lets us do a dispatch
-    // .then(res => console.log(res.data))
-    .catch(err =>
-      dispatch({
-        type: GET_ERRORS,
-        payload: err.response.data
-      })
-    );
-};
-
-export const triggerError = () => dispatch => {
-  //console.log("modify advertisement in actions ", advertisementData);
-  axios
-    .get("/api/business/trigger_error")
-    .then(res => {
-      // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
-    })
-    // thunk lets us do a dispatch
-    // .then(res => console.log(res.data))
     .catch(err => {
-      console.log("triggering error in actions");
+      //console.log("advertise actions error ", err);
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
       });
     });
+  // }
 };
 
-export const createAdvertisement = (advertisementData, history) => dispatch => {
+export const createAdvertisement = advertisementData => dispatch => {
   axios
     .post("/api/advertise/createAdvertisement", advertisementData)
-    .then(res => history.push("/dashboard"))
-    // thunk lets us do a dispatch
-    // .then(res => console.log(res.data))
-    .catch(err =>
-      dispatch({
-        type: GET_ERRORS,
-        payload: err.response.data
-      })
-    );
-};
 
-export const modifyAdvertisement = (advertisementData, history) => dispatch => {
-  console.log("modify advertisement in actions ", advertisementData);
-  axios
-    .post("/api/advertise/modifyAdvertisement", advertisementData)
     .then(res => {
-      console.log("the result is ", res.data);
-      dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
-      history.push("/dashboard");
+      //console.log("action createAdvertisement", res.data);
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({ type: CREATE_ADVERTISEMENT, payload: res.data });
+      // history.push("/dashboard");
     })
     // thunk lets us do a dispatch
     // .then(res => console.log(res.data))
@@ -86,16 +59,75 @@ export const modifyAdvertisement = (advertisementData, history) => dispatch => {
     );
 };
 
-// export const deleteAdvertisement = (advertisementData, history) => dispatch => {
-//   axios
-//     .post("/api/advertisers/delete-ad", advertisementData)
-//     .then(res => history.push("/dashboard"))
-//     // thunk lets us do a dispatch
-//     // .then(res => console.log(res.data))
-//     .catch(err =>
-//       dispatch({
-//         type: GET_ERRORS,
-//         payload: err.response.data
-//       })
-//     );
-// };
+export const modifyAdvertisement = advertisementData => dispatch => {
+  axios
+    .post("/api/advertise/modifyAdvertisement", advertisementData)
+
+    .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({ type: MODIFY_ADVERTISEMENT, payload: res.data });
+      // history.push("/dashboard");
+    })
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+export const deleteAdvertisement = adid => dispatch => {
+  let link = "/api/advertise/delete-advertisement/" + adid;
+  axios
+    .get(link)
+    .then(res => {
+      // history.push("/dashboard")
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({ type: REMOVE_ADVERTISEMENT, payload: adid });
+    })
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+export const changeAdvertisementStatus = (adid, status) => dispatch => {
+  //console.log("modify advertisement in actions ", advertisementData);
+  let link = `/api/advertise/change-advertisement-status/${adid}/${status}`;
+  //console.log("adveractions changebusinesssttus", link);
+  let rdata = { adid: adid, status: status };
+  axios
+    .get(link)
+    .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Advertisement Status Update Successful" }
+      });
+      dispatch({ type: CHANGE_ADVERTISEMENT_STATUS, payload: rdata });
+    })
+    // thunk lets us do a dispatch
+    // .then(res => console.log(res.data))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+export const setCurrentAdvertisement = adid => dispatch => {
+  //console.log("setCurrentAdvertisement advertisement in actions ", adid);
+  //let link = `/api/advertise/change-advertisement-status/${adid}/${status}`;
+  //console.log("adveractions changebusinesssttus", link);
+
+  //dispatch({ type: CLEAR_ERRORS });
+
+  dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: adid });
+};

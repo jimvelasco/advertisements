@@ -1,5 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
+//const ObjectID = require("mongodb").ObjectID;
 
 // const Shuttle = require("../../models/Shuttle");
 // const Trip = require("../../models/Trip");
@@ -10,81 +13,27 @@ const Jimp = require("jimp");
 
 const validateBusinessInput = require("../../validation/business_val");
 
-// router.get("/advertisers", (req, res) => {
-//   // console.log("getting advertisers");
-//   Advertiser.find()
-//     .sort({ _id: 1 })
-//     .then(advertisers => res.json(advertisers))
-//     .catch(err => res.status(404).json({ nousersfound: "No shuttle found" }));
-// });
-
-router.get("/dojoin/:id/:ownid", (req, res) => {
-  //Business.find({ sort: { ownerid: 1 } })
-  let lu = {
-    $lookup: {
-      localField: "ownerid",
-      from: "Advertiser",
-      foreignField: "_id",
-      as: "userinfo"
-    }
-  };
-  let bizid = req.params.id;
-  let ownerid = req.params.ownid;
-  console.log("dojoin bizid " + bizid + " ownerid " + ownerid);
-  //console.log("getting advertisements for id", id);
-  //let query = { ownerid: id };
-
-  let query = { _id: bizid };
-  // let query = { _id: ownerid };
+router.get("/businesses", (req, res) => {
   let errors = {};
+  // Business.find()
+  //   .sort({ advertiserId: 1 })
   Business.aggregate([
     {
       $lookup: {
         from: "advertisers",
-        localField: "ownerid",
+        localField: "advertiserId",
         foreignField: "_id",
         as: "advertiser"
       }
-    },
-    { $unwind: "$advertiser" }
+    }
+    // { $unwind: "$advertiser" }
   ])
-    .exec()
-    // Advertiser.aggregate([
-    //   {
-    //     $lookup: {
-    //       from: "Business",
-    //       localField: "_id",
-    //       foreignField: "ownerid",
-    //       as: "advertiser"
-    //     }
-    //   }
-    // ])
-    // Business.find(query, lu)
-    // Advertiser.find(query)
     .then(data => {
-      // console.log("all advertisements", advertisements);
       res.json(data);
     })
     .catch(err => {
       errors.message = "Problem with Businesses";
       return res.status(404).json(errors);
-      // res.status(404).json({ nousersfound: "no ads found" });
-    });
-});
-
-router.get("/businesses", (req, res) => {
-  //Business.find({ sort: { ownerid: 1 } })
-  let errors = {};
-  Business.find()
-    .sort({ ownerid: 1 })
-    .then(data => {
-      // console.log("all advertisements", advertisements);
-      res.json(data);
-    })
-    .catch(err => {
-      errors.message = "Problem with Businesses";
-      return res.status(404).json(errors);
-      // res.status(404).json({ nousersfound: "no ads found" });
     });
 });
 
@@ -97,31 +46,44 @@ router.get("/businesses", (req, res) => {
 router.get("/businesses/:id", (req, res) => {
   let id = req.params.id;
   //console.log("getting advertisements for id", id);
-  let query = { ownerid: id };
-  Business.find(query)
+  let query = { advertiserId: ObjectId(id) };
+  // Business.find(query)
+  Business.aggregate([
+    { $match: query },
+    {
+      $lookup: {
+        from: "advertisers",
+        localField: "advertiserId",
+        foreignField: "_id",
+        as: "advertiser"
+      }
+    },
+    { $unwind: "$advertiser" }
+  ])
     .then(data => {
       res.json(data);
     })
     .catch(err => res.status(404).json({ message: "Cannot find business" }));
 });
 
-router.get("/allimages/:id", (req, res) => {
-  let id = req.params.id;
-  //console.log("getting advertisements for id", id);
-  let query = { ownerid: id };
-  Image.find(query)
-    .then(data => {
-      res.json(data);
-    })
-    .catch(err => res.status(404).json({ message: "cannot get images" }));
-});
+// router.get("/allimages/:id", (req, res) => {
+//   let id = req.params.id;
+//   //console.log("getting advertisements for id", id);
+//   let query = { ownerid: id };
+//   Image.find(query)
+//     .then(data => {
+//       res.json(data);
+//     })
+//     .catch(err => res.status(404).json({ message: "cannot get images" }));
+// });
 
 router.get("/allphotos/:id", (req, res) => {
   let id = req.params.id;
   //console.log("getting advertisements for id", id);
-  let query = { ownerid: id, type: "photo" };
+  let query = { businessId: id, type: "photo" };
   Image.find(query)
     .then(data => {
+      // console.log("all photos", data);
       res.json(data);
     })
     .catch(err => res.status(404).json({ message: "cannot get photos" }));
@@ -137,81 +99,73 @@ router.post("/createBusiness", (req, res) => {
   if (!isValid) {
     return res.status(400).json(errors);
   }
-
   let noimageavail = true;
   let imageFile = null;
   let filename = "now is the time";
-
   if (req.files) {
     noimageavail = false;
     imageFile = req.files.file;
     filename = imageFile.name;
   }
-
   if (noimageavail) {
     let errors = {};
     errors.message = "You must provide a logo image";
     return res.status(400).json(errors);
   }
 
-  // Jimp.read(imageFile.data).then(lenna => {
-  //   lenna
-  //     .resize(200, Jimp.AUTO) // resize
-  //     .quality(80); // set JPEG quality
-  //     lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
-  const newBusiness = new Business({
-    name: req.body.name,
-    email: req.body.email,
-    description: req.body.description,
-    category: req.body.category,
-    phone: req.body.phone,
-    address: req.body.address,
-    city: req.body.city,
-    state: req.body.state,
-    zip: req.body.zip,
-    longitude: req.body.longitude,
-    latitude: req.body.latitude,
-    ownerid: req.body.ownerid,
-    status: req.body.status
-  });
-  newBusiness
-    .save()
-    .then(newBusiness => {
-      // if (uploadimage) {
-      Jimp.read(imageFile.data).then(lenna => {
-        lenna
-          .resize(200, Jimp.AUTO) // resize
-          .quality(80); // set JPEG quality
-        lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
-          const newImage = new Image({
-            ownerid: newBusiness._id,
-            owneremail: req.body.owneremail,
-            type: "logo",
-            category: "",
-            imageBuffer: imagebuf,
-            imageFilename: filename,
-            width: lenna.bitmap.width,
-            height: lenna.bitmap.height,
-            child: 1
-          });
-          newImage.save().then(newi => {
-            // let rary = [];
-            // rary.push(newBusiness);
-            // rary.push(newi);
-            // res.json(rary);
-            let robj = {};
-            robj.business = newBusiness;
-            robj.image = newi;
-            res.json(robj);
-          });
-        });
+  let adverid = req.body.advertiserId;
+
+  Advertiser.find({ _id: adverid })
+    .then(adver => {
+      const newBusiness = new Business({
+        name: req.body.name,
+        email: req.body.email,
+        description: req.body.description,
+        category: req.body.category,
+        phone: req.body.phone,
+        address: req.body.address,
+        city: req.body.city,
+        state: req.body.state,
+        zip: req.body.zip,
+        longitude: req.body.longitude,
+        latitude: req.body.latitude,
+        advertiserId: adverid,
+        advertiser: adver,
+        status: req.body.status
       });
-      // } else {
-      //   let rary = [];
-      //   rary.push(newBusiness);
-      //   rary.push(null);
-      //   res.json(rary);
-      // }
+      newBusiness
+        .save()
+        .then(newBusiness => {
+          // if (uploadimage) {
+          Jimp.read(imageFile.data).then(lenna => {
+            lenna
+              .resize(200, Jimp.AUTO) // resize
+              .quality(80); // set JPEG quality
+            lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
+              const newImage = new Image({
+                advertiserId: newBusiness.advertiserId,
+                businessId: newBusiness._id,
+                owneremail: req.body.owneremail,
+                type: "logo",
+                category: "",
+                imageBuffer: imagebuf,
+                imageFilename: filename,
+                width: lenna.bitmap.width,
+                height: lenna.bitmap.height,
+                child: 1
+              });
+              newImage.save().then(newi => {
+                let robj = {};
+                robj.business = newBusiness;
+                robj.image = newi;
+                res.json(robj);
+              });
+            });
+          });
+        })
+        .catch(err =>
+          res.status(404).json({ message: "cannot create business" })
+        );
     })
     .catch(err => res.status(404).json({ message: "cannot create business" }));
 });
@@ -262,7 +216,7 @@ router.post("/modifyBusiness", (req, res) => {
   Business.findOneAndUpdate(query, updateobj, options)
     .then(biz => {
       if (modifyimage) {
-        let query = { ownerid: biz._id, type: "logo" };
+        let query = { businessId: biz._id, type: "logo" };
         Jimp.read(imageFile.data)
           .then(lenna => {
             lenna
@@ -323,7 +277,8 @@ router.post("/createImage", (req, res) => {
     return res.status(400).json(errors);
   }
 
-  let ownerid = req.body.ownerid;
+  let businessId = req.body.businessId;
+  let advertiserId = req.body.advertiserId;
   let desc = req.body.description;
   //console.log("about to create image for ", filename);
   Jimp.read(imageFile.data)
@@ -333,9 +288,10 @@ router.post("/createImage", (req, res) => {
         .quality(80); // set JPEG quality
       lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
         const newImage = new Image({
-          ownerid: ownerid,
+          advertiserId: advertiserId,
+          businessId: businessId,
           description: desc,
-          owneremail: "owneremail",
+          owneremail: "",
           type: "photo",
           category: "",
           imageBuffer: imagebuf,
@@ -367,7 +323,7 @@ router.get("/delete-business/:id", (req, res) => {
   //console.log("in advertise get delete-ad", req.params);
   let id = req.params.id;
   let query = { _id: id };
-  let query2 = { ownerid: id };
+  let query2 = { businessId: id };
   Business.deleteOne(query)
     .then(biz => {
       Image.deleteMany(query2)
@@ -409,7 +365,7 @@ router.get("/find-business/:id", (req, res) => {
   //console.log("in advertisers get delete-ad", req.params);
   let id = req.params.id;
   let query = { _id: id };
-  let query2 = { ownerid: id, type: "logo" };
+  let query2 = { businessId: id, type: "logo" };
   Business.findOne(query)
     .then(business => {
       Image.findOne(query2)
@@ -439,31 +395,6 @@ router.get("/trigger_error", (req, res) => {
       errors.message = "we have a major problem";
       //console.log("we are triggering error ", errors);
       res.status(404).json(errors);
-    });
-});
-
-router.get("/trigger_error2", (req, res, next) => dispatch => {
-  //console.log("in advertisers get delete-ad", req.params);
-  let errors = {};
-  let id = "123";
-  let query = { _id: id };
-  let query2 = { ownerid: id, type: "logo" };
-  Business.findOne(query)
-    .then(business => {
-      res.json(business);
-    })
-    .catch(err => {
-      console.log(err.response);
-      errors.errormsg = "we have a major problem on the server";
-      //res.locals.data = errors;
-      //next(err);
-      err.errors = errors;
-
-      // console.log("we are triggering error 2 ", errors);
-      // res.data = "now is the time for trouble";
-      console.log("err errors", err.errors);
-      res.status(302).json(err);
-      //res.json(errors);
     });
 });
 

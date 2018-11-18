@@ -1,50 +1,37 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 // Create Schema
 
 const AdvertisementSchema = new Schema({
-  name: {
-    type: String,
-    required: true
+  advertiserId: {
+    type: ObjectId
   },
-  email: {
-    type: String,
-    required: true
+  businessId: {
+    type: ObjectId
+  },
+
+  name: {
+    type: String
   },
   description: {
-    type: String,
-    required: true
-  },
-  image: {
     type: String
   },
-  telephone: {
+  discount: {
     type: String
   },
-  address: {
+  type: {
     type: String
   },
-  city: {
+  category: {
     type: String
   },
 
-  state: {
-    type: String
-  },
-  zip: {
-    type: String
-  },
-  latitude: {
-    type: String
-  },
-  longitude: {
-    type: String
-  },
-  ownerid: {
-    type: String
-  },
   status: {
+    type: Number
+  },
+  child: {
     type: Number
   },
 

@@ -4,6 +4,8 @@ import jwt_decode from "jwt-decode";
 import {
   GET_ERRORS,
   CLEAR_ERRORS,
+  SET_STATUS_MESSAGE,
+  CLEAR_STATUS_MESSAGE,
   SET_CURRENT_ADVERTISEMENT,
   SET_BUSINESSES,
   SET_IMAGES,
@@ -12,15 +14,31 @@ import {
   CHANGE_BUSINESS_STATUS,
   REMOVE_BUSINESS,
   CREATE_BUSINESS,
+  MODIFY_BUSINESS,
   SET_ADVERTISERS,
   CHANGE_ADVERTISER_STATUS,
-  REMOVE_ADVERTISER
+  REMOVE_ADVERTISER,
+  SET_BUSINESS
 } from "./types";
+
+export const clearErrors = () => dispatch => {
+  dispatch({ type: CLEAR_ERRORS });
+};
+
+export const clearStatusMessage = () => dispatch => {
+  dispatch({ type: CLEAR_STATUS_MESSAGE });
+};
 
 export const createBusiness = (advertisementData, history) => dispatch => {
   axios
     .post("/api/business/createBusiness", advertisementData)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Business Create Successful" }
+      });
+
       dispatch({ type: CREATE_BUSINESS, payload: res.data });
       history.push("/dashboard");
     })
@@ -44,6 +62,7 @@ export const getBusinessPhotos = userid => dispatch => {
     .then(res => {
       //console.log(res.data);
       // this.setState({ photos: res.data });
+      dispatch({ type: CLEAR_ERRORS });
 
       dispatch({ type: SET_IMAGES, payload: res.data });
       //this.logConsole();
@@ -52,7 +71,23 @@ export const getBusinessPhotos = userid => dispatch => {
     .catch(err => {
       dispatch({
         type: GET_ERRORS,
-        payload: { msg: "bummer" }
+        payload: err.response.data
+      });
+    });
+};
+
+export const getBusiness = bizid => dispatch => {
+  let link = `/api/business/find-business/${bizid}`;
+  axios
+    .get(link)
+    .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({ type: SET_BUSINESS, payload: res.data });
+    })
+    .catch(err => {
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
       });
     });
 };
@@ -85,7 +120,7 @@ export const getBusinesses = (userrole, userid, history) => dispatch => {
       console.log("advertise actions error ", err);
       dispatch({
         type: GET_ERRORS,
-        payload: "whatever" //err.res.data
+        payload: err.response.data
       });
     });
   // }
@@ -96,7 +131,12 @@ export const modifyBusiness = (advertisementData, history) => dispatch => {
   axios
     .post("/api/business/modifyBusiness", advertisementData)
     .then(res => {
-      dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Business Update Successful" }
+      });
+      dispatch({ type: MODIFY_BUSINESS, payload: res.data });
       history.push("/dashboard");
     })
     // thunk lets us do a dispatch
@@ -117,6 +157,11 @@ export const changeBusinessStatus = (bizid, status) => dispatch => {
   axios
     .get(link)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Business Status Update Successful" }
+      });
       dispatch({ type: CHANGE_BUSINESS_STATUS, payload: rdata });
     })
     // thunk lets us do a dispatch
@@ -135,6 +180,11 @@ export const deleteBusiness = bid => dispatch => {
   axios
     .get(link)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Business Deleted" }
+      });
       dispatch({ type: REMOVE_BUSINESS, payload: bid });
     })
     // thunk lets us do a dispatch
@@ -170,6 +220,7 @@ export const createImage = formdata => dispatch => {
   axios
     .post("/api/business/createImage", formdata)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
       dispatch({ type: SET_NEW_IMAGE, payload: res.data });
     })
     // thunk lets us do a dispatch
@@ -177,7 +228,7 @@ export const createImage = formdata => dispatch => {
     .catch(err =>
       dispatch({
         type: GET_ERRORS,
-        payload: err
+        payload: err.response.data
       })
     );
 };
@@ -187,6 +238,12 @@ export const deletePhoto = id => dispatch => {
   axios
     .get(link)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Photo Deleted" }
+      });
+
       dispatch({ type: REMOVE_IMAGE, payload: id });
     })
     // thunk lets us do a dispatch
@@ -199,7 +256,7 @@ export const deletePhoto = id => dispatch => {
     );
 };
 
-export const triggerError = () => dispatch => {
+export const xxtriggerError = () => dispatch => {
   //console.log("modify advertisement in actions ", advertisementData);
   axios
     .get("/api/business/trigger_error")
@@ -217,6 +274,20 @@ export const triggerError = () => dispatch => {
     });
 };
 
+export const triggerError = () => dispatch => {
+  dispatch({
+    type: GET_ERRORS,
+    payload: { message: "direct error from action" }
+  });
+};
+
+export const triggerStatus = () => dispatch => {
+  dispatch({
+    type: SET_STATUS_MESSAGE,
+    payload: { message: "THANK YOU FOR USING DISPATCH" }
+  });
+};
+
 //**********************************/
 // METHODS ADMINISTRATOR USES
 //**********************************/
@@ -225,13 +296,14 @@ export const getAdvertisers = () => dispatch => {
   axios
     .get("/api/advertise/advertisers")
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
       dispatch({ type: SET_ADVERTISERS, payload: res.data });
     })
     .catch(err => {
       //console.log("advertise actions error ", err);
       dispatch({
         type: GET_ERRORS,
-        payload: err.res.data
+        payload: err.response.data
       });
     });
 };
@@ -245,6 +317,12 @@ export const changeAdvertiserStatus = (adid, status) => dispatch => {
   axios
     .get(link)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Advertiser Status Update Successful" }
+      });
+
       dispatch({ type: CHANGE_ADVERTISER_STATUS, payload: rdata });
     })
     // thunk lets us do a dispatch
@@ -263,6 +341,11 @@ export const deleteAdvertiser = adid => dispatch => {
   axios
     .get(link)
     .then(res => {
+      dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Advertiser Deleted" }
+      });
       dispatch({ type: REMOVE_ADVERTISER, payload: adid });
     })
     // thunk lets us do a dispatch

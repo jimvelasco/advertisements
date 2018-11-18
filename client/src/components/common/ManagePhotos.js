@@ -27,22 +27,7 @@ class ManagePhotos extends Component {
   }
 
   componentDidMount() {
-    // let link = "/api/business/allimages/" + this.props.selectedBizid;
-    // axios
-    //   .get(link)
-    //   // .then(res => console.log(res.data))
-    //   .then(res => {
-    //     console.log(res.data);
-    //     this.setState({ photos: res.data });
-    //     //this.logConsole();
-    //     // console.log(res.data);
-    //   })
-    //   .catch(err => {
-    //     //console.log(err.response.data);
-    //     let errors = {};
-    //     errors.errormsg = "Problem Getting Businesses";
-    //     this.setState({ errors: errors });
-    //   });
+    //console.log(this.props);
     this.props.getBusinessPhotos(this.props.selectedBizid);
   }
 
@@ -83,7 +68,8 @@ class ManagePhotos extends Component {
     let formdata = new FormData();
     formdata.append("file", this.state.file);
     formdata.append("filename", "another");
-    formdata.append("ownerid", this.props.selectedBizid);
+    formdata.append("advertiserId", this.props.auth.user.id);
+    formdata.append("businessId", this.props.selectedBizid);
     formdata.append("description", this.state.description);
     this.props.createImage(formdata);
   }
@@ -91,28 +77,47 @@ class ManagePhotos extends Component {
   render() {
     // if (this.state.photos.length ==)
     const { errors } = this.state;
+    const perrors = this.props.errors;
 
     const userrole = this.props.auth.user.role;
     const bizid = this.props.selectedBizid;
     const name = this.props.selectedName;
     const photos = this.props.advertise.images;
+    const closePhotos = this.props.closePhotos;
 
     return (
       <div className="bordershadow">
+        <div style={{ textAlign: "right" }}>
+          <a
+            href="#"
+            onClick={() => {
+              {
+                {
+                  closePhotos();
+                }
+              }
+            }}
+          >
+            close
+          </a>
+        </div>
         <h3 style={{ textAlign: "center" }}>Manage Photos</h3>
         <h4 style={{ textAlign: "center" }}>{name}</h4>
 
         {photos.map((photo, index) => (
           <div className="floatLeft" key={index}>
+            <div style={{ textAlign: "right", paddingRight: "5px" }}>
+              <a
+                className="smallfont"
+                href="#"
+                onClick={() => {
+                  this.deletePhoto(photo._id);
+                }}
+              >
+                delete
+              </a>
+            </div>
             <ImageDisplayObj obj={photo} />
-            <a
-              href="#"
-              onClick={() => {
-                this.deletePhoto(photo._id);
-              }}
-            >
-              delete
-            </a>
           </div>
         ))}
 
@@ -144,6 +149,7 @@ class ManagePhotos extends Component {
           </div>
           <input type="submit" className="btn btn-info btn-block mt-4" />
         </form>
+        {perrors && <div className="error-display">{perrors.message}</div>}
       </div>
     );
   }

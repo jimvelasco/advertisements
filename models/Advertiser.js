@@ -25,6 +25,9 @@ const AdvertiserSchema = new Schema({
   role: {
     type: String
   },
+  image: {
+    type: String
+  },
 
   status: {
     type: Number,

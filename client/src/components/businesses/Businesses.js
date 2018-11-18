@@ -2,16 +2,21 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import Spinner from "../common/Spinner";
+import classnames from "classnames";
+// import Spinner from "../common/Spinner";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
-import { triggerError } from "../../actions/advertiseActions";
+// import { triggerError } from "../../actions/advertiseActions";
+// import { triggerStatus } from "../../actions/advertiseActions";
 import { getBusinesses } from "../../actions/advertiseActions";
 import { changeBusinessStatus } from "../../actions/advertiseActions";
 import { deleteBusiness } from "../../actions/advertiseActions";
 import ManagePhotos from "../common/ManagePhotos";
+import Advertisements from "../advertisements/Advertisements";
 import isEmpty from "../../validation/is-empty";
+
+import { confirmAlert } from "react-confirm-alert"; // Import
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
 class Businesses extends Component {
   constructor(props) {
@@ -22,9 +27,14 @@ class Businesses extends Component {
       errors: null,
       showPhotos: false,
       selectedBizid: null,
-      selectedName: null
+      selectedName: null,
+      showAdvertisements: false
     }; //shuttles: ["one", "two", "three"] };
     // this.getAdvertisements = this.getAdvertisements.bind(this);
+    this.performdoJoin = this.performdoJoin.bind(this);
+    this.doDeleteBusiness = this.doDeleteBusiness.bind(this);
+    this.closePhotos = this.closePhotos.bind(this);
+    this.closeAdvertisements = this.closeAdvertisements.bind(this);
   }
 
   componentDidMount() {
@@ -55,128 +65,116 @@ class Businesses extends Component {
     this.props.getBusinesses(userrole, userid, this.props.history);
   }
 
-  XgetBusinesses() {
-    let userrole = this.props.auth.user.role;
-    let userid = this.props.auth.user.id;
-    let status = this.props.auth.user.status;
-    let link = "/api/business/businesses";
-    if (userrole === "") {
-      link = "/api/business/businesses/" + userid;
-    }
-
-    if (status !== "0") {
-      axios
-        .get(link)
-        // .then(res => console.log(res.data))
-        .then(res => {
-          // console.log(res.data);
-          this.setState({ businesses: res.data });
-          //this.logConsole();
-          // console.log(res.data);
-        })
-        .catch(err => {
-          //console.log(err.response.data);
-          let errors = {};
-          errors.errormsg = "Problem Getting Businesses";
-          this.setState({ errors: errors });
-        });
-    }
+  deleteBusiness(adid) {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <div className="custom-ui">
+            <h1>Are you sure</h1>
+            <p>you want to delete this Business?</p>
+            <button className="btn btn-sm btn-info mr-2" onClick={onClose}>
+              No
+            </button>
+            <button
+              className="btn btn-sm btn-info mr-2"
+              onClick={() => {
+                this.doDeleteBusiness(adid);
+                onClose();
+              }}
+            >
+              Yes
+            </button>
+          </div>
+        );
+      }
+    });
   }
 
-  deleteBusiness(adid) {
-    // // let link = `/api/advertise/delete-advertiser/${adid}`;
-    // let link = `/api/business/delete-business/${adid}`;
-    // //console.log(link);
-    // axios
-    //   .get(link)
-    //   .then(res => {
-    //     let oid = adid;
-    //     let newary = [];
-    //     let curbus = this.state.businesses;
-    //     curbus.forEach(a => {
-    //       a._id == oid ? null : newary.push(a);
-    //     });
-    //     this.setState({ businesses: newary });
-    //   })
-    //   .catch(err => {
-    //     let errors = {};
-    //     errors.errormsg = "Problem Deleting Business";
-    //     this.setState({ errors: errors });
-    //   });
-
+  doDeleteBusiness(adid) {
     this.props.deleteBusiness(adid);
   }
 
   managePhotos(bizid, name) {
-    console.log("managePhotos for id ", bizid);
-    console.log("managePhotos for name ", name);
-    let cursid = this.state.selectedBizid;
-    if (cursid === null || cursid !== bizid) {
-      return this.setState({
-        showPhotos: true,
-        selectedBizid: bizid,
-        selectedName: name
-      });
-    }
-    if (cursid === bizid) {
-      return this.setState({
-        showPhotos: false,
-        selectedBizid: null,
-        selectedName: name
-      });
-    }
+    // let cursid = this.state.selectedBizid;
+    // if (cursid === null || cursid !== bizid) {
+    //   return this.setState({
+    //     showPhotos: true,
+    //     selectedBizid: bizid,
+    //     selectedName: name
+    //   });
+    // }
+    // if (cursid === bizid) {
+    //   return this.setState({
+    //     showPhotos: false,
+    //     selectedBizid: null,
+    //     selectedName: name
+    //   });
+    // }
 
-    // this.setState({
-    //   showPhotos: true,
-    //   selectedBizid: bizid,
-    //   selectedName: name
-    // });
+    this.setState({
+      showPhotos: true,
+      selectedBizid: bizid,
+      selectedName: name
+    });
   }
 
-  triggerError() {
-    this.props.triggerError();
+  manageAdvertisements(bizid, name) {
+    // let cursid = this.state.selectedBizid;
+    // if (cursid === null || cursid !== bizid) {
+    //   return this.setState({
+    //     showAdvertisements: true,
+    //     selectedBizid: bizid,
+    //     selectedName: name
+    //   });
+    // }
+    // if (cursid === bizid) {
+    //   return this.setState({
+    //     showPhotos: false,
+    //     selectedBizid: null,
+    //     selectedName: name
+    //   });
+    // }
+    this.setState({
+      showAdvertisements: true,
+      selectedBizid: bizid,
+      selectedName: name
+    });
   }
 
-  triggerError2() {
-    axios
-      .get("/api/business/trigger_error2")
-      .then(res => {
-        // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
-        console.log("response trig 2", res);
-      })
-      // thunk lets us do a dispatch
-      // .then(res => console.log(res.data))
-      .catch(err => {
-        console.log("triggering error in actions", err.message);
-
-        let errors = {};
-        errors.errormsg = "we have a major problem";
-        console.log("return errors", errors);
-        this.setState({ errors: errors });
-      });
+  closePhotos() {
+    this.setState({
+      showPhotos: false,
+      selectedBizid: null
+    });
   }
 
-  trigger2(id) {
-    axios
-      .get("/api/business/dojoin")
-      .then(res => {
-        // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
-        console.log("response trig 2", res.data);
-      })
-      // thunk lets us do a dispatch
-      // .then(res => console.log(res.data))
-      .catch(err => {
-        console.log("triggering error in actions", err.message);
-
-        let errors = {};
-        errors.errormsg = "we have a major problem";
-        console.log("return errors", errors);
-        this.setState({ errors: errors });
-      });
+  closeAdvertisements() {
+    this.setState({
+      showAdvertisements: false,
+      selectedBizid: null
+    });
   }
 
-  doJoin(bizid, ownerid) {
-    let link = `/api/business/dojoin/${bizid}/${ownerid}`;
+  // triggerError() {
+  //   this.props.triggerError();
+  // }
+  // triggerStatus() {
+  //   this.props.triggerStatus();
+  // }
+
+  doJoin(bizid, adverid) {
+    this.performdoJoin(bizid, adverid);
+  }
+
+  performdoJoin(bizid, ownerid) {
+    // alert("what");
+    // if (window.confirm("do join")) {
+    //   alert("yes");
+    // } else {
+    //   alert("No");
+    // }
+
+    let link = "/api/advertise/doadimagejoin/" + bizid;
     console.log("do join link", link);
     axios
       .get(link)
@@ -197,21 +195,6 @@ class Businesses extends Component {
   }
 
   changeBusinessStatus = (adid, status) => {
-    // let link = `/api/business/change-business-status/${adid}/${status}`;
-    // axios
-    //   .get(link)
-    //   .then(res => {
-    //     let business = res.data;
-    //     //console.log("the updated business is ", sa);
-    //     let businesses = this.state.businesses;
-    //     businesses.map((target, index) => {
-    //       if (target._id == business._id) {
-    //         target.status = business.status;
-    //       }
-    //     });
-    //     this.setState({ businesses: businesses });
-    //   })
-    //   .catch(err => console.log("error"));
     this.props.changeBusinessStatus(adid, status);
   };
 
@@ -234,6 +217,11 @@ class Businesses extends Component {
     // console.log("rendering businesses state", this.state);
     // console.log("rendering businesses props", this.props.advertise.businesses);
 
+    if (this.props.auth.user.status == "0") {
+      return <div>User is not authorized to view or create businesses</div>;
+      // return <Spinner />;
+    }
+
     const { errors } = this.props;
     // console.log("businesses render", errors);
     const { businesses } = this.props.advertise;
@@ -245,23 +233,28 @@ class Businesses extends Component {
     //let businesses = this.state.businesses;
     let selectedBizid = this.state.selectedBizid;
     let selectedName = this.state.selectedName;
-    let errormsg = "";
-    if (!isEmpty(errors)) {
-      errormsg = errors.message;
-    }
+
+    // let errormsg = "";
+    // if (!isEmpty(errors)) {
+    //   errormsg = errors.message;
+    // }
+    // let show = true;
+    // let data = "123456";
 
     return (
       <div className="container">
         <h4>Businesses</h4>
+
         <table className="table table-bordered table-striped table-sm">
           <thead className="thead-dark">
             <tr>
               {/* <th>_id</th>*/}
-              <th>Owner ID</th>
-              <th>Name</th>
+              {/* <th>Advertiser ID</th> */}
+              <th>Advertiser</th>
+              <th>Business</th>
               <th>Description</th>
               <th>Address</th>
-              <th>City</th>
+              {/* <th>City</th> */}
               <th>Email</th>
               <th>Status</th>
               <th>&nbsp;</th>
@@ -272,14 +265,26 @@ class Businesses extends Component {
               //link = `/delete-ad/${business._id}`
               <tr key={business._id}>
                 {/* <td>{business._id}</td> */}
-                <td>{business.ownerid}</td>
+                {/* <td>{business.advertiserId}</td> */}
+                <td>{business.advertiser.name}</td>
                 <td>{business.name}</td>
                 <td>{business.description}</td>
-                <td>{business.address}</td>
-                <td>{business.city}</td>
+                <td>
+                  {business.address},&nbsp;{business.city}
+                </td>
+                {/* <td>{business.city}</td> */}
                 <td>{business.email}</td>
                 <td>{business.status}</td>
                 <td>
+                  <a
+                    href="#"
+                    onClick={() => {
+                      this.manageAdvertisements(business._id, business.name);
+                    }}
+                  >
+                    ads
+                  </a>
+                  &nbsp;
                   <a
                     href="#"
                     onClick={() => {
@@ -304,7 +309,7 @@ class Businesses extends Component {
                       this.changeBusinessStatus(business._id, business.status);
                     }}
                   >
-                    change
+                    status
                   </a>
                   &nbsp;
                   <a
@@ -315,26 +320,26 @@ class Businesses extends Component {
                   >
                     delete
                   </a>
-                  &nbsp;
+                  {/* &nbsp;
                   <a
                     href="#"
                     onClick={() => {
-                      this.doJoin(business._id, business.ownerid);
+                      this.doJoin(business._id, business.advertiserId);
                     }}
                   >
                     join
-                  </a>
+                  </a> */}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
         {!isEmpty(errors) ? (
-          <div className="message-display">{errors.message}</div>
+          <div className="error-display">{errors.message}</div>
         ) : (
           <div />
         )}
-        <a
+        {/* <a
           href="#"
           onClick={() => {
             this.triggerError();
@@ -342,15 +347,15 @@ class Businesses extends Component {
         >
           trigger
         </a>
+        |
         <a
           href="#"
           onClick={() => {
-            this.trigger2();
+            this.triggerStatus();
           }}
         >
-          trigger2
-        </a>
-
+          status
+        </a> */}
         <br />
         {this.props.auth.user.role == "" ? (
           <Link to="/newbusiness" className="btn btn-lg btn-info mr-2">
@@ -363,6 +368,17 @@ class Businesses extends Component {
           <ManagePhotos
             selectedBizid={selectedBizid}
             selectedName={selectedName}
+            closePhotos={this.closePhotos}
+          />
+        ) : (
+          <div />
+        )}
+
+        {this.state.showAdvertisements ? (
+          <Advertisements
+            selectedBizid={selectedBizid}
+            selectedName={selectedName}
+            closeAdvertisements={this.closeAdvertisements}
           />
         ) : (
           <div />
@@ -383,6 +399,7 @@ Businesses.propTypes = {
 const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors,
+  status: state.status,
   advertise: state.advertise
 });
 
@@ -392,7 +409,11 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { getBusinesses, changeBusinessStatus, deleteBusiness, triggerError }
+  {
+    getBusinesses,
+    changeBusinessStatus,
+    deleteBusiness
+  }
 )(withRouter(Businesses));
 
 //Advertisements;

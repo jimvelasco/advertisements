@@ -40,8 +40,11 @@ const BusinessSchema = new Schema({
   longitude: {
     type: String
   },
-  ownerid: {
+  advertiserId: {
     type: ObjectId
+  },
+  advertiser: {
+    type: Array
   },
   status: {
     type: Number

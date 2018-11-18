@@ -3,9 +3,16 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../../actions/authActions";
-import { withRouter } from "react-router-dom";
+
+//import { withRouter } from "react-router-dom";
 
 class Navbar extends Component {
+  // constructor(props) {
+  //   super(props);
+  //   console.log("Navbar  props", props);
+  //   this.state = {};
+  // }
+
   onLogoutClick(e) {
     e.preventDefault();
     //this.props.clearCurrentProfile();
@@ -21,7 +28,7 @@ class Navbar extends Component {
     //let pobj = { pathname: "/newad", search: "?id=12345" };
     //this.props.history.push(pobj);
     let url = "/modifyprofile/" + userid;
-    console.log(url);
+    //console.log(url);
     this.props.history.push(url);
     // axios
     //   .get(link)
@@ -53,6 +60,7 @@ class Navbar extends Component {
             Trips
           </Link>
         </li> */}
+
         <li className="nav-item">
           <Link className="nav-link" to="/businesses">
             Businesses
@@ -142,7 +150,8 @@ Navbar.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  auth: state.auth
+  auth: state.auth,
+  status: state.status
 });
 
 export default connect(

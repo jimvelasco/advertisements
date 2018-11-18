@@ -46,6 +46,13 @@ img {
   margin-top: 10px;
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
 }
+.custom-ui {
+  border: 1px solid black;
+  padding: 10px;
+  margin-top: 10px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  width: 300px;
+}
 
 .floatLeft {
   border: 1px solid black;
@@ -55,8 +62,30 @@ img {
   height: 200px;
 }
 
-.message-display {
+.error-display {
   font-weight: bold;
   color: red;
   font-size: 16px;
+}
+
+.statusmessage {
+  font-weight: bold;
+  color: green;
+  font-size: 16px;
+  text-align: center;
+  position: absolute;
+  width: 300px;
+  border: 1px solid black;
+  padding: 10px;
+  margin-top: 10px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  left: 0;
+  right: 0;
+  margin: auto;
+  background-color: white;
+  z-index: 10;
+}
+
+.smallfont {
+  font-size: 9pt;
 }
