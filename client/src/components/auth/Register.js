@@ -48,7 +48,6 @@ class Register extends Component {
 
     const id = this.props.auth.user.id; //this.props.match.params.id;
 
-    console.log("Register cdm id ", id);
     if (id) {
       let link = `/api/users/find-user/${id}`;
       // console.log("component did mount", link);
@@ -204,7 +203,7 @@ class Register extends Component {
       <div className="register">
         <div className="container">
           <div className="row">
-            <div className="col-md-8 m-auto">
+            <div className="col-md-8 m-auto shadow-lg p-4">
               <h1 className="display-6 text-center">
                 {title} Advertiser Account
               </h1>

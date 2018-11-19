@@ -275,8 +275,9 @@ class Businesses extends Component {
                 {/* <td>{business.city}</td> */}
                 <td>{business.email}</td>
                 <td>{business.status}</td>
-                <td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.manageAdvertisements(business._id, business.name);
@@ -286,6 +287,7 @@ class Businesses extends Component {
                   </a>
                   &nbsp;
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.managePhotos(business._id, business.name);
@@ -295,6 +297,7 @@ class Businesses extends Component {
                   </a>
                   &nbsp;
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.showModifyBusiness(business._id);
@@ -304,6 +307,7 @@ class Businesses extends Component {
                   </a>
                   &nbsp;
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.changeBusinessStatus(business._id, business.status);
@@ -313,6 +317,7 @@ class Businesses extends Component {
                   </a>
                   &nbsp;
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.deleteBusiness(business._id);
@@ -334,6 +339,7 @@ class Businesses extends Component {
             ))}
           </tbody>
         </table>
+
         {!isEmpty(errors) ? (
           <div className="error-display">{errors.message}</div>
         ) : (
@@ -356,9 +362,9 @@ class Businesses extends Component {
         >
           status
         </a> */}
-        <br />
+
         {this.props.auth.user.role == "" ? (
-          <Link to="/newbusiness" className="btn btn-lg btn-info mr-2">
+          <Link to="/newbusiness" className="btn btn-sm btn-info">
             New Business
           </Link>
         ) : (
@@ -417,3 +423,103 @@ export default connect(
 )(withRouter(Businesses));
 
 //Advertisements;
+
+// <div
+//   class="row"
+//   style={{
+//     backgroundColor: "#333",
+//     color: "#fff",
+//     padding: "5px",
+//     fontWeight: "bold"
+//   }}
+// >
+//   <div className="col-md-2">Advertiser</div>
+//   <div className="col-md-2">Business</div>
+//   <div className="col-md-3">Description</div>
+//   <div className="col-md-3">Address</div>
+//   <div className="col-md-2">Status</div>
+// </div>
+// {businesses.map((business, index) => (
+//   <div class="row" key={index}>
+//     <div className="col-md-12">
+//       <div className="row">
+//         <div className="col-md-2">{business.advertiser.name}</div>
+//         <div className="col-md-2">{business.name}</div>
+//         <div className="col-md-3">{business.description}</div>
+//         <div className="col-md-3">
+//           {business.address}, &nbsp;{business.city}
+//         </div>
+//         <div className="col-md-2">{business.status}</div>
+//       </div>
+//       <div
+//         className="row"
+//         style={{
+//           marginBottom: "5px",
+//           marginTop: "5px"
+//         }}
+//       >
+//         <div
+//           className="col-md-12"
+//           style={{
+//             textAlign: "right",
+//             paddingTop: "10px",
+//             paddingBottom: "10px",
+//             borderBottom: "3px solid #ccc"
+//           }}
+//         >
+//           <a
+//             href="#"
+//             className="btn btn-sm btn-info mr-2"
+//             onClick={() => {
+//               this.manageAdvertisements(business._id, business.name);
+//             }}
+//           >
+//             ads
+//           </a>
+//           &nbsp;
+//           <a
+//             href="#"
+//             className="btn btn-sm btn-info mr-2"
+//             onClick={() => {
+//               this.managePhotos(business._id, business.name);
+//             }}
+//           >
+//             photos
+//           </a>
+//           &nbsp;
+//           <a
+//             href="#"
+//             className="btn btn-sm btn-info mr-2"
+//             onClick={() => {
+//               this.showModifyBusiness(business._id);
+//             }}
+//           >
+//             modify
+//           </a>
+//           &nbsp;
+//           <a
+//             href="#"
+//             className="btn btn-sm btn-info mr-2"
+//             onClick={() => {
+//               this.changeBusinessStatus(business._id, business.status);
+//             }}
+//           >
+//             status
+//           </a>
+//           &nbsp;
+//           <a
+//             href="#"
+//             className="btn btn-sm btn-info mr-2"
+//             onClick={() => {
+//               this.deleteBusiness(business._id);
+//             }}
+//           >
+//             delete
+//           </a>
+//         </div>
+//       </div>
+
+//       {/* we need an outer row */}
+//     </div>
+//   </div>
+// ))}

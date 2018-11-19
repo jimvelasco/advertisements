@@ -86,7 +86,7 @@ class ManagePhotos extends Component {
     const closePhotos = this.props.closePhotos;
 
     return (
-      <div className="bordershadow">
+      <div className="shadow-lg p-4" style={{ marginTop: "20px" }}>
         <div style={{ textAlign: "right" }}>
           <a
             href="#"
@@ -101,11 +101,11 @@ class ManagePhotos extends Component {
             close
           </a>
         </div>
-        <h3 style={{ textAlign: "center" }}>Manage Photos</h3>
-        <h4 style={{ textAlign: "center" }}>{name}</h4>
+        <h3 style={{ textAlign: "center" }}>Manage Photos: {name}</h3>
+        {/* <h4 style={{ textAlign: "center" }}>{name}</h4> */}
 
         {photos.map((photo, index) => (
-          <div className="floatLeft" key={index}>
+          <div className="floatLeft shadow" key={index}>
             <div style={{ textAlign: "right", paddingRight: "5px" }}>
               <a
                 className="smallfont"
@@ -123,33 +123,38 @@ class ManagePhotos extends Component {
 
         <div style={{ clear: "left" }} />
 
-        <form noValidate onSubmit={this.onSubmit}>
-          <div className="form-group">
-            <TextFieldGroup
-              type="text"
-              label="Name"
-              placeholder="Description"
-              name="description"
-              value={this.state.description}
-              onChange={this.onChange}
-              error={errors.description}
-            />
-          </div>
-          <div className="form-group">
-            <div className="row">
-              <div className="col-md-3">Image</div>
-              <div className="col-md-9">
-                <input
-                  type="file"
-                  name="file"
-                  onChange={this.onFileInputChange}
+        <div className="row">
+          <div className="col-md-8 offset-md-2 shadow p-4 mt-3 ">
+            <h5 style={{ textAlign: "center" }}>New Photo</h5>
+            <form noValidate onSubmit={this.onSubmit}>
+              <div className="form-group">
+                <TextFieldGroup
+                  type="text"
+                  label="Name"
+                  placeholder="Description"
+                  name="description"
+                  value={this.state.description}
+                  onChange={this.onChange}
+                  error={errors.description}
                 />
               </div>
-            </div>
+              <div className="form-group">
+                <div className="row">
+                  <div className="col-md-3">Image</div>
+                  <div className="col-md-9">
+                    <input
+                      type="file"
+                      name="file"
+                      onChange={this.onFileInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+              <input type="submit" className="btn btn-info btn-block mt-4" />
+            </form>
+            {perrors && <div className="error-display">{perrors.message}</div>}
           </div>
-          <input type="submit" className="btn btn-info btn-block mt-4" />
-        </form>
-        {perrors && <div className="error-display">{perrors.message}</div>}
+        </div>
       </div>
     );
   }

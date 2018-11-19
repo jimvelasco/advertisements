@@ -96,6 +96,8 @@ router.post("/createAdvertisement", (req, res) => {
     name: req.body.name,
     description: req.body.description,
     discount: req.body.discount,
+    startdate: req.body.startdate,
+    enddate: req.body.enddate,
     type: req.body.type,
     category: req.body.category,
     status: 0,
@@ -163,8 +165,11 @@ router.post("/modifyAdvertisement", (req, res) => {
   const updateobj = {
     name: req.body.name,
     discount: req.body.discount,
-    description: req.body.description
+    description: req.body.description,
+    startdate: req.body.startdate,
+    enddate: req.body.enddate
   };
+  console.log("api modify adverrisement ", updateobj);
 
   let returnobj = { ad: null, img: null };
 

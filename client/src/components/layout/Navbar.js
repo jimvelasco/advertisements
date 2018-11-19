@@ -17,7 +17,9 @@ class Navbar extends Component {
     e.preventDefault();
     //this.props.clearCurrentProfile();
     this.props.logoutUser();
-    window.location.href = "/";
+    // no need to do this.  logoutUser wipes out token and then PrivateRoute directs to / which is the landing page
+    //window.location.href = "/";
+
     // this.props.history.push("/");
   }
 
@@ -61,7 +63,7 @@ class Navbar extends Component {
           </Link>
         </li> */}
 
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <Link className="nav-link" to="/businesses">
             Businesses
           </Link>
@@ -70,7 +72,7 @@ class Navbar extends Component {
           <Link className="nav-link" to="/test">
             Test
           </Link>
-        </li>
+        </li> */}
 
         <li className="nav-item">
           <Link className="nav-link" to={`/modifyadvertiser/${user.id}`}>

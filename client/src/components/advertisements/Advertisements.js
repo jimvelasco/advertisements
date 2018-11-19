@@ -16,6 +16,22 @@ import { setCurrentAdvertisement } from "../../actions/advertisementActions";
 class Advertisements extends Component {
   constructor(props) {
     super(props);
+    let today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth() + 1; //January is 0!
+    let yyyy = today.getFullYear();
+
+    if (dd < 10) {
+      dd = "0" + dd;
+    }
+
+    if (mm < 10) {
+      mm = "0" + mm;
+    }
+
+    today = yyyy + "-" + mm + "-" + dd;
+
+    // console.log("tdate is ", today);
     this.state = {
       advertisements: [],
       advertisement: {},
@@ -27,7 +43,9 @@ class Advertisements extends Component {
       discount: "",
       description: "",
       new_or_update: "NEW",
-      selectedAdvertisementId: null
+      selectedAdvertisementId: null,
+      startdate: today,
+      enddate: ""
     }; //shuttles: ["one", "two", "three"] };
 
     this.onChange = this.onChange.bind(this);
@@ -53,28 +71,55 @@ class Advertisements extends Component {
 
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
-      // setState triggers a render
     }
+    //console.log("got to here1");
+    if (this.props.selectedBizid !== nextProps.selectedBizid) {
+      let bizid = nextProps.selectedBizid;
+      //console.log("got to here2");
+      this.props.getAdvertisements(bizid);
+      // this.setState({
+      //   name: "",
+      //   discount: "",
+      //   description: "",
+      //   startdate: "",
+      //   enddate: "",
+      //   new_or_update: "NEW"
+      // });
+    }
+    //console.log("got to here3");
     if (
       this.props.advertise.advertisement._id !==
         nextProps.advertise.advertisement._id ||
       this.props.advertise.advertisement.image._id !==
         nextProps.advertise.advertisement.image._id
     ) {
+      //console.log("got to here4");
       let curad = nextProps.advertise.advertisement;
+      // console.log("curad start ", curad.startdate);
+      // console.log("curad start tostring ", curad.startdate.toDateString());
       this.setState({
         name: curad.name,
         discount: curad.discount,
-        description: curad.description
+        description: curad.description,
+        startdate: curad.startdate,
+        enddate: curad.enddate
       });
       let sp = localStorage.getItem("scrollpos");
-      //console.log("retrieved pos", sp);
       setTimeout(function() {
         window.scrollTo(0, sp);
-        //document.getElementById("advertisementform").scrollIntoView();
       }, 20);
+    } else {
+      this.setState({
+        name: "",
+        discount: "",
+        description: "",
+        startdate: "",
+        enddate: "",
+        new_or_update: "NEW"
+      });
     }
   }
+
   componentDidUpdate() {
     // console.log("we just updated an advertisement");
   }
@@ -113,6 +158,8 @@ class Advertisements extends Component {
     formdata.append("name", this.state.name);
     formdata.append("description", this.state.description);
     formdata.append("discount", this.state.discount);
+    formdata.append("startdate", this.state.startdate);
+    formdata.append("enddate", this.state.enddate);
     formdata.append("new_or_update", this.state.new_or_update);
     // console.log("formdata is ", formdata);
 
@@ -125,9 +172,12 @@ class Advertisements extends Component {
     } else {
       this.props.modifyAdvertisement(formdata);
     }
+
+    // document.getElementById("advertisementform").reset();
   }
 
   deleteAdvertisement(adid) {
+    // document.getElementById("advertisementform").reset();
     this.props.deleteAdvertisement(adid);
   }
 
@@ -159,7 +209,11 @@ class Advertisements extends Component {
     const new_or_update = this.state.new_or_update;
 
     return (
-      <div id="addisplayarea" className="container bordershadow">
+      <div
+        id="addisplayarea"
+        className="container shadow-lg p-4"
+        style={{ marginTop: "20px" }}
+      >
         <div style={{ textAlign: "right" }}>
           <a
             href="#"
@@ -211,15 +265,17 @@ class Advertisements extends Component {
                 <td>
                   <a
                     href="#"
+                    className="btn btn-sm btn-secondary btn-block"
                     onClick={() => {
                       this.showModifyAd(advertisement._id);
                     }}
                   >
                     modify
                   </a>
-                  &nbsp;
+
                   <a
                     href="#"
+                    className="btn btn-sm btn-secondary btn-block"
                     onClick={() => {
                       this.changeAdStatus(
                         advertisement._id,
@@ -227,11 +283,12 @@ class Advertisements extends Component {
                       );
                     }}
                   >
-                    change
+                    status
                   </a>
-                  &nbsp;
+
                   <a
                     href="#"
+                    className="btn btn-sm btn-secondary btn-block"
                     onClick={() => {
                       this.deleteAdvertisement(advertisement._id);
                     }}
@@ -244,81 +301,112 @@ class Advertisements extends Component {
           </tbody>
         </table>
 
-        <h5 style={{ marginTop: "25px" }}>Advertisement</h5>
+        <div className="row">
+          <div className="col-md-8 offset-md-2 shadow p-4">
+            <h5 style={{ marginTop: "5px", textAlign: "center" }}>
+              Advertisement
+            </h5>
 
-        <form id="advertisementform" noValidate onSubmit={this.onSubmit}>
-          <div className="form-group">
-            <TextFieldGroup
-              type="text"
-              label="Name"
-              placeholder="Name"
-              name="name"
-              value={this.state.name}
-              onChange={this.onChange}
-              error={errors.name}
-            />
-          </div>
-          <div className="form-group">
-            <TextFieldGroup
-              type="text"
-              label="Description"
-              placeholder="Description"
-              name="description"
-              value={this.state.description}
-              onChange={this.onChange}
-              error={errors.description}
-            />
-          </div>
-          <div className="form-group">
-            <TextFieldGroup
-              type="text"
-              label="Discount"
-              placeholder="Discount"
-              name="discount"
-              value={this.state.discount}
-              onChange={this.onChange}
-              error={errors.discount}
-            />
-          </div>
-
-          <div className="form-group">
-            <div className="row">
-              <div className="col-md-3">Image</div>
-              <div className="col-md-9">
-                <input
-                  type="file"
-                  name="file"
-                  onChange={this.onFileInputChange}
+            <form id="advertisementform" noValidate onSubmit={this.onSubmit}>
+              <div className="form-group">
+                <TextFieldGroup
+                  type="text"
+                  label="Name"
+                  placeholder="Name"
+                  name="name"
+                  value={this.state.name}
+                  onChange={this.onChange}
+                  error={errors.name}
                 />
               </div>
-            </div>
-          </div>
-          <div className="form-group">
-            <div className="row">
-              <div className="col-md-3">New/Update</div>
-              <div className="col-md-9">
-                <input
-                  type="radio"
-                  value="NEW"
-                  checked={new_or_update === "NEW"}
-                  name="neworupdate"
-                  onChange={this.onRBChange}
+              <div className="form-group">
+                <TextFieldGroup
+                  type="text"
+                  label="Description"
+                  placeholder="Description"
+                  name="description"
+                  value={this.state.description}
+                  onChange={this.onChange}
+                  error={errors.description}
                 />
-                &nbsp;New &nbsp;&nbsp;
-                <input
-                  type="radio"
-                  value="UPDATE"
-                  checked={new_or_update === "UPDATE"}
-                  name="neworupdate"
-                  onChange={this.onRBChange}
-                />
-                &nbsp;Update
               </div>
-            </div>
+              <div className="form-group">
+                <TextFieldGroup
+                  type="text"
+                  label="Discount"
+                  placeholder="Discount"
+                  name="discount"
+                  value={this.state.discount}
+                  onChange={this.onChange}
+                  error={errors.discount}
+                />
+              </div>
+              <div className="form-group">
+                <TextFieldGroup
+                  type="date"
+                  label="Start Date"
+                  placeholder="Start Date"
+                  name="startdate"
+                  value={this.state.startdate}
+                  onChange={this.onChange}
+                  error={errors.startdate}
+                />
+              </div>
+              <div className="form-group">
+                <TextFieldGroup
+                  type="date"
+                  label="End Date"
+                  placeholder="End Date"
+                  name="enddate"
+                  value={this.state.enddate}
+                  onChange={this.onChange}
+                  error={errors.enddate}
+                />
+              </div>
+
+              <div className="form-group">
+                <div className="row">
+                  <div className="col-md-3">Image</div>
+                  <div className="col-md-9">
+                    <input
+                      type="file"
+                      name="file"
+                      onChange={this.onFileInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="row">
+                  <div className="col-md-3">New/Update</div>
+                  <div className="col-md-9">
+                    <input
+                      type="radio"
+                      value="NEW"
+                      checked={new_or_update === "NEW"}
+                      name="neworupdate"
+                      onChange={this.onRBChange}
+                    />
+                    &nbsp;New &nbsp;&nbsp;
+                    <input
+                      type="radio"
+                      value="UPDATE"
+                      checked={new_or_update === "UPDATE"}
+                      name="neworupdate"
+                      onChange={this.onRBChange}
+                    />
+                    &nbsp;Update
+                  </div>
+                </div>
+              </div>
+              {perrors && (
+                <div className="error-display">{perrors.message}</div>
+              )}
+              <input type="submit" className="btn btn-info btn-block mt-4" />
+            </form>
           </div>
-          {perrors && <div className="error-display">{perrors.message}</div>}
-          <input type="submit" className="btn btn-info btn-block mt-4" />
-        </form>
+          {/* end of form wrapper */}
+        </div>
       </div>
     );
   }
@@ -344,3 +432,32 @@ export default connect(
 )(withRouter(Advertisements));
 
 //Advertisements;
+
+// {/* <div class="row">
+// <div className="col-md-3">Name</div>
+// <div className="col-md-3">Description</div>
+// <div className="col-md-3">Discount</div>
+// <div className="col-md-3">Image</div>
+// </div>
+
+// {advertisements.map((advertisement, index) => (
+// <div class="row" key={index}>
+//   <div className="col-md-12">
+//     <div className="row">
+//       <div className="col-md-3">{advertisement.name}</div>
+//     </div>
+//     <div className="row">
+//       <div className="col-md-3">
+//         <a
+//           href="#"
+//           onClick={() => {
+//             this.showModifyAd(advertisement._id);
+//           }}
+//         >
+//           modify
+//         </a>
+//       </div>
+//     </div>
+//   </div>
+// </div>
+// ))} */}

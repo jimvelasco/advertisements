@@ -218,14 +218,8 @@ class Business extends Component {
       <div className="register">
         <div className="container">
           <div className="row">
-            <div
-              className="col-md-8 m-auto"
-              style={{
-                border: "0px solid black"
-              }}
-            >
-              <h1 className="display-4 text-center">{title} Business</h1>
-              <h3 />
+            <div className="col-md-8 m-auto shadow-lg p-4">
+              <h2 className=" text-center">{title} Business</h2>
 
               <form noValidate onSubmit={this.onSubmit}>
                 <div className="form-group">

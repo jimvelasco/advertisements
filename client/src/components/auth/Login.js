@@ -62,11 +62,11 @@ class Login extends Component {
     const perrors = this.props.errors;
 
     return (
-      <div className="register">
+      <div className="register" style={{ marginTop: "40px" }}>
         <div className="container">
           <div className="row">
-            <div className="col-md-6 m-auto">
-              <h1 className="display-4 text-center">Sign In</h1>
+            <div className="col-md-6 m-auto shadow-lg p-4">
+              <h2 className="xdisplay-4 text-center">Sign In</h2>
 
               <form noValidate onSubmit={this.onSubmit}>
                 <div className="form-group">

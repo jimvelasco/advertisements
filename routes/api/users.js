@@ -362,10 +362,15 @@ router.post("/login", (req, res) => {
           status: user.status
         }; // Create JWT Payload
         // Sign Token
+        // the expiresIn will be trigger when user tries to reload page
+        // they will be redirected to login page
+        // see App.js to see where this is done
+        // the value is in seconds
         jwt.sign(
           payload,
           keys.secretOrKey,
           { expiresIn: 3600 },
+          // { expiresIn: 60 },
           (err, token) => {
             res.json({
               success: true,

@@ -8,6 +8,7 @@ img {
   /* background: url("./img/showcase.jpg") no-repeat; */
   background: url("./img/steamboat-ski-resort.jpg") no-repeat;
   background-size: cover;
+  opacity: 0.8;
   background-position: center;
   height: 100vh;
   margin-top: -24px;
@@ -41,10 +42,10 @@ img {
 }
 
 .bordershadow {
-  border: 1px solid black;
+  border: 1px solid rgba(22, 162, 183);
   padding: 10px;
   margin-top: 10px;
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 3px 3px 5px rgba(22, 162, 183, 0.5);
 }
 .custom-ui {
   border: 1px solid black;
@@ -53,9 +54,10 @@ img {
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
   width: 300px;
 }
+/*rgb(22,162,183)*/
 
 .floatLeft {
-  border: 1px solid black;
+  border: 0px solid rgba(22, 162, 183);
   padding: 3px;
   margin: 5px;
   float: left;

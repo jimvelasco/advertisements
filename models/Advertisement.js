@@ -34,6 +34,12 @@ const AdvertisementSchema = new Schema({
   child: {
     type: Number
   },
+  startdate: {
+    type: String
+  },
+  enddate: {
+    type: String
+  },
 
   date: {
     type: Date,

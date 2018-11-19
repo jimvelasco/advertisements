@@ -13,6 +13,7 @@ const TextFieldGroup = ({
   onChange,
   disabled
 }) => {
+  //console.log(placeholder + " " + value);
   return (
     <div className="form-group">
       <div className="row">
