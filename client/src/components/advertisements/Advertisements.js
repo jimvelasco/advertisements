@@ -178,7 +178,13 @@ class Advertisements extends Component {
 
   deleteAdvertisement(adid) {
     // document.getElementById("advertisementform").reset();
-    this.props.deleteAdvertisement(adid);
+    // alert("what");
+    if (window.confirm("Are you sure you want to delete this Advertisement?")) {
+      this.props.deleteAdvertisement(adid);
+    } else {
+      //alert("No");
+    }
+    // this.props.deleteAdvertisement(adid);
   }
 
   changeAdStatus = (adid, status) => {

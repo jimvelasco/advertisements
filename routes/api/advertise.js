@@ -330,7 +330,7 @@ router.get("/find-ad/:id", (req, res) => {
     );
 });
 
-router.get("/doadimagejoin/:id", (req, res) => {
+router.get("/xxdoadimagejoin/:id", (req, res) => {
   let id = req.params.id;
   //let query = { businessId: id };
   //console.log("advertise api", query);
@@ -350,6 +350,204 @@ router.get("/doadimagejoin/:id", (req, res) => {
     },
     { $unwind: "$image" },
     { $match: { "image.type": "ad" } }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+router.get("/ccccdoadimagejoin/:id", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  console.log("advertise api bizid ", id);
+
+  let query = { _id: ObjectId(id) };
+  //let query = { businessId: id };
+
+  Business.aggregate([
+    { $match: query },
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "_id",
+        foreignField: "businessId",
+        as: "adverts"
+      }
+    },
+
+    {
+      $lookup: {
+        from: "images",
+        localField: "advertisementId",
+        foreignField: "advertisementId",
+        as: "imageads"
+      }
+    },
+    { $unwind: "$adverts" },
+    { $unwind: "$imageads" },
+
+    { $match: { "imageads.type": "ad" } }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+router.get("/thisisgood_doadimagejoin/:id", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  console.log("advertise api bizid ", id);
+  let query = { businessId: ObjectId(id), type: "ad" };
+  Image.aggregate([
+    { $match: query },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "advertisementId",
+        foreignField: "_id",
+        as: "adverts"
+      }
+    },
+    { $unwind: "$adverts" },
+
+    {
+      $lookup: {
+        from: "businesses",
+        localField: "businessId",
+        foreignField: "_id",
+        as: "bizes"
+      }
+    },
+    { $unwind: "$bizes" },
+    {
+      $project: {
+        imageFilename: 1,
+        type: 1,
+        "adverts.name": 1,
+        "bizes.description": 1
+      }
+    }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+router.get("/doadimagejoin/:id", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  console.log("advertise api bizid ", id);
+  let query = { businessId: ObjectId(id), type: "ad" };
+  Image.aggregate([
+    { $match: query },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "advertisementId",
+        foreignField: "_id",
+        as: "adverts"
+      }
+    },
+    { $unwind: "$adverts" },
+
+    {
+      $lookup: {
+        from: "businesses",
+        localField: "businessId",
+        foreignField: "_id",
+        as: "bizes"
+      }
+    },
+    { $unwind: "$bizes" },
+    {
+      $lookup: {
+        from: "advertisers",
+        localField: "advertiserId",
+        foreignField: "_id",
+        as: "vizers"
+      }
+    },
+    { $unwind: "$vizers" },
+
+    {
+      $project: {
+        imageFilename: 1,
+        type: 1,
+        "adverts.name": 1,
+        "bizes.name": 1,
+        "bizes.description": 1,
+        "vizers.name": 1,
+        "vizers.email": 1
+      }
+    }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+router.get("/bummer_doadimagejoin/:id", (req, res) => {
+  let id = req.params.id;
+  // let query = { businessId: id };
+  console.log("advertise api bizid ", id);
+  //let query = { businessId: ObjectId(id), type: "ad" };
+  let query = { _id: ObjectId(id) };
+  Business.aggregate([
+    { $match: query },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        // localField: "_id",
+        // foreignField: "businessId",
+        pipeline: [{ $match: { businessId: ObjectId(id) } }],
+        as: "adverts"
+      }
+    },
+    { $unwind: "$adverts" },
+
+    // {
+    //   $lookup: {
+    //     from: "advertisers",
+    //     localField: "advertiserId",
+    //     foreignField: "_id",
+    //     as: "vizers"
+    //   }
+    // },
+    // { $unwind: "$vizers" },
+
+    {
+      $lookup: {
+        from: "images",
+
+        localField: "businessId",
+        foreignField: "businessId",
+        // pipeline: [
+        //   {
+        //     $match: {
+        //       type: "ad",
+        //       businessId: ObjectId(id),
+        //       advertisementId: ObjectId("$adverts._id")
+        //     }
+        //   }
+        // ],
+        as: "images"
+      }
+    },
+    { $unwind: "$images" },
+    // { $match: { images: { "images.type": "ad" } } },
+
+    {
+      $project: {
+        name: 1,
+        "adverts._id": 1,
+        "adverts.name": 1,
+        "adverts.businessId": 1,
+        "bizes.name": 1,
+        "vizers.name": 1,
+        "vizers.email": 1,
+        "images.imageFilename": 1,
+        "images.type": 1
+      }
+    }
   ]).then(ads => {
     res.json(ads);
   });
