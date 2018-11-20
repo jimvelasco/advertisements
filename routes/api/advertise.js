@@ -169,7 +169,7 @@ router.post("/modifyAdvertisement", (req, res) => {
     startdate: req.body.startdate,
     enddate: req.body.enddate
   };
-  console.log("api modify adverrisement ", updateobj);
+  // console.log("api modify adverrisement ", updateobj);
 
   let returnobj = { ad: null, img: null };
 
