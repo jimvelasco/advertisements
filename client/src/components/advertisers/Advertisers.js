@@ -169,6 +169,7 @@ class Advertisers extends Component {
                 <td>{advertiser.status}</td>
                 <td>
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.detailsAdvertiser(advertiser);
@@ -178,6 +179,7 @@ class Advertisers extends Component {
                   </a>
                   &nbsp;
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.changeAdvertiserStatus(
@@ -190,6 +192,7 @@ class Advertisers extends Component {
                   </a>
                   &nbsp;
                   <a
+                    className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
                       this.deleteAdvertiser(advertiser._id);
