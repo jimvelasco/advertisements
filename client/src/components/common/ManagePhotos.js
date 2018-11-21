@@ -86,7 +86,7 @@ class ManagePhotos extends Component {
     const closePhotos = this.props.closePhotos;
 
     return (
-      <div className="shadow-lg p-4" style={{ marginTop: "20px" }}>
+      <div className="shadow p-4" style={{ marginTop: "20px" }}>
         <div style={{ textAlign: "right" }}>
           <a
             href="#"

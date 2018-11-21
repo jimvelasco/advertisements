@@ -17,6 +17,7 @@ import { getBusiness } from "../../actions/advertiseActions";
 import TextFieldGroup from "../common/TextFieldGroup";
 import SelectListGroup from "../common/SelectListGroup";
 import ImageDisplay from "../common/ImageDisplay";
+import MapLookup from "../common/MapLookup";
 
 class Business extends Component {
   constructor(props) {
@@ -52,6 +53,7 @@ class Business extends Component {
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.onFileInputChange = this.onFileInputChange.bind(this);
+    this.handleMapClick = this.handleMapClick.bind(this);
   }
   xxcomponentDidMount() {
     const id = this.props.match.params.id;
@@ -114,12 +116,16 @@ class Business extends Component {
     //console.log("register componentWillReceiveProps");
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
-      // setState triggers a render
     }
   }
 
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
+  }
+  handleMapClick(lat, lon) {
+    let slat = lat.toString();
+    let slon = lon.toString();
+    this.setState({ latitude: lat, longitude: lon });
   }
 
   onFileInputChange(e) {
@@ -136,24 +142,6 @@ class Business extends Component {
 
   onSubmit(e) {
     e.preventDefault();
-
-    // const anAdvertisement = {
-    //   id: this.state.id,
-    //   name: this.state.name,
-    //   email: this.state.email,
-    //   description: this.state.description,
-    //   category: this.state.category,
-    //   phone: this.state.phone,
-    //   address: this.state.address,
-    //   city: this.state.city,
-    //   state: this.state.state,
-    //   zip: this.state.zip,
-    //   latitude: this.state.latitude,
-    //   longitude: this.state.longitude,
-    //   ownerid: this.props.auth.user.id,
-    //   owneremail: this.props.auth.user.email,
-    //   status: this.state.status
-    // };
 
     let formdata = new FormData();
     formdata.append("file", this.state.file);
@@ -197,6 +185,8 @@ class Business extends Component {
   render() {
     const { errors } = this.state;
     const perrors = this.props.errors;
+    const lat = this.state.latitude;
+    const lon = this.state.longitude;
 
     // same as const errors = this.state.errors
 
@@ -376,6 +366,15 @@ class Business extends Component {
               {perrors && (
                 <div className="error-display">{perrors.message}</div>
               )}
+              <div className="row" style={{ marginTop: "20px" }}>
+                <div className="col-md-12">
+                  <MapLookup
+                    handleMapClick={this.handleMapClick}
+                    lat={lat}
+                    lon={lon}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -398,7 +397,8 @@ Business.propTypes = {
 // since we mapped error, we can use componentWillReceiveProps method
 const mapStateToProps = state => ({
   auth: state.auth,
-  errors: state.errors
+  errors: state.errors,
+  advertise: state.advertise
 });
 // the state.auth above comes from rootReducer in index.js in reducers.
 

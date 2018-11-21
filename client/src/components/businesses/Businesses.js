@@ -199,17 +199,8 @@ class Businesses extends Component {
   };
 
   showModifyBusiness(adid) {
-    // console.log("showModifyBusiness", adid);
-    //let link = `/api/advertisers/modify-ad/${adid}`;
-    // console.log(link);
-    //let pobj = { pathname: "/newad", search: "?id=12345" };
-    //this.props.history.push(pobj);
     let url = "/modifybusiness/" + adid;
     this.props.history.push(url);
-    // axios
-    //   .get(link)
-    //   .then(res => this.setState({ businesss: res.data }))
-    //   .catch(err => console.log(err.response.data)); // to get actual errors from backend
   }
 
   render() {

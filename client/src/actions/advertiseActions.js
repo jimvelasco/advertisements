@@ -149,6 +149,13 @@ export const modifyBusiness = (advertisementData, history) => dispatch => {
     );
 };
 
+// export const setBusiness = (bizobj, history) => dispatch => {
+//   dispatch({
+//     type: SET_BUSINESS,
+//     payload: bizobj
+//   });
+// };
+
 export const changeBusinessStatus = (bizid, status) => dispatch => {
   //console.log("modify advertisement in actions ", advertisementData);
   let link = `/api/business/change-business-status/${bizid}/${status}`;
