@@ -25,8 +25,8 @@ router.get("/businesses", (req, res) => {
         foreignField: "_id",
         as: "advertiser"
       }
-    }
-    // { $unwind: "$advertiser" }
+    },
+    { $unwind: "$advertiser" }
   ])
     .then(data => {
       res.json(data);

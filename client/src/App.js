@@ -16,7 +16,6 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Landing from "./components/layout/Landing";
 import StatusMessage from "./components/common/StatusMessage";
-import MapLookup from "./components/common/MapLookup";
 
 //import GoogleMapsContainer from "./components/common/GoogleMapsContainer";
 
@@ -81,7 +80,6 @@ class App extends Component {
             <div className="container">
               {/* <h3>status message</h3> */}
               <Route exact path="/test" component={Test} />
-              <Route exact path="/maplookup" component={MapLookup} />
               {/* <Route exact path="/googlemaps" component={GoogleMapsContainer} /> */}
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
