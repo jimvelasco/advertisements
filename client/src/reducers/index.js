@@ -7,6 +7,6 @@ import adverReducer from "./adverReducer";
 export default combineReducers({
   auth: authReducer,
   errors: errorReducer,
-  status: statusReducer,
+  statusMsg: statusReducer,
   advertise: adverReducer
 });

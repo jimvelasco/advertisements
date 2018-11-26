@@ -15,7 +15,8 @@ import {
   CHANGE_ADVERTISEMENT_STATUS,
   SET_IMAGES,
   SET_NEW_IMAGE,
-  REMOVE_IMAGE
+  REMOVE_IMAGE,
+  SET_IS_LOADING
 } from "../actions/types";
 
 // import { TEST_DISPATCH } from "../actions/types";
@@ -27,7 +28,9 @@ const initialState = {
   business: {},
   images: [],
   image: {},
-  advertisement: { image: {} }
+  advertisement: { image: {} },
+  isloading: false,
+  page: ""
 };
 // let bizid = "";
 // let workid = "";
@@ -44,6 +47,13 @@ export default function(state = initialState, action) {
     // *************************
     // ADVERTISER
     // *************************
+
+    case SET_IS_LOADING:
+      return {
+        ...state,
+        isloading: action.payload.isloading,
+        page: action.payload.page
+      };
 
     case SET_ADVERTISERS:
       return {
@@ -138,6 +148,7 @@ export default function(state = initialState, action) {
       return {
         ...state,
         advertisements: action.payload
+        // isLoading: false
       };
 
     // *************************
@@ -258,8 +269,10 @@ export default function(state = initialState, action) {
       workid = action.payload;
       return {
         ...state,
+        image: {},
         images: state.images.filter(item => item._id !== workid)
       };
+    // return state;
 
     case SET_NEW_IMAGE:
       let curimages = state.images;

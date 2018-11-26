@@ -21,25 +21,27 @@ class StatusMessage extends Component {
 
   componentDidMount() {
     //console.log("status message did mount component did mount ", this.props);
-    this.setState({ statusmessage: this.props.status.message });
+    this.setState({ statusmessage: this.props.statusMsg.message });
     // let sp = window.scrollY;
     // console.log("cdm status message position is ", sp);
     //if (!this.props.advertise.businesses) {
     //  console.log("component did mount getting businesses");
     // this.getBusinesses();
     //}
+
+    // setTimeout(function() {
+    //   window.scrollTo(0, sp);
+    // }, 20);
   }
   componentWillReceiveProps(nextProps) {
     // console.log("register componentWillReceiveProps");
     // console.log("current props ", this.props);
     // console.log("nextProps ", nextProps);
     // this.setState({ statusmessage: nextProps.status.message });
-    if (nextProps.status.message) {
-      let sp = window.scrollY;
-      // console.log("will recieve props status message position is ", sp);
-      this.setState({ statusmessage: nextProps.status.message });
+    if (nextProps.statusMsg.message) {
+      this.setState({ statusmessage: nextProps.statusMsg.message });
 
-      this.showMessage(sp);
+      this.showMessage();
     }
     //this.showMessage();
     // if (nextProps.errors) {
@@ -55,11 +57,7 @@ class StatusMessage extends Component {
     this.props.clearStatusMessage();
   }
 
-  showMessage(sp) {
-    // let smdiv = document.getElementById("statusmessage");
-    // console.log("smdiv is ", smdiv);
-    // console.log("scroll pos  is ", sp);
-    // smdiv.style.top = 100 + sp + "px";
+  showMessage() {
     messageTimer = setTimeout(
       function() {
         this.clearMessage();
@@ -74,10 +72,19 @@ class StatusMessage extends Component {
     const { errors } = this.props;
     const statusmessage = this.state.statusmessage;
 
+    //let sp = localStorage.getItem("scrollpos");
+    //console.log("the scroll during render is position is ", sp);
+    let ptop = window.scrollY;
+    let itop = 60 + ptop; //parseInt(localStorage.getItem("scrollpos"));
+
+    //style={{top:}}
+
     return (
-      <div id="statusmessage" className="xstatusmessage">
+      <div>
         {statusmessage ? (
-          <div className="statusmessage">{statusmessage}</div>
+          <div className="statusmessage" style={{ top: itop }}>
+            {statusmessage}
+          </div>
         ) : (
           <div />
         )}
@@ -88,7 +95,7 @@ class StatusMessage extends Component {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  status: state.status
+  statusMsg: state.statusMsg
 });
 
 export default connect(

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import classnames from "classnames";
-// import Spinner from "../common/Spinner";
+import Spinner from "../common/Spinner";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 // import { triggerError } from "../../actions/advertiseActions";
@@ -21,7 +21,6 @@ import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 class Businesses extends Component {
   constructor(props) {
     super(props);
-    // console.log("Businesses props", props);
     this.state = {
       businesses: null,
       errors: null,
@@ -46,17 +45,13 @@ class Businesses extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    //console.log("register componentWillReceiveProps");
-    //console.log("current props ", this.props);
-    //console.log("nextProps ", nextProps);
+    // console.log("register componentWillReceiveProps");
+    // console.log("businesses current props ", this.props);
+    // console.log("businesses  nextProps ", nextProps);
     // if (nextProps.errors) {
     //   this.setState({ errors: nextProps.errors });
     //   // setState triggers a render
     // }
-  }
-
-  logConsole() {
-    console.log("logging to console");
   }
 
   getBusinesses() {
@@ -90,7 +85,8 @@ class Businesses extends Component {
     });
   }
 
-  doDeleteBusiness(adid) {
+  doDeleteBusiness(e, adid) {
+    e.preventDefault();
     this.props.deleteBusiness(adid);
   }
 
@@ -194,7 +190,8 @@ class Businesses extends Component {
       });
   }
 
-  changeBusinessStatus = (adid, status) => {
+  changeBusinessStatus = (e, adid, status) => {
+    e.preventDefault();
     this.props.changeBusinessStatus(adid, status);
   };
 
@@ -207,6 +204,7 @@ class Businesses extends Component {
     //const { errors } = this.props;
     // console.log("rendering businesses state", this.state);
     // console.log("rendering businesses props", this.props.advertise.businesses);
+    //console.log("busnesses render props", this.props);
 
     if (this.props.auth.user.status == "0") {
       return <div>User is not authorized to view or create businesses</div>;
@@ -225,12 +223,12 @@ class Businesses extends Component {
     let selectedBizid = this.state.selectedBizid;
     let selectedName = this.state.selectedName;
 
-    // let errormsg = "";
-    // if (!isEmpty(errors)) {
-    //   errormsg = errors.message;
-    // }
-    // let show = true;
-    // let data = "123456";
+    if (
+      this.props.advertise.isloading &&
+      this.props.advertise.page === "business"
+    ) {
+      return <Spinner />;
+    }
 
     return (
       <div className="container">
@@ -300,8 +298,12 @@ class Businesses extends Component {
                   <a
                     className="btn btn-sm btn-secondary mr-2"
                     href="#"
-                    onClick={() => {
-                      this.changeBusinessStatus(business._id, business.status);
+                    onClick={e => {
+                      this.changeBusinessStatus(
+                        e,
+                        business._id,
+                        business.status
+                      );
                     }}
                   >
                     status
@@ -310,8 +312,8 @@ class Businesses extends Component {
                   <a
                     className="btn btn-sm btn-secondary mr-2"
                     href="#"
-                    onClick={() => {
-                      this.deleteBusiness(business._id);
+                    onClick={e => {
+                      this.deleteBusiness(e, business._id);
                     }}
                   >
                     delete
@@ -396,7 +398,7 @@ Businesses.propTypes = {
 const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors,
-  status: state.status,
+  statusMsg: state.statusMsg,
   advertise: state.advertise
 });
 

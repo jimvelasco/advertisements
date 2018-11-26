@@ -31,6 +31,7 @@ class MapLookup extends Component {
     this.props.handleMapClick(lat, lng);
   }
   render() {
+    //console.log("maplookup props", this.props);
     let { lat } = this.state;
     let { lon } = this.state;
     let posobj = { lat: 40.485, lng: -106.8317 };
@@ -85,7 +86,7 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  {}
+  null
 )(MapLookup);
 // wrap the Register with withRouter so the authAction can use history to redirect
 

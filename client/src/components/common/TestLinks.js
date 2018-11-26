@@ -101,7 +101,7 @@ class TestLinks extends Component {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  status: state.status
+  statusMsg: state.statusMsg
 });
 
 export default connect(

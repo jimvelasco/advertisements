@@ -10,11 +10,13 @@ import {
   MODIFY_ADVERTISEMENT,
   REMOVE_ADVERTISEMENT,
   CHANGE_ADVERTISEMENT_STATUS,
-  SET_STATUS_MESSAGE
+  SET_STATUS_MESSAGE,
+  SET_IS_LOADING
 } from "./types";
 
 export const getAdvertisements = bizid => dispatch => {
   //console.log("getAdvertisements");
+  //dispatch({ type: SET_IS_LOADING, payload: true });
   let link = "/api/advertise/advertisements/" + bizid;
 
   axios
@@ -24,13 +26,23 @@ export const getAdvertisements = bizid => dispatch => {
       //console.log("getAdvertisements we have success", res.data);
       //this.setState({ businesses: res.data });
       dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_IS_LOADING,
+        payload: { isloading: true, page: "advertisements" }
+      });
       dispatch({ type: SET_CURRENT_ADVERTISEMENTS, payload: res.data });
+      dispatch({
+        type: SET_IS_LOADING,
+        payload: { isloading: false, page: "" }
+      });
+      //
       // history.push("/dashboard");
       //this.logConsole();
       // console.log(res.data);
     })
     .catch(err => {
       //console.log("advertise actions error ", err);
+      dispatch({ type: SET_IS_LOADING, payload: false });
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -65,6 +77,10 @@ export const modifyAdvertisement = advertisementData => dispatch => {
 
     .then(res => {
       dispatch({ type: CLEAR_ERRORS });
+      dispatch({
+        type: SET_STATUS_MESSAGE,
+        payload: { message: "Advertisement Update Successful" }
+      });
       dispatch({ type: MODIFY_ADVERTISEMENT, payload: res.data });
       // history.push("/dashboard");
     })

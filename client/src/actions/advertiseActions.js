@@ -1,6 +1,7 @@
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
+import * as api from "./index";
 import {
   GET_ERRORS,
   CLEAR_ERRORS,
@@ -18,7 +19,8 @@ import {
   SET_ADVERTISERS,
   CHANGE_ADVERTISER_STATUS,
   REMOVE_ADVERTISER,
-  SET_BUSINESS
+  SET_BUSINESS,
+  SET_IS_LOADING
 } from "./types";
 
 export const clearErrors = () => dispatch => {
@@ -93,31 +95,36 @@ export const getBusiness = bizid => dispatch => {
 };
 
 export const getBusinesses = (userrole, userid, history) => dispatch => {
-  // let userrole = this.props.auth.user.role;
-  // let userid = this.props.auth.user.id;
-  // let status = this.props.auth.user.status;
-  let link = "/api/business/businesses";
-  if (userrole === "") {
-    link = "/api/business/businesses/" + userid;
-  }
+  // let link = "/api/business/businesses";
+  // if (userrole === "") {
+  //   link = "/api/business/businesses/" + userid;
+  // }
+  // axios
+  //   .get(link)
 
-  //console.log("link we are using in actions ", link);
-
-  // if (status !== "0") {
-  axios
-    .get(link)
-    // .then(res => console.log(res.data))
+  dispatch({
+    type: SET_IS_LOADING,
+    payload: { isloading: true, page: "business" }
+  });
+  api
+    .getApiBusinesses(userrole, userid)
     .then(res => {
       //console.log("we have success", res.data);
       //this.setState({ businesses: res.data });
       dispatch({ type: CLEAR_ERRORS });
       dispatch({ type: SET_BUSINESSES, payload: res.data });
+
+      dispatch({
+        type: SET_IS_LOADING,
+        payload: { isloading: false, page: "" }
+      });
       // history.push("/dashboard");
       //this.logConsole();
       // console.log(res.data);
     })
     .catch(err => {
-      console.log("advertise actions error ", err);
+      //console.log("advertise actions error ", err);
+      dispatch({ type: SET_IS_LOADING, payload: false });
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
@@ -137,7 +144,7 @@ export const modifyBusiness = (advertisementData, history) => dispatch => {
         payload: { message: "Business Update Successful" }
       });
       dispatch({ type: MODIFY_BUSINESS, payload: res.data });
-      history.push("/dashboard");
+      // history.push("/dashboard");
     })
     // thunk lets us do a dispatch
     // .then(res => console.log(res.data))
@@ -246,10 +253,10 @@ export const deletePhoto = id => dispatch => {
     .get(link)
     .then(res => {
       dispatch({ type: CLEAR_ERRORS });
-      dispatch({
-        type: SET_STATUS_MESSAGE,
-        payload: { message: "Photo Deleted" }
-      });
+      // dispatch({
+      //   type: SET_STATUS_MESSAGE,
+      //   payload: { message: "Photo Deleted" }
+      // });
 
       dispatch({ type: REMOVE_IMAGE, payload: id });
     })

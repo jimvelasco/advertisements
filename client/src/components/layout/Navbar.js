@@ -67,8 +67,9 @@ class Navbar extends Component {
           <Link className="nav-link" to="/businesses">
             Businesses
           </Link>
-        </li>
-        <li className="nav-item">
+        </li>*/}
+
+        {/* <li className="nav-item">
           <Link className="nav-link" to="/test">
             Test
           </Link>
@@ -153,7 +154,7 @@ Navbar.propTypes = {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  status: state.status
+  statusMsg: state.statusMsg
 });
 
 export default connect(

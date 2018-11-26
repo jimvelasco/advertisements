@@ -32,6 +32,7 @@ class ManagePhotos extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log("doing a mp wrp ");
     //console.log("manage photos current props ", this.props);
     //console.log("manage photos nextProps ", nextProps);
     if (this.props.selectedBizid != nextProps.selectedBizid) {
@@ -58,7 +59,8 @@ class ManagePhotos extends Component {
     }
   }
 
-  deletePhoto(id) {
+  deletePhoto(e, id) {
+    e.preventDefault();
     this.props.deletePhoto(id);
   }
 
@@ -110,8 +112,8 @@ class ManagePhotos extends Component {
               <a
                 className="smallfont"
                 href="#"
-                onClick={() => {
-                  this.deletePhoto(photo._id);
+                onClick={e => {
+                  this.deletePhoto(e, photo._id);
                 }}
               >
                 delete

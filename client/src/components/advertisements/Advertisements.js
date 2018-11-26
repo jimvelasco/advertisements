@@ -45,7 +45,8 @@ class Advertisements extends Component {
       new_or_update: "NEW",
       selectedAdvertisementId: null,
       startdate: today,
-      enddate: ""
+      enddate: "",
+      winpos: 0
     }; //shuttles: ["one", "two", "three"] };
 
     this.onChange = this.onChange.bind(this);
@@ -56,38 +57,23 @@ class Advertisements extends Component {
 
   componentDidMount() {
     // this.getAdvertisements();
-    //console.log("advertisement props", this.props);
+    // console.log("advertisements props", this.props);
     let bizid = this.props.selectedBizid;
     this.props.getAdvertisements(bizid);
   }
 
   componentWillReceiveProps(nextProps) {
-    //console.log("register componentWillReceiveProps");
-    // console.log(
-    //   "advertisements current props ",
-    //   this.props.advertise.advertisement
-    // );
-    // console.log("advertisements nextProps ", nextProps.advertise.advertisement);
-
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
     }
     //console.log("got to here1");
     if (this.props.selectedBizid !== nextProps.selectedBizid) {
       let bizid = nextProps.selectedBizid;
-      //console.log("got to here2");
+      // console.log("this props bizid", this.props.selectedBizid);
+      // console.log("next props bizid", nextProps.selectedBizid);
+      // console.log("getting advertisements for ", bizid);
       this.props.getAdvertisements(bizid);
-      // this.setState({
-      //   name: "",
-      //   discount: "",
-      //   description: "",
-      //   startdate: "",
-      //   enddate: "",
-      //   new_or_update: "NEW"
-      // });
-    }
-    //console.log("got to here3");
-    if (
+    } else if (
       this.props.advertise.advertisement._id !==
         nextProps.advertise.advertisement._id ||
       this.props.advertise.advertisement.image._id !==
@@ -104,20 +90,26 @@ class Advertisements extends Component {
         startdate: curad.startdate,
         enddate: curad.enddate
       });
-      let sp = localStorage.getItem("scrollpos");
-      setTimeout(function() {
-        window.scrollTo(0, sp);
-      }, 20);
     } else {
-      this.setState({
-        name: "",
-        discount: "",
-        description: "",
-        startdate: "",
-        enddate: "",
-        new_or_update: "NEW"
-      });
+      // this.setState({
+      //   name: "",
+      //   discount: "",
+      //   description: "",
+      //   startdate: "",
+      //   enddate: "",
+      //   new_or_update: "NEW"
+      // });
     }
+
+    //console.log("cdm");
+
+    // let ypos = 0;
+    // if (this.state.winpos) {
+    //   ypos = this.state.winpos;
+    // }
+    // setTimeout(function() {
+    //   window.scrollTo(0, ypos);
+    // }, 20);
   }
 
   componentDidUpdate() {
@@ -146,6 +138,9 @@ class Advertisements extends Component {
   }
   onSubmit(e) {
     e.preventDefault();
+
+    let sp = window.scrollY;
+    this.setState({ winpos: sp });
 
     let curAdId = this.props.advertise.advertisement._id;
 
@@ -187,32 +182,46 @@ class Advertisements extends Component {
     // this.props.deleteAdvertisement(adid);
   }
 
-  changeAdStatus = (adid, status) => {
+  changeAdStatus = (e, adid, status) => {
+    e.preventDefault();
     this.props.changeAdvertisementStatus(adid, status);
   };
 
-  showModifyAd(adid) {
+  showModifyAd(e, adid) {
+    e.preventDefault();
     document.getElementById("advertisementform").reset();
     this.props.setCurrentAdvertisement(adid);
     this.setState({ file: null, new_or_update: "UPDATE" });
-    let sp = window.scrollY;
-    // console.log("setting sp ", sp);
-    localStorage.setItem("scrollpos", sp);
   }
 
   render() {
-    if (!this.state.advertisements) {
-      // return <div>Loading...</div>;
+    if (
+      this.props.advertise.isloading &&
+      this.props.advertise.page === "advertisements"
+    ) {
       return <Spinner />;
+    }
+
+    if (this.props.advertise.advertisements.length == 0) {
+      return (
+        <h2 style={{ textAlign: "center", marginTop: "20px" }}>
+          No advertisements exist for: {this.props.selectedName}
+        </h2>
+      );
     }
 
     const { errors } = this.state;
     const perrors = this.props.errors;
+    const statusmsg = this.props.statusMsg.message;
 
     let advertisements = this.props.advertise.advertisements;
     let name = this.props.selectedName;
     const closeAdvertisements = this.props.closeAdvertisements;
     const new_or_update = this.state.new_or_update;
+
+    // if (this.props.advertise.isLoading) {
+    //   return <Spinner />;
+    // }
 
     return (
       <div
@@ -236,6 +245,7 @@ class Advertisements extends Component {
         </div>
         <h4 style={{ textAlign: "center" }}>{name}</h4>
         <h5>Advertisements</h5>
+        {/* {statusmsg && <div className="error-display">{statusmsg}</div>} */}
 
         <table className="table table-bordered table-striped table-sm">
           <thead className="thead-dark">
@@ -272,8 +282,8 @@ class Advertisements extends Component {
                   <a
                     href="#"
                     className="btn btn-sm btn-secondary btn-block"
-                    onClick={() => {
-                      this.showModifyAd(advertisement._id);
+                    onClick={e => {
+                      this.showModifyAd(e, advertisement._id);
                     }}
                   >
                     modify
@@ -282,8 +292,9 @@ class Advertisements extends Component {
                   <a
                     href="#"
                     className="btn btn-sm btn-secondary btn-block"
-                    onClick={() => {
+                    onClick={e => {
                       this.changeAdStatus(
+                        e,
                         advertisement._id,
                         advertisement.status
                       );
@@ -422,7 +433,8 @@ class Advertisements extends Component {
 const mapStateToProps = state => ({
   auth: state.auth,
   errors: state.errors,
-  advertise: state.advertise
+  advertise: state.advertise,
+  statusMsg: state.statusMsg
 });
 
 export default connect(
