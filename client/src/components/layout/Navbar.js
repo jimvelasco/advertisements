@@ -76,6 +76,12 @@ class Navbar extends Component {
         </li> */}
 
         <li className="nav-item">
+          <Link className="nav-link" to="/map">
+            Map
+          </Link>
+        </li>
+
+        <li className="nav-item">
           <Link className="nav-link" to={`/modifyadvertiser/${user.id}`}>
             {user.email}
           </Link>

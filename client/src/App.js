@@ -16,6 +16,7 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Landing from "./components/layout/Landing";
 import StatusMessage from "./components/common/StatusMessage";
+import MapBusinesses from "./components/common/MapBusinesses";
 
 //import GoogleMapsContainer from "./components/common/GoogleMapsContainer";
 
@@ -84,6 +85,7 @@ class App extends Component {
               {/* <Route exact path="/googlemaps" component={GoogleMapsContainer} /> */}
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
+              {/* <Route exact path="/map" component={MapBusinesses} /> */}
               {/* <Route exact path="/newadvertisement" component={Advertisement} /> */}
               {/* <Route exact path="/thumbs" component={Thumbs} /> */}
               <Switch>
@@ -92,6 +94,8 @@ class App extends Component {
                   path="/advertisers"
                   component={Advertisers}
                 />
+
+                <PrivateRoute exact path="/map" component={MapBusinesses} />
 
                 <PrivateRoute exact path="/businesses" component={Businesses} />
 
