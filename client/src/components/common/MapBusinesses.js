@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import axios from "axios";
 import {
   withGoogleMap,
   GoogleMap,
@@ -19,7 +20,14 @@ const GoogleMapExample = withGoogleMap(props => (
       >
         {marker.show && (
           <InfoWindow onCloseClick={props.onCloseClick.bind(this, marker.id)}>
-            <div className="marker-text">{marker.name}</div>
+            <div>
+              <div className="marker-text">
+                <b>{marker.name}</b>
+              </div>
+              <div className="marker-text">{marker.adname}</div>
+              <div className="marker-text">{marker.addesc}</div>
+              <div className="marker-text">{marker.addisc}</div>
+            </div>
           </InfoWindow>
         )}
       </Marker>
@@ -40,29 +48,53 @@ class MapLookup extends Component {
   }
 
   componentDidMount() {
-    // console.log("maps cdm", this.props);
-    //this.setState({ lat: this.props.lat, lon: this.props.lon });
-    let userrole = "admin";
-    let userid = "";
-    this.props.getBusinesses(userrole, userid);
+    //let link = "/api/business/businesses";
+    let link = "/api/business/business_map";
+    axios
+      .get(link)
+      .then(res => {
+        // dispatch({ type: SET_CURRENT_ADVERTISEMENT, payload: res.data });
+        console.log(res.data);
+        let bizes = res.data;
+        let mary = [];
+        bizes.map((biz, index) => {
+          let ads = biz.ads[0];
+          mary.push({
+            lat: biz.latitude,
+            lng: biz.longitude,
+            name: biz.name,
+            adname: ads.name,
+            addesc: ads.description,
+            addisc: ads.discount,
+            id: biz._id,
+            show: false
+          });
+          this.setState({ markers: mary });
+        });
+      })
+      // thunk lets us do a dispatch
+      // .then(res => console.log(res.data))
+      .catch(err => {
+        console.log("triggering error in actions", err.message);
+      });
   }
 
   componentWillReceiveProps(nextProps) {
     //console.log("manage photos current props ", this.props);
     console.log("business map nextProps ", nextProps);
-    let bizes = nextProps.advertise.businesses;
-    let mary = [];
-    bizes.map((biz, index) => {
-      mary.push({
-        lat: biz.latitude,
-        lng: biz.longitude,
-        name: biz.name,
-        id: biz._id,
-        show: false
-      });
+    // let bizes = nextProps.advertise.businesses;
+    // let mary = [];
+    // bizes.map((biz, index) => {
+    //   mary.push({
+    //     lat: biz.latitude,
+    //     lng: biz.longitude,
+    //     name: biz.name,
+    //     id: biz._id,
+    //     show: false
+    //   });
 
-      this.setState({ markers: mary });
-    });
+    //   this.setState({ markers: mary });
+    // });
     //console.log("maps next props cdm", nextProps);
     //this.setState({ lat: nextProps.lat, lon: nextProps.lon });
   }

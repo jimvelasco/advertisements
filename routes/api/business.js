@@ -37,6 +37,32 @@ router.get("/businesses", (req, res) => {
     });
 });
 
+router.get("/business_map", (req, res) => {
+  let errors = {};
+  // Business.find()
+  //   .sort({ advertiserId: 1 })
+
+  Business.aggregate([
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "_id",
+        foreignField: "businessId",
+        as: "ads"
+      }
+    }
+    // ,
+    // { $unwind: "$ads" }
+  ])
+    .then(data => {
+      res.json(data);
+    })
+    .catch(err => {
+      errors.message = "Problem with Businesses";
+      return res.status(404).json(errors);
+    });
+});
+
 // router.get("/advertisements_api", (req, res) => {
 //   Advertiser.find()
 //     .then(advertisements => res.json(advertisements))
