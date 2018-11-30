@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import axios from "axios";
+import mapicon from "../../img/blue.png";
 import {
   withGoogleMap,
   GoogleMap,
@@ -10,6 +11,7 @@ import {
 import { getBusinesses } from "../../actions/advertiseActions";
 
 const posobj = { lat: 40.485, lng: -106.8317 };
+
 const GoogleMapExample = withGoogleMap(props => (
   <GoogleMap defaultCenter={posobj} defaultZoom={15}>
     {props.markers.map((marker, index) => (
@@ -17,6 +19,7 @@ const GoogleMapExample = withGoogleMap(props => (
         key={index}
         position={{ lat: marker.lat, lng: marker.lng }}
         onClick={props.onMarkerClick.bind(this, marker.id)}
+        icon={mapicon}
       >
         {marker.show && (
           <InfoWindow onCloseClick={props.onCloseClick.bind(this, marker.id)}>
@@ -81,7 +84,7 @@ class MapLookup extends Component {
 
   componentWillReceiveProps(nextProps) {
     //console.log("manage photos current props ", this.props);
-    console.log("business map nextProps ", nextProps);
+    //console.log("business map nextProps ", nextProps);
     // let bizes = nextProps.advertise.businesses;
     // let mary = [];
     // bizes.map((biz, index) => {
@@ -92,7 +95,6 @@ class MapLookup extends Component {
     //     id: biz._id,
     //     show: false
     //   });
-
     //   this.setState({ markers: mary });
     // });
     //console.log("maps next props cdm", nextProps);
@@ -112,7 +114,7 @@ class MapLookup extends Component {
     e.preventDefault();
   }
   handleCloseClick(bizid) {
-    console.log("handleCloseClick e", bizid);
+    //console.log("handleCloseClick e", bizid);
     // e.preventDefault();
     let smarkers = this.state.markers;
     smarkers.map((marker, index) => {
@@ -149,13 +151,13 @@ class MapLookup extends Component {
 
   render() {
     //console.log("maplookup props", this.props);
-    console.log("mapbusines render");
+    // console.log("mapbusines render");
     let { lat } = this.state;
     let { lon } = this.state;
     let posobj = { lat: 40.485, lng: -106.8317 };
     let posobj2 = { lat: 40.485, lng: -106.8317 };
     let cposobj = { lat: 40.4863, lng: -106.8328 };
-    console.log("render state is ", this.state);
+    // console.log("render state is ", this.state);
 
     // const { businesses } = this.props.advertise;
     // let mary = [];

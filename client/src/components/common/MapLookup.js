@@ -1,6 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+
+// let posobj = { lat: 40.485, lng: -106.8317 };
+// const GoogleMapExample = withGoogleMap(props => (
+//   <GoogleMap defaultCenter={posobj} defaultZoom={15} onClick={props.onClick}>
+//     <Marker position={posobj} />
+//   </GoogleMap>
+// ));
+
 class MapLookup extends Component {
   constructor(props) {
     super(props);
@@ -17,7 +25,7 @@ class MapLookup extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    //console.log("manage photos current props ", this.props);
+    //console.log("componentWillReceiveProps photos current props ", this.props);
     //console.log("manage photos nextProps ", nextProps);
     //console.log("maps next props cdm", nextProps);
     this.setState({ lat: nextProps.lat, lon: nextProps.lon });
@@ -27,7 +35,7 @@ class MapLookup extends Component {
     //this.setState({ [e.target.name]: e.target.value });
     let lat = event.latLng.lat();
     let lng = event.latLng.lng();
-    //console.log(lat + " " + lng);
+    console.log(lat + " " + lng);
     this.props.handleMapClick(lat, lng);
   }
   render() {
@@ -40,19 +48,16 @@ class MapLookup extends Component {
     if (lat) {
       posobj = { lat: lat, lng: lon };
     }
-    //console.log("lat", lat);
+
     const GoogleMapExample = withGoogleMap(props => (
       <GoogleMap
-        defaultCenter={posobj}
+        defaultCenter={cposobj}
         defaultZoom={15}
         onClick={this.handleClick}
       >
         <Marker position={posobj} />
       </GoogleMap>
     ));
-    // GoogleMapExample.addListener('click'), (evt) => {
-    //   console.log('click');
-    // })
 
     return (
       <div>
@@ -67,6 +72,7 @@ class MapLookup extends Component {
                 <div style={{ height: `500px`, width: "100%" }} />
               }
               mapElement={<div style={{ height: `100%` }} />}
+              // onClick={this.handleClick}
             >
               onClick = (e) => this.handleClick(e)
             </GoogleMapExample>

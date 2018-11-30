@@ -61,7 +61,8 @@ if (localStorage.jwtToken) {
     //store.dispatch(clearCurrentProfile());
     // Redirect to login
     //console.log("we are redirecting to login");
-    window.location.href = "/login";
+    // window.location.href = "/login";
+    window.location.href = "/";
   }
 }
 // console.log("about to call clear errors");
