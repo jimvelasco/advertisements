@@ -43,9 +43,9 @@ const BusinessSchema = new Schema({
   advertiserId: {
     type: ObjectId
   },
-  advertiser: {
-    type: Array
-  },
+  // advertiser: {
+  //   type: Array
+  // },
   status: {
     type: Number
   },

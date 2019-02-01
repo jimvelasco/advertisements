@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
+const { MongoClient } = require("mongodb");
 
 // const Shuttle = require("../../models/Shuttle");
 // const Trip = require("../../models/Trip");
@@ -10,8 +11,17 @@ const Advertisement = require("../../models/Advertisement");
 const Image = require("../../models/Image");
 const Jimp = require("jimp");
 
+const ReactDOMServer = require("react-dom/server");
+
 const validateAdvertisementInput = require("../../validation/advertisement");
 
+//const Advertisers = require("../../client/src/components/advertisers/Advertisers");
+
+// router.get("/webservice", (req, res) => {
+//   //const ad = <Advertisers />;
+//   const data = ReactDOMServer.renderToString(Advertisers);
+//   res.send(data);
+// });
 // this is used in AdverDetails
 // not active at the moment
 router.get("/get-images/:id", (req, res) => {
@@ -62,6 +72,195 @@ router.get("/advertisements/:id", (req, res) => {
     })
     .catch(err => res.status(404).json({ message: "no advertisements found" }));
 });
+
+//**********************/
+// dispatch api stuff
+//**********************/
+router.get("/dispatch_api", (req, res) => {
+  let errors = {};
+  // Business.find()
+  //   .sort({ advertiserId: 1 })
+
+  Business.aggregate([
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "_id",
+        foreignField: "businessId",
+        as: "ads"
+      }
+    }
+  ])
+    .then(data => {
+      let rary = [];
+
+      let dlen = data.length;
+      let dcnt = 0;
+      data.forEach(function(obj) {
+        dcnt = dcnt + 1;
+        // console.log("dcnt", dcnt);
+        let rdata = {};
+        rdata["name"] = obj["name"];
+        rdata["description"] = obj["description"];
+        let ads = obj["ads"];
+        let imgary = [];
+        let numads = ads.length;
+        let cnt = 0;
+        ads.forEach(function(ad) {
+          let advertisementid = ad["_id"];
+          let query = { advertisementId: advertisementid };
+          //console.log("query is ", query, cnt, numads);
+          imgary.push(query);
+
+          // Image.findOne(query)
+          //   .then(idata => {
+          //     cnt = cnt + 1;
+          //     let fname = idata["imageFilename"];
+          //     imgary.push(fname);
+          //     console.log("imgary is", imgary);
+          //   })
+          //   .catch(err => {
+          //     errors.message = "Problem with Businesses";
+          //     //return res.status(404).json(errors);
+          //   });
+        });
+
+        rdata["ads"] = imgary;
+        rary.push(rdata);
+        console.log("done looping rdata is ", dcnt, rdata);
+        //console.log("dobj cnt cnt ", dlen, dcnt);
+        // if (dcnt == dlen) {
+        //   res.json(rary);
+        // }
+      });
+      res.json(rary);
+    })
+    .catch(err => {
+      errors.message = "Problem with Businesses";
+      return res.status(404).json(errors);
+    });
+});
+
+router.get("/dispatch_cursor", async (req, res) => {
+  let results = await Business.find();
+  // Use `next()` and `await` to exhaust the cursor
+  let bizary = [];
+  let adary = [];
+  let imgary = [];
+
+  console.log("business *********************");
+  results.forEach(async function(biz) {
+    //console.log(biz);
+    bizary.push(biz);
+    let query = { businessId: biz._id };
+    let ads = await Advertisement.find(query);
+    console.log("ad *********************");
+    ads.forEach(async function(ad) {
+      //console.log(ad);
+      adary.push(ad);
+      let query2 = { advertisementId: ad._id };
+      let imgs = await Image.find(query);
+      console.log("img *********************");
+      imgs.forEach(async function(img) {
+        imgary.push(img.imageFilename);
+
+        // console.log(img.imageFilename);
+      });
+      console.log("-----------------------");
+      console.log("we are all done");
+      console.log("biz", bizary);
+      console.log("ad", adary);
+      console.log("img", imgary);
+      let rr = [];
+      rr.push({ biz: bizary });
+      rr.push({ ad: adary });
+      rr.push({ img: imgary });
+      res.json(rr);
+    });
+  });
+
+  //console.log(cursor.hasNext());
+
+  // while (cursor.hasNext()) {
+  // const doc = await cursor.next();
+  // console.log(doc);
+  // // }
+
+  // cursor.forEach(function(race) {
+  //   console.log(race);
+  // });
+
+  // cursor.on("data", function(doc) {
+  //   console.log("business *********************");
+  //   console.log(doc);
+  //   let query = { businessId: doc._id };
+  //   const cursor2 = Advertisement.find(query).cursor();
+  //   cursor2.on("data", function(ad) {
+  //     console.log("ad *********************");
+  //     console.log(ad);
+  //   });
+  // });
+  // console.log(cursor.next);
+  // cursor.next.then(doc => {
+  //   console.log(doc);
+  // });
+  // for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+  //   console.log(doc.name);
+  // }
+});
+
+router.get("/dispatch_api_raw", (req, res) => {
+  let errors = {};
+  // Business.find()
+  //   .sort({ advertiserId: 1 })
+
+  Business.aggregate([
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "_id",
+        foreignField: "businessId",
+        as: "ads"
+      }
+    }
+  ])
+    .then(data => {
+      let rary = [];
+      let rdata = {};
+      data.forEach(function(obj) {
+        rdata["name"] = obj["name"];
+        rary.push(rdata);
+      });
+      res.json(data);
+    })
+    .catch(err => {
+      errors.message = "Problem with Businesses";
+      return res.status(404).json(errors);
+    });
+});
+
+// let id = req.params.id;
+// let query = {};
+// Advertisement.aggregate([
+//   { $match: query },
+//   {
+//     $lookup: {
+//       from: "images",
+//       localField: "_id",
+//       foreignField: "advertisementId",
+//       as: "image"
+//     }
+//   },
+//   { $unwind: "$image" },
+//   { $match: { "image.type": "ad" } }
+//   .then(advertisements => {
+//     res.json(advertisements);
+//   })
+//   .catch(err => res.status(404).json({ message: "no advertisements found" }));
+
+//**********************/
+// end dispatch api stuff
+//**********************/
 
 router.get("/advertisements_api", (req, res) => {
   Advertiser.find()
@@ -424,6 +623,423 @@ router.get("/thisisgood_doadimagejoin/:id", (req, res) => {
         type: 1,
         "adverts.name": 1,
         "bizes.description": 1
+      }
+    }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+router.get("/bizdata_api", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  //console.log("advertise api bizid ", id);
+  let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
+  Business.aggregate([
+    { $match: query },
+
+    // Advertiser.aggregate([
+    //   { $match: query },
+
+    {
+      $lookup: {
+        from: "advertisers",
+        let: { advertiser_id: "$advertiserId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
+              }
+            }
+          }
+        ],
+        as: "advertiser"
+      }
+    },
+    // { $unwind: "$advertiser" },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        let: { biz_id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+              }
+            }
+          }
+        ],
+        as: "advertisements"
+      }
+    },
+    { $unwind: "$advertisements" },
+
+    // {
+    //   $lookup: {
+    //     from: "images",
+    //     let: { ad_id: "$adverts._id" },
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           $expr: {
+    //             $and: [
+    //               { $eq: ["$advertisementId", "$$ad_id"] },
+    //               { $eq: ["$type", "ad"] }
+    //             ]
+    //           }
+    //         }
+    //       }
+    //     ],
+    //     as: "imgs"
+    //   }
+    // },
+    // { $unwind: "$imgs" },
+
+    {
+      $lookup: {
+        from: "images",
+        let: { biz_id: "$_id", advertiserId: "$advertisements._id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$businessId", "$$biz_id"] }
+                  // { $eq: ["$advertisementId", "$$advertiserId"] },
+                  // { $eq: ["$businessId", "$$biz_id"] }
+                  // ,
+                  // { $eq: ["$type", "ad"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "imgs"
+      }
+    },
+    // { $unwind: "$imgs" },
+
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        company: 1,
+        category: 1,
+        description: 1,
+        latitude: 1,
+        longitude: 1,
+        "advertiser.name": 1,
+        "advertiser.email": 1,
+        "advertisements._id": 1,
+        "advertisements.businessId": 1,
+        "advertisements.name": 1,
+        "advertisements.description": 1,
+        "advertisements.discount": 1,
+        "advertisements.startdate": 1,
+        "advertisements.enddate": 1,
+        "imgs.advertiserId": 1,
+        "imgs.businessId": 1,
+        "imgs.advertisementId": 1,
+        "imgs.imageFilename": 1,
+        "imgs.type": 1
+
+        // "vizers.name": 1,
+        // "vizers.email": 1
+      }
+    }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+/*
+
+results searhing on category = seafood
+[
+    {
+        "_id": "5beb63b1a6db2d121f0ffbfd",
+        "name": "steamboat fish company",
+        "email": "fish@e.com",
+        "description": "fish fish fish part of c@e.com",
+        "category": "seafood",
+        "longitude": -106.83218547983171,
+        "latitude": 40.48630560247532,
+        "advertiser": [
+            {
+                "name": "cabo enterprises",
+                "email": "c@e.com"
+            }
+        ],
+        "advertisements": {
+            "_id": "5bf092ffe0be101055274b5c",
+            "businessId": "5beb63b1a6db2d121f0ffbfd",
+            "name": "daily skiing special",
+            "description": "we have great fish tacos",
+            "discount": "20 percent off when you order 5",
+            "enddate": "2018-11-30",
+            "startdate": "2018-11-23"
+        },
+        "imgs": [
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "type": "logo",
+                "imageFilename": "IMG_1611.JPG"
+            },
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "type": "photo",
+                "imageFilename": "IMG_1611.JPG"
+            },
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "advertisementId": "5bf3785e6ed44f0891bc7185",
+                "type": "ad",
+                "imageFilename": "showcase.jpg"
+            },
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "advertisementId": "5bf092ffe0be101055274b5c",
+                "type": "ad",
+                "imageFilename": "image1.jpeg"
+            }
+        ]
+    },
+    {
+        "_id": "5beb63b1a6db2d121f0ffbfd",
+        "name": "steamboat fish company",
+        "email": "fish@e.com",
+        "description": "fish fish fish part of c@e.com",
+        "category": "seafood",
+        "longitude": -106.83218547983171,
+        "latitude": 40.48630560247532,
+        "advertiser": [
+            {
+                "name": "cabo enterprises",
+                "email": "c@e.com"
+            }
+        ],
+        "advertisements": {
+            "_id": "5bf3785e6ed44f0891bc7185",
+            "businessId": "5beb63b1a6db2d121f0ffbfd",
+            "name": "After hours special uu",
+            "description": "for the early bird crowd",
+            "discount": "buy one entree get another one free",
+            "startdate": "2018-11-23",
+            "enddate": ""
+        },
+        "imgs": [
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "type": "logo",
+                "imageFilename": "IMG_1611.JPG"
+            },
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "type": "photo",
+                "imageFilename": "IMG_1611.JPG"
+            },
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "advertisementId": "5bf3785e6ed44f0891bc7185",
+                "type": "ad",
+                "imageFilename": "showcase.jpg"
+            },
+            {
+                "advertiserId": "5beb634da6db2d121f0ffbfb",
+                "businessId": "5beb63b1a6db2d121f0ffbfd",
+                "advertisementId": "5bf092ffe0be101055274b5c",
+                "type": "ad",
+                "imageFilename": "image1.jpeg"
+            }
+        ]
+    }
+]
+*/
+
+router.get("/tizerdata_api", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  //console.log("advertise api bizid ", id);
+  let query = {}; // businessId: ObjectId(id), type: "ad" };
+  // Business.aggregate([
+  //   { $match: query },
+
+  Advertiser.aggregate([
+    { $match: query },
+
+    {
+      $lookup: {
+        from: "businesses",
+        let: { advertiser_id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$advertiserId", "$$advertiser_id"] }]
+              }
+            }
+          }
+        ],
+        as: "bizes"
+      }
+    },
+    { $unwind: "$bizes" },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        let: { biz_id: "$bizes._id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+              }
+            }
+          }
+        ],
+        as: "advertisements"
+      }
+    },
+    { $unwind: "$advertisements" },
+
+    // this will join against advertisements and just show the ad image
+    // {
+    //   $lookup: {
+    //     from: "images",
+    //     let: { ad_id: "$advertisements._id" },
+    //     pipeline: [
+    //       {
+    //         $match: {
+    //           $expr: {
+    //             $and: [
+    //               { $eq: ["$advertisementId", "$$ad_id"] },
+    //               { $eq: ["$type", "ad"] }
+    //             ]
+    //           }
+    //         }
+    //       }
+    //     ],
+    //     as: "imgs"
+    //   }
+    // },
+    // { $unwind: "$imgs" },
+
+    // this will show all images for a business, logo,photos and ads.  no need to unwind
+    {
+      $lookup: {
+        from: "images",
+        let: { biz_id: "$bizes._id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$businessId", "$$biz_id"] }
+                  // ,
+                  // { $eq: ["$type", "ad"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "imgs"
+      }
+    },
+    // { $unwind: "$imgs" },
+
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        company: 1,
+        "bizes._id": 1,
+        "bizes.advertiserId": 1,
+        "bizes.name": 1,
+        "bizes.description": 1,
+        "bizes.latitude": 1,
+        "bizes.longitude": 1,
+
+        "advertisements._id": 1,
+        "advertisements.businessId": 1,
+        "advertisements.name": 1,
+        "advertisements.description": 1,
+        "advertisements.discount": 1,
+        "advertisements.startdate": 1,
+        "advertisements.enddate": 1,
+        "imgs.advertiserId": 1,
+        "imgs.businessId": 1,
+        "imgs.advertisementId": 1,
+        "imgs.imageFilename": 1,
+        "imgs.type": 1
+
+        // "vizers.name": 1,
+        // "vizers.email": 1
+      }
+    }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+
+router.get("/imagedata_api", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  console.log("advertise api bizid ", id);
+  let query = {}; // businessId: ObjectId(id), type: "ad" };
+  Image.aggregate([
+    { $match: query },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        localField: "advertisementId",
+        foreignField: "_id",
+        as: "adverts"
+      }
+    },
+    { $unwind: "$adverts" },
+
+    {
+      $lookup: {
+        from: "businesses",
+        localField: "businessId",
+        foreignField: "_id",
+        as: "bizes"
+      }
+    },
+    { $unwind: "$bizes" },
+    {
+      $lookup: {
+        from: "advertisers",
+        localField: "advertiserId",
+        foreignField: "_id",
+        as: "vizers"
+      }
+    },
+    { $unwind: "$vizers" },
+
+    {
+      $project: {
+        imageFilename: 1,
+        type: 1,
+        "adverts.name": 1,
+        "bizes.name": 1,
+        "bizes.description": 1,
+        "bizes.latitude": 1,
+        "bizes.longitude": 1,
+        "vizers.name": 1,
+        "vizers.email": 1
       }
     }
   ]).then(ads => {
