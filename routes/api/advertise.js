@@ -11,7 +11,7 @@ const Advertisement = require("../../models/Advertisement");
 const Image = require("../../models/Image");
 const Jimp = require("jimp");
 
-const ReactDOMServer = require("react-dom/server");
+//const ReactDOMServer = require("react-dom/server");
 
 const validateAdvertisementInput = require("../../validation/advertisement");
 
