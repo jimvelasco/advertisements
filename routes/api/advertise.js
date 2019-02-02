@@ -860,9 +860,13 @@ router.get("/bizdata_api2", (req, res) => {
         "bizimgs.type": 1,
         "bizimgs.advertisementId": 1,
         "bizimgs.imageBuffer": 1,
+        "bizimgs.width": 1,
+        "bizimgs.height": 1,
         "bizphotoimgs.imageFilename": 1,
         "bizphotoimgs.type": 1,
         "bizphotoimgs.imageBuffer": 1,
+        "bizphotoimgs.width": 1,
+        "bizphotoimgs.height": 1,
         "advertisements._id": 1,
         "advertisements.businessId": 1,
         "advertisements.name": 1,
@@ -876,6 +880,8 @@ router.get("/bizdata_api2", (req, res) => {
         "imgs.imageFilename": 1,
         "imgs.imageBuffer": 1,
         "imgs.type": 1,
+        "imgs.width": 1,
+        "imgs.height": 1,
 
         "vizers.name": 1,
         "vizers.email": 1
