@@ -35,7 +35,7 @@ const db = require("./config/keys").mongoURI;
 // Connect to Mongo
 
 mongoose
-  .connect(db)
+  .connect(db, { useNewUrlParser: true })
   .then(() => console.log("Mongo Connected"))
   .catch(err => console.log(err));
 

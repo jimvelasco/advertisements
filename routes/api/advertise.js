@@ -678,27 +678,6 @@ router.get("/bizdata_api", (req, res) => {
     },
     { $unwind: "$advertisements" },
 
-    // {
-    //   $lookup: {
-    //     from: "images",
-    //     let: { ad_id: "$adverts._id" },
-    //     pipeline: [
-    //       {
-    //         $match: {
-    //           $expr: {
-    //             $and: [
-    //               { $eq: ["$advertisementId", "$$ad_id"] },
-    //               { $eq: ["$type", "ad"] }
-    //             ]
-    //           }
-    //         }
-    //       }
-    //     ],
-    //     as: "imgs"
-    //   }
-    // },
-    // { $unwind: "$imgs" },
-
     {
       $lookup: {
         from: "images",
@@ -707,13 +686,7 @@ router.get("/bizdata_api", (req, res) => {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] }
-                  // { $eq: ["$advertisementId", "$$advertiserId"] },
-                  // { $eq: ["$businessId", "$$biz_id"] }
-                  // ,
-                  // { $eq: ["$type", "ad"] }
-                ]
+                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
               }
             }
           }
@@ -745,11 +718,165 @@ router.get("/bizdata_api", (req, res) => {
         "imgs.businessId": 1,
         "imgs.advertisementId": 1,
         "imgs.imageFilename": 1,
-        "imgs.imageBuffer": 1,
+        // "imgs.imageBuffer": 1,
         "imgs.type": 1
 
         // "vizers.name": 1,
         // "vizers.email": 1
+      }
+    }
+  ]).then(ads => {
+    res.json(ads);
+  });
+});
+router.get("/bizdata_api2", (req, res) => {
+  let id = req.params.id;
+  //let query = { businessId: id };
+  //console.log("advertise api bizid ", id);
+  let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
+
+  Business.aggregate([
+    // { $match: query },
+
+    // Advertiser.aggregate([
+    //   { $match: query },
+
+    {
+      $lookup: {
+        from: "advertisers",
+        let: { advertiser_id: "$advertiserId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
+              }
+            }
+          }
+        ],
+        as: "advertiser"
+      }
+    },
+
+    {
+      $lookup: {
+        from: "images",
+        let: { biz_id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$businessId", "$$biz_id"] },
+                  { $eq: ["$type", "logo"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "bizimgs"
+      }
+    },
+
+    {
+      $lookup: {
+        from: "images",
+        let: { biz_id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$businessId", "$$biz_id"] },
+                  { $eq: ["$type", "photo"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "bizphotoimgs"
+      }
+    },
+    // { $unwind: "$advertiser" },
+
+    {
+      $lookup: {
+        from: "advertisements",
+        let: { biz_id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+              }
+            }
+          }
+        ],
+        as: "advertisements"
+      }
+    },
+    // we have to unwind this to use the id below so we dont
+    //{ $unwind: "$advertisements" },
+
+    {
+      $lookup: {
+        from: "images",
+        //let: { ad_id: "$advertisements._id" },
+        let: { biz_id: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$businessId", "$$biz_id"] },
+                  { $eq: ["$type", "ad"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "imgs"
+      }
+    },
+    //{ $unwind: "$imgs" },
+
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        company: 1,
+        category: 1,
+        description: 1,
+        latitude: 1,
+        longitude: 1,
+        address: 1,
+        city: 1,
+        state: 1,
+        phone: 1,
+
+        "advertiser.name": 1,
+        "advertiser.email": 1,
+        "bizimgs.imageFilename": 1,
+        "bizimgs.type": 1,
+        "bizimgs.advertisementId": 1,
+        "bizphotoimgs.imageFilename": 1,
+        "bizphotoimgs.type": 1,
+        "advertisements._id": 1,
+        "advertisements.businessId": 1,
+        "advertisements.name": 1,
+        "advertisements.description": 1,
+        "advertisements.discount": 1,
+        "advertisements.startdate": 1,
+        "advertisements.enddate": 1,
+        // "imgs.advertiserId": 1,
+        "imgs.businessId": 1,
+        "imgs.advertisementId": 1,
+        "imgs.imageFilename": 1,
+        "imgs.imageBuffer": 1,
+        "imgs.type": 1,
+
+        "vizers.name": 1,
+        "vizers.email": 1
       }
     }
   ]).then(ads => {
