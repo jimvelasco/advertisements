@@ -635,8 +635,9 @@ router.get("/bizdata_api", (req, res) => {
   //let query = { businessId: id };
   //console.log("advertise api bizid ", id);
   let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
+
   Business.aggregate([
-    { $match: query },
+    // { $match: query },
 
     // Advertiser.aggregate([
     //   { $match: query },
