@@ -744,6 +744,7 @@ router.get("/bizdata_api", (req, res) => {
         "imgs.businessId": 1,
         "imgs.advertisementId": 1,
         "imgs.imageFilename": 1,
+        "imgs.imageBuffer": 1,
         "imgs.type": 1
 
         // "vizers.name": 1,
