@@ -13,6 +13,8 @@ import { deleteAdvertisement } from "../../actions/advertisementActions";
 import { changeAdvertisementStatus } from "../../actions/advertisementActions";
 import { setCurrentAdvertisement } from "../../actions/advertisementActions";
 
+import Modal from "react-responsive-modal";
+
 class Advertisements extends Component {
   constructor(props) {
     super(props);
@@ -46,7 +48,8 @@ class Advertisements extends Component {
       selectedAdvertisementId: null,
       startdate: today,
       enddate: "",
-      winpos: 0
+      winpos: 0,
+      open: false
     }; //shuttles: ["one", "two", "three"] };
 
     this.onChange = this.onChange.bind(this);
@@ -111,6 +114,23 @@ class Advertisements extends Component {
     //   window.scrollTo(0, ypos);
     // }, 20);
   }
+
+  onOpenModal = () => {
+    this.setState({
+      name: "",
+      discount: "",
+      description: "",
+      startdate: "",
+      enddate: "",
+      new_or_update: "NEW",
+      open: true
+    });
+    // this.setState({ });
+  };
+
+  onCloseModal = () => {
+    this.setState({ open: false });
+  };
 
   componentDidUpdate() {
     // console.log("we just updated an advertisement");
@@ -189,9 +209,9 @@ class Advertisements extends Component {
 
   showModifyAd(e, adid) {
     e.preventDefault();
-    document.getElementById("advertisementform").reset();
+    // document.getElementById("advertisementform").reset();
     this.props.setCurrentAdvertisement(adid);
-    this.setState({ file: null, new_or_update: "UPDATE" });
+    this.setState({ file: null, new_or_update: "UPDATE", open: true });
   }
 
   render() {
@@ -223,14 +243,36 @@ class Advertisements extends Component {
     //   return <Spinner />;
     // }
 
+    const { open } = this.state;
+
+    // <Link to="/newbusiness" className="btn btn-sm btn-info">
+    //   New Business
+    // </Link>;
+
     return (
       <div
         id="addisplayarea"
         className="container shadow-lg p-4"
         style={{ marginTop: "20px" }}
       >
-        <div style={{ textAlign: "right" }}>
+        <div style={{ textAlign: "left", float: "left" }}>
           <a
+            className="btn btn-sm btn-info"
+            href="#"
+            onClick={() => {
+              {
+                {
+                  this.onOpenModal();
+                }
+              }
+            }}
+          >
+            New Advertisement
+          </a>
+        </div>
+        <div style={{ textAlign: "right", float: "right" }}>
+          <a
+            className="btn btn-sm btn-info"
             href="#"
             onClick={() => {
               {
@@ -240,9 +282,10 @@ class Advertisements extends Component {
               }
             }}
           >
-            close
+            Close
           </a>
         </div>
+
         <h4 style={{ textAlign: "center" }}>{name}</h4>
         <h5>Advertisements</h5>
         {/* {statusmsg && <div className="error-display">{statusmsg}</div>} */}
@@ -319,108 +362,112 @@ class Advertisements extends Component {
         </table>
 
         <div className="row">
-          <div className="col-md-8 offset-md-2 shadow p-4">
-            <h5 style={{ marginTop: "5px", textAlign: "center" }}>
-              Advertisement
-            </h5>
+          {/* <div className="col-md-10 offset-md-1 shadow p-4"> */}
+          <div className="col-md-12  shadow xp-4">
+            <Modal open={open} onClose={this.onCloseModal} center>
+              <h5 style={{ marginTop: "5px", textAlign: "center" }}>
+                Advertisement
+              </h5>
 
-            <form id="advertisementform" noValidate onSubmit={this.onSubmit}>
-              <div className="form-group">
-                <TextFieldGroup
-                  type="text"
-                  label="Name"
-                  placeholder="Name"
-                  name="name"
-                  value={this.state.name}
-                  onChange={this.onChange}
-                  error={errors.name}
-                />
-              </div>
-              <div className="form-group">
-                <TextFieldGroup
-                  type="text"
-                  label="Description"
-                  placeholder="Description"
-                  name="description"
-                  value={this.state.description}
-                  onChange={this.onChange}
-                  error={errors.description}
-                />
-              </div>
-              <div className="form-group">
-                <TextFieldGroup
-                  type="text"
-                  label="Discount"
-                  placeholder="Discount"
-                  name="discount"
-                  value={this.state.discount}
-                  onChange={this.onChange}
-                  error={errors.discount}
-                />
-              </div>
-              <div className="form-group">
-                <TextFieldGroup
-                  type="date"
-                  label="Start Date"
-                  placeholder="Start Date"
-                  name="startdate"
-                  value={this.state.startdate}
-                  onChange={this.onChange}
-                  error={errors.startdate}
-                />
-              </div>
-              <div className="form-group">
-                <TextFieldGroup
-                  type="date"
-                  label="End Date"
-                  placeholder="End Date"
-                  name="enddate"
-                  value={this.state.enddate}
-                  onChange={this.onChange}
-                  error={errors.enddate}
-                />
-              </div>
+              <form id="advertisementform" noValidate onSubmit={this.onSubmit}>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    label="Name"
+                    placeholder="Name"
+                    name="name"
+                    value={this.state.name}
+                    onChange={this.onChange}
+                    error={errors.name}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    label="Description"
+                    placeholder="Description"
+                    name="description"
+                    value={this.state.description}
+                    onChange={this.onChange}
+                    error={errors.description}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="text"
+                    label="Discount"
+                    placeholder="Discount"
+                    name="discount"
+                    value={this.state.discount}
+                    onChange={this.onChange}
+                    error={errors.discount}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="date"
+                    label="Start Date"
+                    placeholder="Start Date"
+                    name="startdate"
+                    value={this.state.startdate}
+                    onChange={this.onChange}
+                    error={errors.startdate}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="date"
+                    label="End Date"
+                    placeholder="End Date"
+                    name="enddate"
+                    value={this.state.enddate}
+                    onChange={this.onChange}
+                    error={errors.enddate}
+                  />
+                </div>
 
-              <div className="form-group">
-                <div className="row">
-                  <div className="col-md-3">Image</div>
-                  <div className="col-md-9">
-                    <input
-                      type="file"
-                      name="file"
-                      onChange={this.onFileInputChange}
-                    />
+                <div className="form-group">
+                  <div className="row">
+                    <div className="col-md-3">Image</div>
+                    <div className="col-md-9">
+                      <input
+                        type="file"
+                        name="file"
+                        onChange={this.onFileInputChange}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="form-group">
-                <div className="row">
-                  <div className="col-md-3">New/Update</div>
-                  <div className="col-md-9">
-                    <input
-                      type="radio"
-                      value="NEW"
-                      checked={new_or_update === "NEW"}
-                      name="neworupdate"
-                      onChange={this.onRBChange}
-                    />
-                    &nbsp;New &nbsp;&nbsp;
-                    <input
-                      type="radio"
-                      value="UPDATE"
-                      checked={new_or_update === "UPDATE"}
-                      name="neworupdate"
-                      onChange={this.onRBChange}
-                    />
-                    &nbsp;Update
+                <div className="form-group">
+                  <div className="row">
+                    <div className="col-md-3">New/Update</div>
+                    <div className="col-md-9">
+                      <input
+                        type="radio"
+                        value="NEW"
+                        checked={new_or_update === "NEW"}
+                        name="neworupdate"
+                        onChange={this.onRBChange}
+                      />
+                      &nbsp;New &nbsp;&nbsp;
+                      <input
+                        type="radio"
+                        value="UPDATE"
+                        checked={new_or_update === "UPDATE"}
+                        disabled={new_or_update === "NEW"}
+                        name="neworupdate"
+                        onChange={this.onRBChange}
+                      />
+                      &nbsp;Update
+                    </div>
                   </div>
                 </div>
-              </div>
-              {perrors && (
-                <div className="error-display">{perrors.message}</div>
-              )}
-              <input type="submit" className="btn btn-info btn-block mt-4" />
-            </form>
+                {perrors && (
+                  <div className="error-display">{perrors.message}</div>
+                )}
+                <input type="submit" className="btn btn-info btn-block mt-4" />
+              </form>
+            </Modal>
           </div>
           {/* end of form wrapper */}
         </div>

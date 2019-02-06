@@ -17,7 +17,9 @@ const TextFieldGroup = ({
   return (
     <div className="form-group">
       <div className="row">
-        <div className="col-md-3">{placeholder}</div>
+        <div className="col-md-3" style={{ whiteSpace: "nowrap" }}>
+          {placeholder}
+        </div>
         <div className="col-md-9">
           <input
             type={type}

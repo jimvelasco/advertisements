@@ -91,6 +91,7 @@ class ManagePhotos extends Component {
       <div className="shadow p-4" style={{ marginTop: "20px" }}>
         <div style={{ textAlign: "right" }}>
           <a
+            className="btn btn-sm btn-info"
             href="#"
             onClick={() => {
               {

@@ -269,20 +269,20 @@ class Businesses extends Component {
                     className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
-                      this.manageAdvertisements(business._id, business.name);
+                      this.managePhotos(business._id, business.name);
                     }}
                   >
-                    ads
+                    photos
                   </a>
                   &nbsp;
                   <a
                     className="btn btn-sm btn-secondary mr-2"
                     href="#"
                     onClick={() => {
-                      this.managePhotos(business._id, business.name);
+                      this.manageAdvertisements(business._id, business.name);
                     }}
                   >
-                    photos
+                    ads
                   </a>
                   &nbsp;
                   <a
