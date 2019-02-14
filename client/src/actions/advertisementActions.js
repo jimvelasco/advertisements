@@ -18,6 +18,10 @@ export const getAdvertisements = bizid => dispatch => {
   //console.log("getAdvertisements");
   //dispatch({ type: SET_IS_LOADING, payload: true });
   let link = "/api/advertise/advertisements/" + bizid;
+  dispatch({
+    type: SET_IS_LOADING,
+    payload: { isloading: true, page: "advertisements" }
+  });
 
   axios
     .get(link)
@@ -28,7 +32,7 @@ export const getAdvertisements = bizid => dispatch => {
       dispatch({ type: CLEAR_ERRORS });
       dispatch({
         type: SET_IS_LOADING,
-        payload: { isloading: true, page: "advertisements" }
+        payload: { isloading: false, page: "advertisements" }
       });
       dispatch({ type: SET_CURRENT_ADVERTISEMENTS, payload: res.data });
       dispatch({

@@ -6,6 +6,7 @@ import { getBusinessPhotos } from "../../actions/advertiseActions";
 import { createImage } from "../../actions/advertiseActions";
 import { deletePhoto } from "../../actions/advertiseActions";
 import TextFieldGroup from "../common/TextFieldGroup";
+import Spinner from "../common/Spinner";
 
 // we need to get into git
 
@@ -82,13 +83,19 @@ class ManagePhotos extends Component {
   render() {
     // if (this.state.photos.length ==)
     const { errors } = this.state;
+    const { advertise } = this.props;
     const perrors = this.props.errors;
+
+    console.log("manage photos render advertise state", advertise);
 
     const userrole = this.props.auth.user.role;
     const bizid = this.props.selectedBizid;
     const name = this.props.selectedName;
     const photos = this.props.advertise.images;
     const closePhotos = this.props.closePhotos;
+    if (advertise.isloading) {
+      return <Spinner />;
+    }
 
     return (
       <div className="shadow p-4" style={{ marginTop: "20px" }}>

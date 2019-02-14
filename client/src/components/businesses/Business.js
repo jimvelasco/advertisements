@@ -15,6 +15,7 @@ import {
 import isEmpty from "../../validation/is-empty";
 
 import categoryHelper from "../../config/categoryHelper";
+import Spinner from "../common/Spinner";
 
 // import { createAdvertisement } from "../../actions/advertisementActions";
 // import { modifyAdvertisement } from "../../actions/advertisementActions";
@@ -101,7 +102,8 @@ class Business extends Component {
       imageHeight: null,
       imageFilename: null,
       lookup: "",
-      cat0_list: categoryHelper.getCat0()
+      cat0_list: categoryHelper.getCat0(),
+      isloading: true
     };
 
     this.onChange = this.onChange.bind(this);
@@ -153,7 +155,8 @@ class Business extends Component {
             imageBuffer: image.imageBuffer,
             imageWidth: image.width,
             imageHeight: image.height,
-            imageFilename: image.imageFilename
+            imageFilename: image.imageFilename,
+            isloading: false
           });
         })
         .catch(err => {
@@ -162,6 +165,9 @@ class Business extends Component {
           this.setState({ errors: errors });
         }); // to get actual errors from backend
       //this.setState({ name: "yippee" });
+    } else {
+      // we must have a new business
+      this.setState({ isloading: false });
     }
   }
 
@@ -297,9 +303,14 @@ class Business extends Component {
 
   render() {
     const { errors } = this.state;
+    const { advertise } = this.props;
     const perrors = this.props.errors;
     const lat = this.state.latitude;
     const lon = this.state.longitude;
+
+    if (this.state.isloading) {
+      return <Spinner />;
+    }
 
     // const searchOptions = {
     //   location: { lat: 40.488231319769206, lng: -106.83197827918531 },

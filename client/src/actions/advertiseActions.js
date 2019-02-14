@@ -57,6 +57,11 @@ export const createBusiness = (advertisementData, history) => dispatch => {
 
 export const getBusinessPhotos = userid => dispatch => {
   dispatch({ type: CLEAR_ERRORS });
+  console.log("setting loading to true in getbusinessphotos");
+  dispatch({
+    type: SET_IS_LOADING,
+    payload: { isloading: true, page: "business" }
+  });
   let link = "/api/business/allphotos/" + userid;
   axios
     .get(link)
@@ -67,6 +72,10 @@ export const getBusinessPhotos = userid => dispatch => {
       dispatch({ type: CLEAR_ERRORS });
 
       dispatch({ type: SET_IMAGES, payload: res.data });
+      dispatch({
+        type: SET_IS_LOADING,
+        payload: { isloading: false, page: "" }
+      });
       //this.logConsole();
       // console.log(res.data);
     })
@@ -79,12 +88,20 @@ export const getBusinessPhotos = userid => dispatch => {
 };
 
 export const getBusiness = bizid => dispatch => {
+  dispatch({
+    type: SET_IS_LOADING,
+    payload: { isloading: true, page: "business" }
+  });
   let link = `/api/business/find-business/${bizid}`;
   axios
     .get(link)
     .then(res => {
       dispatch({ type: CLEAR_ERRORS });
       dispatch({ type: SET_BUSINESS, payload: res.data });
+      dispatch({
+        type: SET_IS_LOADING,
+        payload: { isloading: false, page: "" }
+      });
     })
     .catch(err => {
       dispatch({

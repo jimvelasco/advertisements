@@ -130,6 +130,7 @@ class Businesses extends Component {
     //     selectedName: name
     //   });
     // }
+    //console.log("manageAdvertisements", bizid, name);
     this.setState({
       showAdvertisements: true,
       selectedBizid: bizid,
