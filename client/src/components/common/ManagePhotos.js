@@ -32,7 +32,7 @@ class ManagePhotos extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("doing a mp wrp ");
+    //console.log("doing a mp wrp ");
     //console.log("manage photos current props ", this.props);
     //console.log("manage photos nextProps ", nextProps);
     if (this.props.selectedBizid != nextProps.selectedBizid) {
@@ -40,6 +40,9 @@ class ManagePhotos extends Component {
       // console.log("WE NEED TO REFRSH THE SCREEN WITH STATE OR SOMETHING");
       // console.log("this props ", this.props.advertise.images.length);
       // console.log("next props ", nextProps.advertise.images.length);
+    }
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
     }
   }
 

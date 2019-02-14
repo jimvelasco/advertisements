@@ -7,6 +7,7 @@ module.exports = function validateAdvertisementInput(data) {
   data.name = !isEmpty(data.name) ? data.name : "";
   data.description = !isEmpty(data.description) ? data.description : "";
   data.discount = !isEmpty(data.discount) ? data.discount : "";
+  data.startdate = !isEmpty(data.startdate) ? data.startdate : "";
 
   // data.address = !isEmpty(data.address) ? data.address : "";
   // data.city = !isEmpty(data.city) ? data.city : "";
@@ -28,6 +29,9 @@ module.exports = function validateAdvertisementInput(data) {
   }
   if (Validator.isEmpty(data.discount)) {
     errors.discount = "Discount field is required";
+  }
+  if (Validator.isEmpty(data.startdate)) {
+    errors.startdate = "Start Date field is required";
   }
 
   return {

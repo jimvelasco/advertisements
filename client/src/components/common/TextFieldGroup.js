@@ -40,6 +40,10 @@ const TextFieldGroup = ({
   );
 };
 
+// className={classnames("form-control form-control-sm", {
+//   "is-invalid": error
+// })}
+
 // is-invalid depends if error.name exists.  see validation code
 
 TextFieldGroup.propTypes = {

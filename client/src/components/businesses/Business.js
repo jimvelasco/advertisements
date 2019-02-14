@@ -5,6 +5,17 @@ import axios from "axios";
 
 import { connect } from "react-redux";
 
+import PlacesAutocomplete from "reactjs-places-autocomplete";
+import {
+  geocodeByAddress,
+  geocodeByPlaceId,
+  getLatLng
+} from "react-places-autocomplete";
+
+import isEmpty from "../../validation/is-empty";
+
+import categoryHelper from "../../config/categoryHelper";
+
 // import { createAdvertisement } from "../../actions/advertisementActions";
 // import { modifyAdvertisement } from "../../actions/advertisementActions";
 
@@ -15,9 +26,50 @@ import { getBusiness } from "../../actions/advertiseActions";
 //import classnames from "classnames";
 
 import TextFieldGroup from "../common/TextFieldGroup";
-import SelectListGroup from "../common/SelectListGroup";
+
+import SelectCategoryGroup from "../common/SelectCategoryGroup";
 import ImageDisplay from "../common/ImageDisplay";
 import MapLookup from "../common/MapLookup";
+
+// const validate = values => {
+//   const errors = {};
+//   if (!values.name) {
+//     errors.name = "Business Name is required";
+//   } else if (values.name && values.name.trim().length == 0) {
+//     errors.name = "Business Name is required";
+//   }
+//   if (!values.description) {
+//     errors.description = "Business Description is required";
+//   }
+//   if (!values.phone) {
+//     errors.phone = "Business Phone is required";
+//   }
+//   if (!values.email) {
+//     errors.email = "Business Email is required";
+//   }
+//   if (!values.address) {
+//     errors.address = "Business Address is required";
+//   }
+//   if (!values.city) {
+//     errors.city = "Business City is required";
+//   }
+//   if (!values.state) {
+//     errors.state = "Business State is required";
+//   }
+//   if (!values.zip) {
+//     errors.zip = "Business Zip is required";
+//   }
+//   if (!values.latitude) {
+//     errors.latitude = "Business Latitude is required";
+//   }
+//   if (!values.longitude) {
+//     errors.longitude = "Business Longitude is required";
+//   }
+//   if (!values.file) {
+//     errors.file = "Business Logo is required";
+//   }
+//   return errors;
+// };
 
 class Business extends Component {
   constructor(props) {
@@ -47,7 +99,9 @@ class Business extends Component {
       imageBuffer: null,
       imageWidth: null,
       imageHeight: null,
-      imageFilename: null
+      imageFilename: null,
+      lookup: "",
+      cat0_list: categoryHelper.getCat0()
     };
 
     this.onChange = this.onChange.bind(this);
@@ -142,6 +196,17 @@ class Business extends Component {
 
   onSubmit(e) {
     e.preventDefault();
+    // let err = validate(this.state);
+    // console.log(err);
+    // console.log("is empty", isEmpty(err));
+    // if (!isEmpty(err)) {
+    //   this.setState({ errors: err });
+    //   console.log("we are returning");
+    //   console.log("we are returning errors", this.state.errors);
+    //   return;
+    // }
+
+    // console.log("we are not returning why");
 
     let formdata = new FormData();
     formdata.append("file", this.state.file);
@@ -162,31 +227,98 @@ class Business extends Component {
     formdata.append("owneremail", this.props.auth.user.email);
     formdata.append("status", this.state.status);
 
-    // this is the redux way.
-    // the register user is in authActions
     const id = this.props.match.params.id;
+
+    //let err = validate(this.state);
+    // console.log(err);
+    // console.log("is empty", isEmpty(err));
+    // if (isEmpty(err)) {
+    //console.log("we are submitting data");
     if (id) {
       this.props.modifyBusiness(formdata, this.props.history);
     } else {
       this.props.createBusiness(formdata, this.props.history);
     }
-    // we add this.props.history so the authActions will have it and be able to redirect
-
-    // console.log(newUser);
-    // axios
-    //   .post("/api/users/register", newUser)
-    //   .then(res => console.log(res.data))
-    //   //.catch(err => console.log(err.response.data)); // to get actual errors from backend
-    //   .catch(err => this.setState({ errors: err.response.data })); // to get actual errors from backend
-
-    // this.props.registerUser(newUser, this.props.history);
+    // } else {
+    //   //console.log("we are NOT submitting data");
+    //   this.setState({ errors: err });
+    // }
   }
+
+  // autocomplete methods
+
+  //40.488231319769206
+  //-106.83197827918531
+
+  handleChange = name => {
+    this.setState({ name });
+    console.log("handleChange", name);
+  };
+
+  handleSelect = name => {
+    //console.log("handleSelect", lookup);
+    let rary = name.split(",");
+    let tname = rary[0];
+    this.setState({
+      name: tname
+      // lookup: tname
+    });
+
+    geocodeByAddress(name)
+      .then(results => {
+        let r0 = results[0];
+        console.log("geocode results", results[0]);
+        let rary = r0.address_components;
+        let address = rary[0].short_name + " " + rary[1].short_name;
+        let city = rary[2].short_name;
+        let state = rary[4].short_name;
+        let zip = rary[6].short_name;
+        this.setState({
+          address: address,
+          city: city,
+          state: state,
+          zip: zip
+        });
+
+        // let latlng = getLatLng(r0);
+        let llpromise = getLatLng(r0);
+        llpromise
+          .then(latLng => {
+            //console.log(latLng);
+            this.setState({
+              latitude: latLng["lat"],
+              longitude: latLng["lng"]
+            });
+          })
+          .catch(error => console.error("Error", error));
+      })
+      .catch(error => console.error("Error", error));
+  };
 
   render() {
     const { errors } = this.state;
     const perrors = this.props.errors;
     const lat = this.state.latitude;
     const lon = this.state.longitude;
+
+    // const searchOptions = {
+    //   location: { lat: 40.488231319769206, lng: -106.83197827918531 },
+    //   radius: 2000,
+    //   types: ["address"]
+    // };
+
+    // const searchOptions = {
+    //   location: new google.maps.LatLng(-34, 151),
+    //   radius: 2000,
+    //   types: ["address"]
+    // };
+
+    // const searchOptions = {
+    //   types: ["food", "bar", "cafe", "restaurant", "bakery", "lodging"]
+    // };
+
+    //const searchOptions = { types: ["locality"] };
+    const searchOptions = {};
 
     // same as const errors = this.state.errors
 
@@ -213,32 +345,81 @@ class Business extends Component {
 
               <form noValidate onSubmit={this.onSubmit}>
                 <div className="form-group">
-                  <TextFieldGroup
-                    type="text"
-                    label="Name"
-                    placeholder="Name"
-                    name="name"
-                    value={this.state.name}
-                    onChange={this.onChange}
-                    error={errors.name}
-                  />
-                </div>
-                <div className="form-group">
-                  <TextFieldGroup
-                    type="email"
-                    label="Email"
-                    placeholder="Email Address"
-                    name="email"
-                    value={this.state.email}
-                    onChange={this.onChange}
-                    error={errors.email}
-                  />
+                  <div className="row">
+                    <div className="col-md-3">Name</div>
+                    <div className="col-md-9">
+                      <PlacesAutocomplete
+                        value={this.state.name}
+                        onChange={this.handleChange}
+                        onSelect={this.handleSelect}
+                        searchOptions={searchOptions}
+                      >
+                        {({
+                          getInputProps,
+                          suggestions,
+                          getSuggestionItemProps,
+                          loading
+                        }) => (
+                          <div>
+                            <input
+                              {...getInputProps({
+                                placeholder: "Search Business Names ...",
+                                className:
+                                  "location-search-input form-control form-control-sm"
+                              })}
+                            />
+                            <div className="autocomplete-dropdown-container">
+                              {loading && <div>Loading...</div>}
+                              {suggestions.map(suggestion => {
+                                const className = suggestion.active
+                                  ? "suggestion-item--active"
+                                  : "suggestion-item";
+                                // inline style for demonstration purpose
+                                const style = suggestion.active
+                                  ? {
+                                      backgroundColor: "#c0c0c0",
+                                      cursor: "pointer"
+                                    }
+                                  : {
+                                      backgroundColor: "#ffffff",
+                                      cursor: "pointer"
+                                    };
+                                return (
+                                  <div
+                                    {...getSuggestionItemProps(suggestion, {
+                                      className,
+                                      style
+                                    })}
+                                  >
+                                    <span>{suggestion.description}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </PlacesAutocomplete>
+                      {errors.name && (
+                        <div
+                          className="xform-control xform-control-sm xinvalid-feedback  xis-invalid"
+                          style={{
+                            display: "block",
+                            color: "#dc3545",
+                            fontSize: "10pt"
+                          }}
+                        >
+                          {errors.name}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="form-group">
-                  <SelectListGroup
+                  <SelectCategoryGroup
                     label="Category"
                     name="category"
+                    list={this.state.cat0_list}
                     value={this.state.category}
                     onChange={this.onChange}
                     error={errors.category}
@@ -258,32 +439,6 @@ class Business extends Component {
                 </div>
 
                 <div className="form-group">
-                  <div className="row">
-                    <div className="col-md-3">Image</div>
-                    <div className="col-md-4">
-                      {this.state.image}
-                      {hasimage ? (
-                        <ImageDisplay
-                          buf={this.state.imageBuffer}
-                          width={this.state.imageWidth}
-                          height={this.state.imageHeight}
-                          filename={this.state.imageFilename}
-                        />
-                      ) : (
-                        <div>No Logo</div>
-                      )}
-                    </div>
-                    <div className="col-md-5">
-                      <input
-                        type="file"
-                        name="file"
-                        onChange={this.onFileInputChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-group">
                   <TextFieldGroup
                     type="text"
                     label="Phone"
@@ -292,6 +447,17 @@ class Business extends Component {
                     value={this.state.phone}
                     onChange={this.onChange}
                     error={errors.phone}
+                  />
+                </div>
+                <div className="form-group">
+                  <TextFieldGroup
+                    type="email"
+                    label="Email"
+                    placeholder="Email Address"
+                    name="email"
+                    value={this.state.email}
+                    onChange={this.onChange}
+                    error={errors.email}
                   />
                 </div>
 
@@ -306,6 +472,7 @@ class Business extends Component {
                     error={errors.address}
                   />
                 </div>
+
                 <div className="form-group">
                   <TextFieldGroup
                     type="text"
@@ -360,6 +527,42 @@ class Business extends Component {
                     onChange={this.onChange}
                     error={errors.longitude}
                   />
+                </div>
+                <div className="form-group">
+                  <div className="row">
+                    <div className="col-md-3">Image</div>
+                    <div className="col-md-4">
+                      {this.state.image}
+                      {hasimage ? (
+                        <ImageDisplay
+                          buf={this.state.imageBuffer}
+                          width={this.state.imageWidth}
+                          height={this.state.imageHeight}
+                          filename={this.state.imageFilename}
+                        />
+                      ) : (
+                        <div>No Logo</div>
+                      )}
+                      {errors.file && (
+                        <div
+                          style={{
+                            display: "block",
+                            color: "#dc3545",
+                            fontSize: "10pt"
+                          }}
+                        >
+                          {errors.file}
+                        </div>
+                      )}
+                    </div>
+                    <div className="col-md-5">
+                      <input
+                        type="file"
+                        name="file"
+                        onChange={this.onFileInputChange}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>

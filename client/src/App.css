@@ -91,3 +91,16 @@ img {
 .smallfont {
   font-size: 9pt;
 }
+
+/* autocompleter */
+
+.autocomplete-dropdown-container {
+  font-size: 9pt;
+  border: 0px solid black;
+}
+.suggestion-item--active {
+  background-color: red;
+}
+.suggestion-item {
+  color: black;
+}

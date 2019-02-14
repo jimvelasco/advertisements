@@ -12,6 +12,7 @@ const Image = require("../../models/Image");
 const Jimp = require("jimp");
 
 const validateBusinessInput = require("../../validation/business_val");
+const validateBusinessImageInput = require("../../validation/business_image");
 
 router.get("/businesses", (req, res) => {
   let errors = {};
@@ -277,11 +278,11 @@ router.post("/modifyBusiness", (req, res) => {
 //**************************
 
 router.post("/createImage", (req, res) => {
-  // const { errors, isValid } = validateBusinessInput(req.body);
-  // // Check Validation
-  // if (!isValid) {
-  //   return res.status(400).json(errors);
-  // }
+  const { errors, isValid } = validateBusinessImageInput(req.body);
+  // Check Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
   //console.log("we are in business api createImage");
 

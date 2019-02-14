@@ -239,12 +239,12 @@ export const createImage = formdata => dispatch => {
     })
     // thunk lets us do a dispatch
     // .then(res => console.log(res.data))
-    .catch(err =>
+    .catch(err => {
       dispatch({
         type: GET_ERRORS,
         payload: err.response.data
-      })
-    );
+      });
+    });
 };
 
 export const deletePhoto = id => dispatch => {

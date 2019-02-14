@@ -18,6 +18,11 @@ const BusinessSchema = new Schema({
   category: {
     type: String
   },
+
+  categorySub1: {
+    type: String,
+    default: ""
+  },
   phone: {
     type: String
   },
