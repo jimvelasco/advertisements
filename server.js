@@ -17,6 +17,7 @@ const users = require("./routes/api/users");
 
 const advertise = require("./routes/api/advertise");
 const business = require("./routes/api/business");
+const webservice = require("./routes/api/webservice");
 // const advertisement = require("./routes/api/advertisers");
 
 const app = express();
@@ -56,6 +57,8 @@ app.use("/api/users", users);
 
 app.use("/api/advertise", advertise);
 app.use("/api/business", business);
+app.use("/api/webservice", webservice);
+
 // app.use("/api/newadvertisement", advertisement);
 
 // Server static assets if in production

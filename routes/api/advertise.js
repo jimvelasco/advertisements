@@ -8,6 +8,7 @@ const { MongoClient } = require("mongodb");
 // const Trip = require("../../models/Trip");
 const Advertiser = require("../../models/Advertiser");
 const Advertisement = require("../../models/Advertisement");
+const Business = require("../../models/Business");
 const Image = require("../../models/Image");
 const Jimp = require("jimp");
 
@@ -78,108 +79,108 @@ router.get("/advertisements/:id", (req, res) => {
 //**********************/
 // dispatch api stuff
 //**********************/
-router.get("/dispatch_api", (req, res) => {
-  let errors = {};
-  // Business.find()
-  //   .sort({ advertiserId: 1 })
+// router.get("/dispatch_api", (req, res) => {
+//   let errors = {};
+//   // Business.find()
+//   //   .sort({ advertiserId: 1 })
 
-  Business.aggregate([
-    {
-      $lookup: {
-        from: "advertisements",
-        localField: "_id",
-        foreignField: "businessId",
-        as: "ads"
-      }
-    }
-  ])
-    .then(data => {
-      let rary = [];
+//   Business.aggregate([
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         localField: "_id",
+//         foreignField: "businessId",
+//         as: "ads"
+//       }
+//     }
+//   ])
+//     .then(data => {
+//       let rary = [];
 
-      let dlen = data.length;
-      let dcnt = 0;
-      data.forEach(function(obj) {
-        dcnt = dcnt + 1;
-        // console.log("dcnt", dcnt);
-        let rdata = {};
-        rdata["name"] = obj["name"];
-        rdata["description"] = obj["description"];
-        let ads = obj["ads"];
-        let imgary = [];
-        let numads = ads.length;
-        let cnt = 0;
-        ads.forEach(function(ad) {
-          let advertisementid = ad["_id"];
-          let query = { advertisementId: advertisementid };
-          //console.log("query is ", query, cnt, numads);
-          imgary.push(query);
+//       let dlen = data.length;
+//       let dcnt = 0;
+//       data.forEach(function(obj) {
+//         dcnt = dcnt + 1;
+//         // console.log("dcnt", dcnt);
+//         let rdata = {};
+//         rdata["name"] = obj["name"];
+//         rdata["description"] = obj["description"];
+//         let ads = obj["ads"];
+//         let imgary = [];
+//         let numads = ads.length;
+//         let cnt = 0;
+//         ads.forEach(function(ad) {
+//           let advertisementid = ad["_id"];
+//           let query = { advertisementId: advertisementid };
+//           //console.log("query is ", query, cnt, numads);
+//           imgary.push(query);
 
-          // Image.findOne(query)
-          //   .then(idata => {
-          //     cnt = cnt + 1;
-          //     let fname = idata["imageFilename"];
-          //     imgary.push(fname);
-          //     console.log("imgary is", imgary);
-          //   })
-          //   .catch(err => {
-          //     errors.message = "Problem with Businesses";
-          //     //return res.status(404).json(errors);
-          //   });
-        });
+//           // Image.findOne(query)
+//           //   .then(idata => {
+//           //     cnt = cnt + 1;
+//           //     let fname = idata["imageFilename"];
+//           //     imgary.push(fname);
+//           //     console.log("imgary is", imgary);
+//           //   })
+//           //   .catch(err => {
+//           //     errors.message = "Problem with Businesses";
+//           //     //return res.status(404).json(errors);
+//           //   });
+//         });
 
-        rdata["ads"] = imgary;
-        rary.push(rdata);
-        console.log("done looping rdata is ", dcnt, rdata);
-        //console.log("dobj cnt cnt ", dlen, dcnt);
-        // if (dcnt == dlen) {
-        //   res.json(rary);
-        // }
-      });
-      res.json(rary);
-    })
-    .catch(err => {
-      errors.message = "Problem with Businesses";
-      return res.status(404).json(errors);
-    });
-});
+//         rdata["ads"] = imgary;
+//         rary.push(rdata);
+//         console.log("done looping rdata is ", dcnt, rdata);
+//         //console.log("dobj cnt cnt ", dlen, dcnt);
+//         // if (dcnt == dlen) {
+//         //   res.json(rary);
+//         // }
+//       });
+//       res.json(rary);
+//     })
+//     .catch(err => {
+//       errors.message = "Problem with Businesses";
+//       return res.status(404).json(errors);
+//     });
+// });
 
-router.get("/dispatch_cursor", async (req, res) => {
-  let results = await Business.find();
-  // Use `next()` and `await` to exhaust the cursor
-  let bizary = [];
-  let adary = [];
-  let imgary = [];
+// router.get("/dispatch_cursor", async (req, res) => {
+//   let results = await Business.find();
+//   // Use `next()` and `await` to exhaust the cursor
+//   let bizary = [];
+//   let adary = [];
+//   let imgary = [];
 
-  console.log("business *********************");
-  results.forEach(async function(biz) {
-    //console.log(biz);
-    bizary.push(biz);
-    let query = { businessId: biz._id };
-    let ads = await Advertisement.find(query);
-    console.log("ad *********************");
-    ads.forEach(async function(ad) {
-      //console.log(ad);
-      adary.push(ad);
-      let query2 = { advertisementId: ad._id };
-      let imgs = await Image.find(query);
-      console.log("img *********************");
-      imgs.forEach(async function(img) {
-        imgary.push(img.imageFilename);
+//   console.log("business *********************");
+//   results.forEach(async function(biz) {
+//     //console.log(biz);
+//     bizary.push(biz);
+//     let query = { businessId: biz._id };
+//     let ads = await Advertisement.find(query);
+//     console.log("ad *********************");
+//     ads.forEach(async function(ad) {
+//       //console.log(ad);
+//       adary.push(ad);
+//       let query2 = { advertisementId: ad._id };
+//       let imgs = await Image.find(query);
+//       console.log("img *********************");
+//       imgs.forEach(async function(img) {
+//         imgary.push(img.imageFilename);
 
-        // console.log(img.imageFilename);
-      });
-      console.log("-----------------------");
-      console.log("we are all done");
-      console.log("biz", bizary);
-      console.log("ad", adary);
-      console.log("img", imgary);
-      let rr = [];
-      rr.push({ biz: bizary });
-      rr.push({ ad: adary });
-      rr.push({ img: imgary });
-      res.json(rr);
-    });
-  });
+//         // console.log(img.imageFilename);
+//       });
+//       console.log("-----------------------");
+//       console.log("we are all done");
+//       console.log("biz", bizary);
+//       console.log("ad", adary);
+//       console.log("img", imgary);
+//       let rr = [];
+//       rr.push({ biz: bizary });
+//       rr.push({ ad: adary });
+//       rr.push({ img: imgary });
+//       res.json(rr);
+//     });
+//   });
 
   //console.log(cursor.hasNext());
 
@@ -211,35 +212,35 @@ router.get("/dispatch_cursor", async (req, res) => {
   // }
 });
 
-router.get("/dispatch_api_raw", (req, res) => {
-  let errors = {};
-  // Business.find()
-  //   .sort({ advertiserId: 1 })
+// router.get("/dispatch_api_raw", (req, res) => {
+//   let errors = {};
+//   // Business.find()
+//   //   .sort({ advertiserId: 1 })
 
-  Business.aggregate([
-    {
-      $lookup: {
-        from: "advertisements",
-        localField: "_id",
-        foreignField: "businessId",
-        as: "ads"
-      }
-    }
-  ])
-    .then(data => {
-      let rary = [];
-      let rdata = {};
-      data.forEach(function(obj) {
-        rdata["name"] = obj["name"];
-        rary.push(rdata);
-      });
-      res.json(data);
-    })
-    .catch(err => {
-      errors.message = "Problem with Businesses";
-      return res.status(404).json(errors);
-    });
-});
+//   Business.aggregate([
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         localField: "_id",
+//         foreignField: "businessId",
+//         as: "ads"
+//       }
+//     }
+//   ])
+//     .then(data => {
+//       let rary = [];
+//       let rdata = {};
+//       data.forEach(function(obj) {
+//         rdata["name"] = obj["name"];
+//         rary.push(rdata);
+//       });
+//       res.json(data);
+//     })
+//     .catch(err => {
+//       errors.message = "Problem with Businesses";
+//       return res.status(404).json(errors);
+//     });
+// });
 
 // let id = req.params.id;
 // let query = {};
@@ -541,369 +542,272 @@ router.get("/find-ad/:id", (req, res) => {
     );
 });
 
-router.get("/xxdoadimagejoin/:id", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  //console.log("advertise api", query);
 
-  let query = { businessId: ObjectId(id) };
-  //let query = { businessId: id };
 
-  Advertisement.aggregate([
-    { $match: query },
-    {
-      $lookup: {
-        from: "images",
-        localField: "_id",
-        foreignField: "advertisementId",
-        as: "image"
-      }
-    },
-    { $unwind: "$image" },
-    { $match: { "image.type": "ad" } }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
 
-router.get("/ccccdoadimagejoin/:id", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  console.log("advertise api bizid ", id);
 
-  let query = { _id: ObjectId(id) };
-  //let query = { businessId: id };
+// router.get("/bizdata_api", (req, res) => {
+//   let id = req.params.id;
+//   //let query = { businessId: id };
+//   //console.log("advertise api bizid ", id);
+//   let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
 
-  Business.aggregate([
-    { $match: query },
-    {
-      $lookup: {
-        from: "advertisements",
-        localField: "_id",
-        foreignField: "businessId",
-        as: "adverts"
-      }
-    },
+//   Business.aggregate([
+//     // { $match: query },
 
-    {
-      $lookup: {
-        from: "images",
-        localField: "advertisementId",
-        foreignField: "advertisementId",
-        as: "imageads"
-      }
-    },
-    { $unwind: "$adverts" },
-    { $unwind: "$imageads" },
+//     // Advertiser.aggregate([
+//     //   { $match: query },
 
-    { $match: { "imageads.type": "ad" } }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//     {
+//       $lookup: {
+//         from: "advertisers",
+//         let: { advertiser_id: "$advertiserId" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertiser"
+//       }
+//     },
+//     // { $unwind: "$advertiser" },
 
-router.get("/thisisgood_doadimagejoin/:id", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  console.log("advertise api bizid ", id);
-  let query = { businessId: ObjectId(id), type: "ad" };
-  Image.aggregate([
-    { $match: query },
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertisements"
+//       }
+//     },
+//     { $unwind: "$advertisements" },
 
-    {
-      $lookup: {
-        from: "advertisements",
-        localField: "advertisementId",
-        foreignField: "_id",
-        as: "adverts"
-      }
-    },
-    { $unwind: "$adverts" },
+//     {
+//       $lookup: {
+//         from: "images",
+//         let: { biz_id: "$_id", advertiserId: "$advertisements._id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "imgs"
+//       }
+//     },
+//     // { $unwind: "$imgs" },
 
-    {
-      $lookup: {
-        from: "businesses",
-        localField: "businessId",
-        foreignField: "_id",
-        as: "bizes"
-      }
-    },
-    { $unwind: "$bizes" },
-    {
-      $project: {
-        imageFilename: 1,
-        type: 1,
-        "adverts.name": 1,
-        "bizes.description": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//     {
+//       $project: {
+//         name: 1,
+//         email: 1,
+//         company: 1,
+//         category: 1,
+//         description: 1,
+//         latitude: 1,
+//         longitude: 1,
+//         "advertiser.name": 1,
+//         "advertiser.email": 1,
+//         "advertisements._id": 1,
+//         "advertisements.businessId": 1,
+//         "advertisements.name": 1,
+//         "advertisements.description": 1,
+//         "advertisements.discount": 1,
+//         "advertisements.startdate": 1,
+//         "advertisements.enddate": 1,
+//         "imgs.advertiserId": 1,
+//         "imgs.businessId": 1,
+//         "imgs.advertisementId": 1,
+//         "imgs.imageFilename": 1,
+//         // "imgs.imageBuffer": 1,
+//         "imgs.type": 1
 
-router.get("/bizdata_api", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  //console.log("advertise api bizid ", id);
-  let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
+//         // "vizers.name": 1,
+//         // "vizers.email": 1
+//       }
+//     }
+//   ]).then(ads => {
+//     res.json(ads);
+//   });
+// });
 
-  Business.aggregate([
-    // { $match: query },
+// router.get("/bizdata_api2", (req, res) => {
+//   let id = req.params.id;
+//   //let query = { businessId: id };
+//   //console.log("advertise api bizid ", id);
+//   let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
 
-    // Advertiser.aggregate([
-    //   { $match: query },
+//   Business.aggregate([
+//     // { $match: query },
 
-    {
-      $lookup: {
-        from: "advertisers",
-        let: { advertiser_id: "$advertiserId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertiser"
-      }
-    },
-    // { $unwind: "$advertiser" },
+//     // Advertiser.aggregate([
+//     //   { $match: query },
 
-    {
-      $lookup: {
-        from: "advertisements",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertisements"
-      }
-    },
-    { $unwind: "$advertisements" },
+//     {
+//       $lookup: {
+//         from: "advertisers",
+//         let: { advertiser_id: "$advertiserId" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertiser"
+//       }
+//     },
 
-    {
-      $lookup: {
-        from: "images",
-        let: { biz_id: "$_id", advertiserId: "$advertisements._id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
-              }
-            }
-          }
-        ],
-        as: "imgs"
-      }
-    },
-    // { $unwind: "$imgs" },
+//     {
+//       $lookup: {
+//         from: "images",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$businessId", "$$biz_id"] },
+//                   { $eq: ["$type", "logo"] }
+//                 ]
+//               }
+//             }
+//           }
+//         ],
+//         as: "bizimgs"
+//       }
+//     },
 
-    {
-      $project: {
-        name: 1,
-        email: 1,
-        company: 1,
-        category: 1,
-        description: 1,
-        latitude: 1,
-        longitude: 1,
-        "advertiser.name": 1,
-        "advertiser.email": 1,
-        "advertisements._id": 1,
-        "advertisements.businessId": 1,
-        "advertisements.name": 1,
-        "advertisements.description": 1,
-        "advertisements.discount": 1,
-        "advertisements.startdate": 1,
-        "advertisements.enddate": 1,
-        "imgs.advertiserId": 1,
-        "imgs.businessId": 1,
-        "imgs.advertisementId": 1,
-        "imgs.imageFilename": 1,
-        // "imgs.imageBuffer": 1,
-        "imgs.type": 1
+//     {
+//       $lookup: {
+//         from: "images",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$businessId", "$$biz_id"] },
+//                   { $eq: ["$type", "photo"] }
+//                 ]
+//               }
+//             }
+//           }
+//         ],
+//         as: "bizphotoimgs"
+//       }
+//     },
+//     // { $unwind: "$advertiser" },
 
-        // "vizers.name": 1,
-        // "vizers.email": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertisements"
+//       }
+//     },
+//     // we have to unwind this to use the id below so we dont
+//     //{ $unwind: "$advertisements" },
 
-router.get("/bizdata_api2", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  //console.log("advertise api bizid ", id);
-  let query = { category: "seafood" }; // businessId: ObjectId(id), type: "ad" };
+//     {
+//       $lookup: {
+//         from: "images",
+//         //let: { ad_id: "$advertisements._id" },
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$businessId", "$$biz_id"] },
+//                   { $eq: ["$type", "ad"] }
+//                 ]
+//               }
+//             }
+//           }
+//         ],
+//         as: "imgs"
+//       }
+//     },
+//     //{ $unwind: "$imgs" },
 
-  Business.aggregate([
-    // { $match: query },
+//     {
+//       $project: {
+//         name: 1,
+//         email: 1,
+//         company: 1,
+//         category: 1,
+//         description: 1,
+//         latitude: 1,
+//         longitude: 1,
+//         address: 1,
+//         city: 1,
+//         state: 1,
+//         phone: 1,
 
-    // Advertiser.aggregate([
-    //   { $match: query },
+//         "advertiser.name": 1,
+//         "advertiser.email": 1,
+//         "bizimgs.imageFilename": 1,
+//         "bizimgs.type": 1,
+//         "bizimgs.advertisementId": 1,
+//         "bizimgs.imageBuffer": 1,
+//         "bizimgs.width": 1,
+//         "bizimgs.height": 1,
+//         "bizphotoimgs.imageFilename": 1,
+//         "bizphotoimgs.type": 1,
+//         "bizphotoimgs.imageBuffer": 1,
+//         "bizphotoimgs.width": 1,
+//         "bizphotoimgs.height": 1,
+//         "advertisements._id": 1,
+//         "advertisements.businessId": 1,
+//         "advertisements.name": 1,
+//         "advertisements.description": 1,
+//         "advertisements.discount": 1,
+//         "advertisements.startdate": 1,
+//         "advertisements.enddate": 1,
+//         // "imgs.advertiserId": 1,
+//         "imgs.businessId": 1,
+//         "imgs.advertisementId": 1,
+//         "imgs.imageFilename": 1,
+//         "imgs.imageBuffer": 1,
+//         "imgs.type": 1,
+//         "imgs.width": 1,
+//         "imgs.height": 1,
 
-    {
-      $lookup: {
-        from: "advertisers",
-        let: { advertiser_id: "$advertiserId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertiser"
-      }
-    },
-
-    {
-      $lookup: {
-        from: "images",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] },
-                  { $eq: ["$type", "logo"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "bizimgs"
-      }
-    },
-
-    {
-      $lookup: {
-        from: "images",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] },
-                  { $eq: ["$type", "photo"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "bizphotoimgs"
-      }
-    },
-    // { $unwind: "$advertiser" },
-
-    {
-      $lookup: {
-        from: "advertisements",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertisements"
-      }
-    },
-    // we have to unwind this to use the id below so we dont
-    //{ $unwind: "$advertisements" },
-
-    {
-      $lookup: {
-        from: "images",
-        //let: { ad_id: "$advertisements._id" },
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] },
-                  { $eq: ["$type", "ad"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "imgs"
-      }
-    },
-    //{ $unwind: "$imgs" },
-
-    {
-      $project: {
-        name: 1,
-        email: 1,
-        company: 1,
-        category: 1,
-        description: 1,
-        latitude: 1,
-        longitude: 1,
-        address: 1,
-        city: 1,
-        state: 1,
-        phone: 1,
-
-        "advertiser.name": 1,
-        "advertiser.email": 1,
-        "bizimgs.imageFilename": 1,
-        "bizimgs.type": 1,
-        "bizimgs.advertisementId": 1,
-        "bizimgs.imageBuffer": 1,
-        "bizimgs.width": 1,
-        "bizimgs.height": 1,
-        "bizphotoimgs.imageFilename": 1,
-        "bizphotoimgs.type": 1,
-        "bizphotoimgs.imageBuffer": 1,
-        "bizphotoimgs.width": 1,
-        "bizphotoimgs.height": 1,
-        "advertisements._id": 1,
-        "advertisements.businessId": 1,
-        "advertisements.name": 1,
-        "advertisements.description": 1,
-        "advertisements.discount": 1,
-        "advertisements.startdate": 1,
-        "advertisements.enddate": 1,
-        // "imgs.advertiserId": 1,
-        "imgs.businessId": 1,
-        "imgs.advertisementId": 1,
-        "imgs.imageFilename": 1,
-        "imgs.imageBuffer": 1,
-        "imgs.type": 1,
-        "imgs.width": 1,
-        "imgs.height": 1,
-
-        "vizers.name": 1,
-        "vizers.email": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//         "vizers.name": 1,
+//         "vizers.email": 1
+//       }
+//     }
+//   ]).then(ads => {
+//     res.json(ads);
+//   });
+// });
 
 /*
 
@@ -1016,308 +920,130 @@ results searhing on category = seafood
 ]
 */
 
-router.get("/tizerdata_api", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  //console.log("advertise api bizid ", id);
-  let query = {}; // businessId: ObjectId(id), type: "ad" };
-  // Business.aggregate([
-  //   { $match: query },
 
-  Advertiser.aggregate([
-    { $match: query },
 
-    {
-      $lookup: {
-        from: "businesses",
-        let: { advertiser_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$advertiserId", "$$advertiser_id"] }]
-              }
-            }
-          }
-        ],
-        as: "bizes"
-      }
-    },
-    { $unwind: "$bizes" },
 
-    {
-      $lookup: {
-        from: "advertisements",
-        let: { biz_id: "$bizes._id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertisements"
-      }
-    },
-    { $unwind: "$advertisements" },
+// router.get("/doadimagejoin/:id", (req, res) => {
+//   let id = req.params.id;
+//   //let query = { businessId: id };
+//   console.log("advertise api bizid ", id);
+//   let query = { businessId: ObjectId(id), type: "ad" };
+//   Image.aggregate([
+//     { $match: query },
 
-    // this will join against advertisements and just show the ad image
-    // {
-    //   $lookup: {
-    //     from: "images",
-    //     let: { ad_id: "$advertisements._id" },
-    //     pipeline: [
-    //       {
-    //         $match: {
-    //           $expr: {
-    //             $and: [
-    //               { $eq: ["$advertisementId", "$$ad_id"] },
-    //               { $eq: ["$type", "ad"] }
-    //             ]
-    //           }
-    //         }
-    //       }
-    //     ],
-    //     as: "imgs"
-    //   }
-    // },
-    // { $unwind: "$imgs" },
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         localField: "advertisementId",
+//         foreignField: "_id",
+//         as: "adverts"
+//       }
+//     },
+//     { $unwind: "$adverts" },
 
-    // this will show all images for a business, logo,photos and ads.  no need to unwind
-    {
-      $lookup: {
-        from: "images",
-        let: { biz_id: "$bizes._id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] }
-                  // ,
-                  // { $eq: ["$type", "ad"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "imgs"
-      }
-    },
-    // { $unwind: "$imgs" },
+//     {
+//       $lookup: {
+//         from: "businesses",
+//         localField: "businessId",
+//         foreignField: "_id",
+//         as: "bizes"
+//       }
+//     },
+//     { $unwind: "$bizes" },
+//     {
+//       $lookup: {
+//         from: "advertisers",
+//         localField: "advertiserId",
+//         foreignField: "_id",
+//         as: "vizers"
+//       }
+//     },
+//     { $unwind: "$vizers" },
 
-    {
-      $project: {
-        name: 1,
-        email: 1,
-        company: 1,
-        "bizes._id": 1,
-        "bizes.advertiserId": 1,
-        "bizes.name": 1,
-        "bizes.description": 1,
-        "bizes.latitude": 1,
-        "bizes.longitude": 1,
+//     {
+//       $project: {
+//         imageFilename: 1,
+//         type: 1,
+//         "adverts.name": 1,
+//         "bizes.name": 1,
+//         "bizes.description": 1,
+//         "vizers.name": 1,
+//         "vizers.email": 1
+//       }
+//     }
+//   ]).then(ads => {
+//     res.json(ads);
+//   });
+// });
 
-        "advertisements._id": 1,
-        "advertisements.businessId": 1,
-        "advertisements.name": 1,
-        "advertisements.description": 1,
-        "advertisements.discount": 1,
-        "advertisements.startdate": 1,
-        "advertisements.enddate": 1,
-        "imgs.advertiserId": 1,
-        "imgs.businessId": 1,
-        "imgs.advertisementId": 1,
-        "imgs.imageFilename": 1,
-        "imgs.type": 1
+// router.get("/bummer_doadimagejoin/:id", (req, res) => {
+//   let id = req.params.id;
+//   // let query = { businessId: id };
+//   console.log("advertise api bizid ", id);
+//   //let query = { businessId: ObjectId(id), type: "ad" };
+//   let query = { _id: ObjectId(id) };
+//   Business.aggregate([
+//     { $match: query },
 
-        // "vizers.name": 1,
-        // "vizers.email": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         // localField: "_id",
+//         // foreignField: "businessId",
+//         pipeline: [{ $match: { businessId: ObjectId(id) } }],
+//         as: "adverts"
+//       }
+//     },
+//     { $unwind: "$adverts" },
 
-router.get("/imagedata_api", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  console.log("advertise api bizid ", id);
-  let query = {}; // businessId: ObjectId(id), type: "ad" };
-  Image.aggregate([
-    { $match: query },
+//     // {
+//     //   $lookup: {
+//     //     from: "advertisers",
+//     //     localField: "advertiserId",
+//     //     foreignField: "_id",
+//     //     as: "vizers"
+//     //   }
+//     // },
+//     // { $unwind: "$vizers" },
 
-    {
-      $lookup: {
-        from: "advertisements",
-        localField: "advertisementId",
-        foreignField: "_id",
-        as: "adverts"
-      }
-    },
-    { $unwind: "$adverts" },
+//     {
+//       $lookup: {
+//         from: "images",
 
-    {
-      $lookup: {
-        from: "businesses",
-        localField: "businessId",
-        foreignField: "_id",
-        as: "bizes"
-      }
-    },
-    { $unwind: "$bizes" },
-    {
-      $lookup: {
-        from: "advertisers",
-        localField: "advertiserId",
-        foreignField: "_id",
-        as: "vizers"
-      }
-    },
-    { $unwind: "$vizers" },
+//         localField: "businessId",
+//         foreignField: "businessId",
+//         // pipeline: [
+//         //   {
+//         //     $match: {
+//         //       type: "ad",
+//         //       businessId: ObjectId(id),
+//         //       advertisementId: ObjectId("$adverts._id")
+//         //     }
+//         //   }
+//         // ],
+//         as: "images"
+//       }
+//     },
+//     { $unwind: "$images" },
+//     // { $match: { images: { "images.type": "ad" } } },
 
-    {
-      $project: {
-        imageFilename: 1,
-        type: 1,
-        "adverts.name": 1,
-        "bizes.name": 1,
-        "bizes.description": 1,
-        "bizes.latitude": 1,
-        "bizes.longitude": 1,
-        "vizers.name": 1,
-        "vizers.email": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
-
-router.get("/doadimagejoin/:id", (req, res) => {
-  let id = req.params.id;
-  //let query = { businessId: id };
-  console.log("advertise api bizid ", id);
-  let query = { businessId: ObjectId(id), type: "ad" };
-  Image.aggregate([
-    { $match: query },
-
-    {
-      $lookup: {
-        from: "advertisements",
-        localField: "advertisementId",
-        foreignField: "_id",
-        as: "adverts"
-      }
-    },
-    { $unwind: "$adverts" },
-
-    {
-      $lookup: {
-        from: "businesses",
-        localField: "businessId",
-        foreignField: "_id",
-        as: "bizes"
-      }
-    },
-    { $unwind: "$bizes" },
-    {
-      $lookup: {
-        from: "advertisers",
-        localField: "advertiserId",
-        foreignField: "_id",
-        as: "vizers"
-      }
-    },
-    { $unwind: "$vizers" },
-
-    {
-      $project: {
-        imageFilename: 1,
-        type: 1,
-        "adverts.name": 1,
-        "bizes.name": 1,
-        "bizes.description": 1,
-        "vizers.name": 1,
-        "vizers.email": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
-
-router.get("/bummer_doadimagejoin/:id", (req, res) => {
-  let id = req.params.id;
-  // let query = { businessId: id };
-  console.log("advertise api bizid ", id);
-  //let query = { businessId: ObjectId(id), type: "ad" };
-  let query = { _id: ObjectId(id) };
-  Business.aggregate([
-    { $match: query },
-
-    {
-      $lookup: {
-        from: "advertisements",
-        // localField: "_id",
-        // foreignField: "businessId",
-        pipeline: [{ $match: { businessId: ObjectId(id) } }],
-        as: "adverts"
-      }
-    },
-    { $unwind: "$adverts" },
-
-    // {
-    //   $lookup: {
-    //     from: "advertisers",
-    //     localField: "advertiserId",
-    //     foreignField: "_id",
-    //     as: "vizers"
-    //   }
-    // },
-    // { $unwind: "$vizers" },
-
-    {
-      $lookup: {
-        from: "images",
-
-        localField: "businessId",
-        foreignField: "businessId",
-        // pipeline: [
-        //   {
-        //     $match: {
-        //       type: "ad",
-        //       businessId: ObjectId(id),
-        //       advertisementId: ObjectId("$adverts._id")
-        //     }
-        //   }
-        // ],
-        as: "images"
-      }
-    },
-    { $unwind: "$images" },
-    // { $match: { images: { "images.type": "ad" } } },
-
-    {
-      $project: {
-        name: 1,
-        "adverts._id": 1,
-        "adverts.name": 1,
-        "adverts.businessId": 1,
-        "bizes.name": 1,
-        "vizers.name": 1,
-        "vizers.email": 1,
-        "images.imageFilename": 1,
-        "images.type": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//     {
+//       $project: {
+//         name: 1,
+//         "adverts._id": 1,
+//         "adverts.name": 1,
+//         "adverts.businessId": 1,
+//         "bizes.name": 1,
+//         "vizers.name": 1,
+//         "vizers.email": 1,
+//         "images.imageFilename": 1,
+//         "images.type": 1
+//       }
+//     }
+//   ]).then(ads => {
+//     res.json(ads);
+//   });
+// });
 
 // let imgquery = {};
 // let modads = [];
@@ -1404,290 +1130,290 @@ router.get("/bummer_doadimagejoin/:id", (req, res) => {
 //     .catch(err => res.status(404).json({ nousersfound: "No trips found" }));
 // });
 
-router.get("/dispatch-ads-everything_api", (req, res) => {
-  //  console.log(req.params);
-  //let id = req.params.id;
-  let type = req.query.type;
-  let value = req.query.value;
+// router.get("/dispatch-ads-everything_api", (req, res) => {
+//   //  console.log(req.params);
+//   //let id = req.params.id;
+//   let type = req.query.type;
+//   let value = req.query.value;
 
-  console.log("type", type);
-  console.log("value", value);
-  //let query = { businessId: id };
-  //console.log("advertise api bizid ", id);
-  let query = { category: "Food" }; // businessId: ObjectId(id), type: "ad" };
-  let qry = {};
-  if (type !== undefined && value !== undefined) {
-    qry[type] = value;
-  }
+//   console.log("type", type);
+//   console.log("value", value);
+//   //let query = { businessId: id };
+//   //console.log("advertise api bizid ", id);
+//   let query = { category: "Food" }; // businessId: ObjectId(id), type: "ad" };
+//   let qry = {};
+//   if (type !== undefined && value !== undefined) {
+//     qry[type] = value;
+//   }
 
-  console.log(qry);
+//   console.log(qry);
 
-  Business.aggregate([
-    { $match: qry },
+//   Business.aggregate([
+//     { $match: qry },
 
-    // Advertiser.aggregate([
-    //   { $match: query },
+//     // Advertiser.aggregate([
+//     //   { $match: query },
 
-    {
-      $lookup: {
-        from: "advertisers",
-        let: { advertiser_id: "$advertiserId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertiser"
-      }
-    },
+//     {
+//       $lookup: {
+//         from: "advertisers",
+//         let: { advertiser_id: "$advertiserId" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertiser"
+//       }
+//     },
 
-    {
-      $lookup: {
-        from: "images",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] },
-                  { $eq: ["$type", "logo"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "bizimgs"
-      }
-    },
+//     {
+//       $lookup: {
+//         from: "images",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$businessId", "$$biz_id"] },
+//                   { $eq: ["$type", "logo"] }
+//                 ]
+//               }
+//             }
+//           }
+//         ],
+//         as: "bizimgs"
+//       }
+//     },
 
-    {
-      $lookup: {
-        from: "images",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] },
-                  { $eq: ["$type", "photo"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "bizphotoimgs"
-      }
-    },
-    // { $unwind: "$advertiser" },
+//     {
+//       $lookup: {
+//         from: "images",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$businessId", "$$biz_id"] },
+//                   { $eq: ["$type", "photo"] }
+//                 ]
+//               }
+//             }
+//           }
+//         ],
+//         as: "bizphotoimgs"
+//       }
+//     },
+//     // { $unwind: "$advertiser" },
 
-    {
-      $lookup: {
-        from: "advertisements",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertisements"
-      }
-    },
-    // we have to unwind this to use the id below so we dont
-    //{ $unwind: "$advertisements" },
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertisements"
+//       }
+//     },
+//     // we have to unwind this to use the id below so we dont
+//     //{ $unwind: "$advertisements" },
 
-    {
-      $lookup: {
-        from: "images",
-        //let: { ad_id: "$advertisements._id" },
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$businessId", "$$biz_id"] },
-                  { $eq: ["$type", "ad"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "imgs"
-      }
-    },
-    //{ $unwind: "$imgs" },
+//     {
+//       $lookup: {
+//         from: "images",
+//         //let: { ad_id: "$advertisements._id" },
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$businessId", "$$biz_id"] },
+//                   { $eq: ["$type", "ad"] }
+//                 ]
+//               }
+//             }
+//           }
+//         ],
+//         as: "imgs"
+//       }
+//     },
+//     //{ $unwind: "$imgs" },
 
-    {
-      $project: {
-        name: 1,
-        email: 1,
-        company: 1,
-        category: 1,
-        description: 1,
-        latitude: 1,
-        longitude: 1,
-        address: 1,
-        city: 1,
-        state: 1,
-        phone: 1,
+//     {
+//       $project: {
+//         name: 1,
+//         email: 1,
+//         company: 1,
+//         category: 1,
+//         description: 1,
+//         latitude: 1,
+//         longitude: 1,
+//         address: 1,
+//         city: 1,
+//         state: 1,
+//         phone: 1,
 
-        "advertiser.name": 1,
-        "advertiser.email": 1,
-        "bizimgs.imageFilename": 1,
-        "bizimgs.type": 1,
-        "bizimgs.advertisementId": 1,
-        "bizimgs.imageBuffer": 1,
-        "bizimgs.width": 1,
-        "bizimgs.height": 1,
-        "bizphotoimgs.imageFilename": 1,
-        "bizphotoimgs.type": 1,
-        "bizphotoimgs.imageBuffer": 1,
-        "bizphotoimgs.width": 1,
-        "bizphotoimgs.height": 1,
-        "advertisements._id": 1,
-        "advertisements.businessId": 1,
-        "advertisements.name": 1,
-        "advertisements.description": 1,
-        "advertisements.discount": 1,
-        "advertisements.startdate": 1,
-        "advertisements.enddate": 1,
-        "imgs.businessId": 1,
-        "imgs.advertisementId": 1,
-        "imgs.imageFilename": 1,
-        "imgs.imageBuffer": 1,
-        "imgs.type": 1,
-        "imgs.width": 1,
-        "imgs.height": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//         "advertiser.name": 1,
+//         "advertiser.email": 1,
+//         "bizimgs.imageFilename": 1,
+//         "bizimgs.type": 1,
+//         "bizimgs.advertisementId": 1,
+//         "bizimgs.imageBuffer": 1,
+//         "bizimgs.width": 1,
+//         "bizimgs.height": 1,
+//         "bizphotoimgs.imageFilename": 1,
+//         "bizphotoimgs.type": 1,
+//         "bizphotoimgs.imageBuffer": 1,
+//         "bizphotoimgs.width": 1,
+//         "bizphotoimgs.height": 1,
+//         "advertisements._id": 1,
+//         "advertisements.businessId": 1,
+//         "advertisements.name": 1,
+//         "advertisements.description": 1,
+//         "advertisements.discount": 1,
+//         "advertisements.startdate": 1,
+//         "advertisements.enddate": 1,
+//         "imgs.businessId": 1,
+//         "imgs.advertisementId": 1,
+//         "imgs.imageFilename": 1,
+//         "imgs.imageBuffer": 1,
+//         "imgs.type": 1,
+//         "imgs.width": 1,
+//         "imgs.height": 1
+//       }
+//     }
+//   ]).then(ads => {
+//     res.json(ads);
+//   });
+// });
 
-router.get("/dispatch-ads-business_api", (req, res) => {
-  //  console.log(req.params);
-  //let id = req.params.id;
-  let type = req.query.type;
-  let value = req.query.value;
+// router.get("/dispatch-ads-business_api", (req, res) => {
+//   //  console.log(req.params);
+//   //let id = req.params.id;
+//   let type = req.query.type;
+//   let value = req.query.value;
 
-  //console.log("type", type);
-  //console.log("value", value);
-  //let query = { businessId: id };
-  //console.log("advertise api bizid ", id);
-  let query = { category: "Food" }; // businessId: ObjectId(id), type: "ad" };
-  let qry = {};
-  if (type !== undefined && value !== undefined) {
-    qry[type] = value;
-  }
+//   //console.log("type", type);
+//   //console.log("value", value);
+//   //let query = { businessId: id };
+//   //console.log("advertise api bizid ", id);
+//   let query = { category: "Food" }; // businessId: ObjectId(id), type: "ad" };
+//   let qry = {};
+//   if (type !== undefined && value !== undefined) {
+//     qry[type] = value;
+//   }
 
-  //console.log(qry);
+//   //console.log(qry);
 
-  Business.aggregate([
-    { $match: qry },
-    {
-      $lookup: {
-        from: "advertisers",
-        let: { advertiser_id: "$advertiserId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertiser"
-      }
-    },
+//   Business.aggregate([
+//     { $match: qry },
+//     {
+//       $lookup: {
+//         from: "advertisers",
+//         let: { advertiser_id: "$advertiserId" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$_id", "$$advertiser_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertiser"
+//       }
+//     },
 
-    // {
-    //   $lookup: {
-    //     from: "images",
-    //     let: { biz_id: "$_id" },
-    //     pipeline: [
-    //       {
-    //         $match: {
-    //           $expr: {
-    //             $and: [
-    //               { $eq: ["$businessId", "$$biz_id"] },
-    //               { $eq: ["$type", "logo"] }
-    //             ]
-    //           }
-    //         }
-    //       }
-    //     ],
-    //     as: "bizimgs"
-    //   }
-    // },
+//     // {
+//     //   $lookup: {
+//     //     from: "images",
+//     //     let: { biz_id: "$_id" },
+//     //     pipeline: [
+//     //       {
+//     //         $match: {
+//     //           $expr: {
+//     //             $and: [
+//     //               { $eq: ["$businessId", "$$biz_id"] },
+//     //               { $eq: ["$type", "logo"] }
+//     //             ]
+//     //           }
+//     //         }
+//     //       }
+//     //     ],
+//     //     as: "bizimgs"
+//     //   }
+//     // },
 
-    // Advertiser.aggregate([
-    //   { $match: query },
+//     // Advertiser.aggregate([
+//     //   { $match: query },
 
-    {
-      $lookup: {
-        from: "advertisements",
-        let: { biz_id: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [{ $eq: ["$businessId", "$$biz_id"] }]
-              }
-            }
-          }
-        ],
-        as: "advertisements"
-      }
-    },
-    // we have to unwind this to use the id below so we dont
-    //{ $unwind: "$advertisements" },
+//     {
+//       $lookup: {
+//         from: "advertisements",
+//         let: { biz_id: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [{ $eq: ["$businessId", "$$biz_id"] }]
+//               }
+//             }
+//           }
+//         ],
+//         as: "advertisements"
+//       }
+//     },
+//     // we have to unwind this to use the id below so we dont
+//     //{ $unwind: "$advertisements" },
 
-    {
-      $project: {
-        name: 1,
-        email: 1,
-        company: 1,
-        category: 1,
-        description: 1,
-        latitude: 1,
-        longitude: 1,
-        address: 1,
-        city: 1,
-        state: 1,
-        phone: 1,
-        "advertiser.name": 1,
-        "advertiser.email": 1,
-        // "bizimgs.imageFilename": 1,
-        // "bizimgs.type": 1,
-        // "bizimgs.advertisementId": 1,
-        // // "bizimgs.imageBuffer": 1,
-        // "bizimgs.width": 1,
-        // "bizimgs.height": 1,
+//     {
+//       $project: {
+//         name: 1,
+//         email: 1,
+//         company: 1,
+//         category: 1,
+//         description: 1,
+//         latitude: 1,
+//         longitude: 1,
+//         address: 1,
+//         city: 1,
+//         state: 1,
+//         phone: 1,
+//         "advertiser.name": 1,
+//         "advertiser.email": 1,
+//         // "bizimgs.imageFilename": 1,
+//         // "bizimgs.type": 1,
+//         // "bizimgs.advertisementId": 1,
+//         // // "bizimgs.imageBuffer": 1,
+//         // "bizimgs.width": 1,
+//         // "bizimgs.height": 1,
 
-        "advertisements._id": 1,
-        "advertisements.businessId": 1,
-        "advertisements.name": 1,
-        "advertisements.description": 1,
-        "advertisements.discount": 1,
-        "advertisements.startdate": 1,
-        "advertisements.enddate": 1
-      }
-    }
-  ]).then(ads => {
-    res.json(ads);
-  });
-});
+//         "advertisements._id": 1,
+//         "advertisements.businessId": 1,
+//         "advertisements.name": 1,
+//         "advertisements.description": 1,
+//         "advertisements.discount": 1,
+//         "advertisements.startdate": 1,
+//         "advertisements.enddate": 1
+//       }
+//     }
+//   ]).then(ads => {
+//     res.json(ads);
+//   });
+// });
 
 module.exports = router;
