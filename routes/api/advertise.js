@@ -193,24 +193,24 @@ router.get("/advertisements/:id", (req, res) => {
   //   console.log(race);
   // });
 
-  // cursor.on("data", function(doc) {
-  //   console.log("business *********************");
-  //   console.log(doc);
-  //   let query = { businessId: doc._id };
-  //   const cursor2 = Advertisement.find(query).cursor();
-  //   cursor2.on("data", function(ad) {
-  //     console.log("ad *********************");
-  //     console.log(ad);
-  //   });
-  // });
-  // console.log(cursor.next);
-  // cursor.next.then(doc => {
-  //   console.log(doc);
-  // });
-  // for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-  //   console.log(doc.name);
-  // }
-});
+// cursor.on("data", function(doc) {
+//   console.log("business *********************");
+//   console.log(doc);
+//   let query = { businessId: doc._id };
+//   const cursor2 = Advertisement.find(query).cursor();
+//   cursor2.on("data", function(ad) {
+//     console.log("ad *********************");
+//     console.log(ad);
+//   });
+// });
+// console.log(cursor.next);
+// cursor.next.then(doc => {
+//   console.log(doc);
+// });
+// for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+//   console.log(doc.name);
+// }
+//});
 
 // router.get("/dispatch_api_raw", (req, res) => {
 //   let errors = {};
