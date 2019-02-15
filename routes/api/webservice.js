@@ -293,4 +293,29 @@ router.get("/dispatch-ads-business_api", (req, res) => {
   });
 });
 
+router.get("/businesses_api", (req, res) => {
+  //  console.log(req.params);
+  //let id = req.params.id;
+  let type = req.query.type;
+  let value = req.query.value;
+
+  //console.log("type", type);
+  //console.log("value", value);
+  //let query = { businessId: id };
+  //console.log("advertise api bizid ", id);
+  let query = { category: "Food" }; // businessId: ObjectId(id), type: "ad" };
+  let qry = {};
+  if (type !== undefined && value !== undefined) {
+    qry[type] = value;
+  }
+
+  Business.find(qry)
+    .then(advertisement => {
+      return res.json(advertisement);
+    })
+    .catch(err =>
+      res.status(404).json({ message: "cannot change business status" })
+    );
+});
+
 module.exports = router;

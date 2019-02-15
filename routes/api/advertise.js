@@ -182,16 +182,16 @@ router.get("/advertisements/:id", (req, res) => {
 //     });
 //   });
 
-  //console.log(cursor.hasNext());
+//console.log(cursor.hasNext());
 
-  // while (cursor.hasNext()) {
-  // const doc = await cursor.next();
-  // console.log(doc);
-  // // }
+// while (cursor.hasNext()) {
+// const doc = await cursor.next();
+// console.log(doc);
+// // }
 
-  // cursor.forEach(function(race) {
-  //   console.log(race);
-  // });
+// cursor.forEach(function(race) {
+//   console.log(race);
+// });
 
 // cursor.on("data", function(doc) {
 //   console.log("business *********************");
@@ -542,9 +542,7 @@ router.get("/find-ad/:id", (req, res) => {
     );
 });
 
-
-
-
+module.exports = router;
 
 // router.get("/bizdata_api", (req, res) => {
 //   let id = req.params.id;
@@ -919,9 +917,6 @@ results searhing on category = seafood
     }
 ]
 */
-
-
-
 
 // router.get("/doadimagejoin/:id", (req, res) => {
 //   let id = req.params.id;
@@ -1415,5 +1410,3 @@ results searhing on category = seafood
 //     res.json(ads);
 //   });
 // });
-
-module.exports = router;
