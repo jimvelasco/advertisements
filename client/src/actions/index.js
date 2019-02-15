@@ -3,7 +3,7 @@ const client = axios.create();
 
 export const getApiBusinesses = (userrole, userid) => {
   let link = "/api/business/businesses";
-  if (userrole === "") {
+  if (userrole === "advertiser") {
     link = "/api/business/businesses/" + userid;
   }
   // console.log("getting businesses from api using axios");
