@@ -97,9 +97,12 @@ img {
 .autocomplete-dropdown-container {
   font-size: 9pt;
   border: 0px solid black;
+  z-index: 1000 !important;
+  position: absolute;
+  background-color: #fff;
 }
 .suggestion-item--active {
-  background-color: red;
+  background-color: #c0c0c0;
 }
 .suggestion-item {
   color: black;

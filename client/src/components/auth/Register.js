@@ -8,6 +8,8 @@ import { connect } from "react-redux";
 import { registerAdvertiser } from "../../actions/authActions";
 import { modifyAdvertiser } from "../../actions/authActions";
 
+import Spinner from "../common/Spinner";
+
 //import axios from "axios";
 //import classnames from "classnames";
 
@@ -23,7 +25,7 @@ class Register extends Component {
       password: "",
       password2: "",
       company: "",
-      role: "",
+      role: "advertiser",
       status: 0,
       changePassword: false,
       errors: {},
@@ -33,7 +35,8 @@ class Register extends Component {
       imageBuffer: null,
       imageWidth: null,
       imageHeight: null,
-      imageFilename: null
+      imageFilename: null,
+      isloading: false
     };
 
     this.onChange = this.onChange.bind(this);
@@ -51,6 +54,7 @@ class Register extends Component {
     if (id) {
       let link = `/api/users/find-user/${id}`;
       // console.log("component did mount", link);
+      this.setState({ isloading: true });
       axios
         .get(link)
         .then(res => {
@@ -66,7 +70,8 @@ class Register extends Component {
             imageBuffer: img.imageBuffer,
             imageWidth: img.width,
             imageHeight: img.height,
-            imageFilename: img.imageFilename
+            imageFilename: img.imageFilename,
+            isloading: false
           });
         })
         // .catch(err => console.log(err.res.data));
@@ -197,6 +202,10 @@ class Register extends Component {
     let hasimage = false;
     if (this.state.imageBuffer) {
       hasimage = true;
+    }
+
+    if (this.state.isloading) {
+      return <Spinner />;
     }
 
     return (

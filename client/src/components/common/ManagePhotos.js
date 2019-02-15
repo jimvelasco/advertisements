@@ -28,19 +28,13 @@ class ManagePhotos extends Component {
   }
 
   componentDidMount() {
-    //console.log(this.props);
+    console.log(this.props);
     this.props.getBusinessPhotos(this.props.selectedBizid);
   }
 
   componentWillReceiveProps(nextProps) {
-    //console.log("doing a mp wrp ");
-    //console.log("manage photos current props ", this.props);
-    //console.log("manage photos nextProps ", nextProps);
     if (this.props.selectedBizid != nextProps.selectedBizid) {
       this.props.getBusinessPhotos(nextProps.selectedBizid);
-      // console.log("WE NEED TO REFRSH THE SCREEN WITH STATE OR SOMETHING");
-      // console.log("this props ", this.props.advertise.images.length);
-      // console.log("next props ", nextProps.advertise.images.length);
     }
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
@@ -93,7 +87,10 @@ class ManagePhotos extends Component {
     const name = this.props.selectedName;
     const photos = this.props.advertise.images;
     const closePhotos = this.props.closePhotos;
-    if (advertise.isloading) {
+    if (
+      this.props.advertise.isloading &&
+      this.props.advertise.page === "photos"
+    ) {
       return <Spinner />;
     }
 

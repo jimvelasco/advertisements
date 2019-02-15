@@ -11,6 +11,8 @@ const Advertisement = require("../../models/Advertisement");
 const Image = require("../../models/Image");
 const Jimp = require("jimp");
 
+const photoHelper = require("../../config/photoHelper");
+
 //const ReactDOMServer = require("react-dom/server");
 
 const validateAdvertisementInput = require("../../validation/advertisement");
@@ -270,6 +272,11 @@ router.get("/advertisements_api", (req, res) => {
 
 router.post("/createAdvertisement", (req, res) => {
   const { errors, isValid } = validateAdvertisementInput(req.body);
+  const adwidth = photoHelper.adWidth;
+  let aheight = photoHelper.adHeight;
+  if (aheight == -1) {
+    aheight = Jimp.AUTO;
+  }
   // Check Validation
   if (!isValid) {
     return res.status(400).json(errors);
@@ -310,7 +317,7 @@ router.post("/createAdvertisement", (req, res) => {
     .then(newAd => {
       Jimp.read(imageFile.data).then(lenna => {
         lenna
-          .resize(200, Jimp.AUTO) // resize
+          .resize(adwidth, aheight) // resize
           .quality(80); // set JPEG quality
         lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
           const newImage = new Image({
@@ -342,6 +349,11 @@ router.post("/createAdvertisement", (req, res) => {
 
 router.post("/modifyAdvertisement", (req, res) => {
   const { errors, isValid } = validateAdvertisementInput(req.body);
+  const adwidth = photoHelper.adWidth;
+  let aheight = photoHelper.adHeight;
+  if (aheight == -1) {
+    aheight = Jimp.AUTO;
+  }
   // Check Validation
 
   if (!isValid) {
@@ -381,7 +393,7 @@ router.post("/modifyAdvertisement", (req, res) => {
         Jimp.read(imageFile.data)
           .then(lenna => {
             lenna
-              .resize(200, Jimp.AUTO) // resize
+              .resize(adwidth, aheight) // resize
               .quality(80);
             lenna.getBufferAsync(Jimp.MIME_JPEG).then(buf => {
               var options = { new: true };

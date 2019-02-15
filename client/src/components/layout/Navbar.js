@@ -83,7 +83,7 @@ class Navbar extends Component {
 
         <li className="nav-item">
           <Link className="nav-link" to={`/modifyadvertiser/${user.id}`}>
-            {user.email}
+            {user.name}
           </Link>
         </li>
 

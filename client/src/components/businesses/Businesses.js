@@ -60,33 +60,39 @@ class Businesses extends Component {
     this.props.getBusinesses(userrole, userid, this.props.history);
   }
 
-  deleteBusiness(adid) {
-    confirmAlert({
-      customUI: ({ onClose }) => {
-        return (
-          <div className="custom-ui">
-            <h1>Are you sure</h1>
-            <p>you want to delete this Business?</p>
-            <button className="btn btn-sm btn-info mr-2" onClick={onClose}>
-              No
-            </button>
-            <button
-              className="btn btn-sm btn-info mr-2"
-              onClick={() => {
-                this.doDeleteBusiness(adid);
-                onClose();
-              }}
-            >
-              Yes
-            </button>
-          </div>
-        );
-      }
-    });
+  deleteBusiness(e, adid) {
+    e.preventDefault();
+    console.log(adid);
+    // confirmAlert({
+    //   customUI: ({ onClose }) => {
+    //     return (
+    //       <div className="custom-ui">
+    //         <h1>Are you sure</h1>
+    //         <p>you want to delete this Business?</p>
+    //         <button className="btn btn-sm btn-info mr-2" onClick={onClose}>
+    //           No
+    //         </button>
+    //         <button
+    //           className="btn btn-sm btn-info mr-2"
+    //           onClick={() => {
+    //             this.doDeleteBusiness(e, adid);
+    //             onClose();
+    //           }}
+    //         >
+    //           Yes
+    //         </button>
+    //       </div>
+    //     );
+    //   }
+    // });
+    if (window.confirm("Are you sure you want to delete this Business?")) {
+      this.doDeleteBusiness(e, adid);
+    }
   }
 
   doDeleteBusiness(e, adid) {
-    e.preventDefault();
+    console.log("here is the biz id to delete", adid);
+    //e.preventDefault();
     this.props.deleteBusiness(adid);
   }
 
@@ -212,6 +218,13 @@ class Businesses extends Component {
       // return <Spinner />;
     }
 
+    let role = this.props.auth.user.role;
+    let isadmin = false;
+    if (role == "admin") {
+      isadmin = true;
+    }
+    // console.log("user role is", role);
+
     const { errors } = this.props;
     // console.log("businesses render", errors);
     const { businesses } = this.props.advertise;
@@ -240,7 +253,8 @@ class Businesses extends Component {
             <tr>
               {/* <th>_id</th>*/}
               {/* <th>Advertiser ID</th> */}
-              <th>Advertiser</th>
+              {isadmin ? <th>Advertiser</th> : null}
+
               <th>Business</th>
               <th>Description</th>
               <th>Address</th>
@@ -256,7 +270,8 @@ class Businesses extends Component {
               <tr key={business._id}>
                 {/* <td>{business._id}</td> */}
                 {/* <td>{business.advertiserId}</td> */}
-                <td>{business.advertiser.name}</td>
+                {isadmin ? <td>{business.advertiser.name}</td> : null}
+
                 <td>{business.name}</td>
                 <td>{business.description}</td>
                 <td>
@@ -339,25 +354,8 @@ class Businesses extends Component {
         ) : (
           <div />
         )}
-        {/* <a
-          href="#"
-          onClick={() => {
-            this.triggerError();
-          }}
-        >
-          trigger
-        </a>
-        |
-        <a
-          href="#"
-          onClick={() => {
-            this.triggerStatus();
-          }}
-        >
-          status
-        </a> */}
 
-        {this.props.auth.user.role == "" ? (
+        {this.props.auth.user.role == "advertiser" ? (
           <Link to="/newbusiness" className="btn btn-sm btn-info">
             New Business
           </Link>

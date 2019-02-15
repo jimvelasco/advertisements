@@ -11,6 +11,8 @@ const Business = require("../../models/Business");
 const Image = require("../../models/Image");
 const Jimp = require("jimp");
 
+const photoHelper = require("../../config/photoHelper");
+
 const validateBusinessInput = require("../../validation/business_val");
 const validateBusinessImageInput = require("../../validation/business_image");
 
@@ -122,6 +124,11 @@ router.get("/allphotos/:id", (req, res) => {
 
 router.post("/createBusiness", (req, res) => {
   const { errors, isValid } = validateBusinessInput(req.body);
+  const lwidth = photoHelper.logoWidth;
+  let lheight = photoHelper.logoHeight;
+  if (lheight == -1) {
+    lheight = Jimp.AUTO;
+  }
   // Check Validation
   if (!isValid) {
     return res.status(400).json(errors);
@@ -166,7 +173,8 @@ router.post("/createBusiness", (req, res) => {
           // if (uploadimage) {
           Jimp.read(imageFile.data).then(lenna => {
             lenna
-              .resize(200, Jimp.AUTO) // resize
+              //.resize(200, Jimp.AUTO) // resize
+              .resize(lwidth, lheight) // resize
               .quality(80); // set JPEG quality
             lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
               const newImage = new Image({
@@ -202,6 +210,12 @@ router.post("/createBusiness", (req, res) => {
 //**************************
 router.post("/modifyBusiness", (req, res) => {
   const { errors, isValid } = validateBusinessInput(req.body);
+  const lwidth = photoHelper.logoWidth;
+  let lheight = photoHelper.logoHeight;
+  if (lheight == -1) {
+    lheight = Jimp.AUTO;
+  }
+
   // Check Validation
   if (!isValid) {
     return res.status(400).json(errors);
@@ -247,7 +261,7 @@ router.post("/modifyBusiness", (req, res) => {
         Jimp.read(imageFile.data)
           .then(lenna => {
             lenna
-              .resize(200, Jimp.AUTO) // resize
+              .resize(lwidth, lheight) // resize
               .quality(80);
             lenna.getBufferAsync(Jimp.MIME_JPEG).then(buf => {
               var options = { upsert: true, returnNewDocument: true };
@@ -279,6 +293,12 @@ router.post("/modifyBusiness", (req, res) => {
 
 router.post("/createImage", (req, res) => {
   const { errors, isValid } = validateBusinessImageInput(req.body);
+  const pwidth = photoHelper.photoWidth;
+  let pheight = photoHelper.photoHeight;
+  if (pheight == -1) {
+    pheight = Jimp.AUTO;
+  }
+
   // Check Validation
   if (!isValid) {
     return res.status(400).json(errors);
@@ -311,7 +331,7 @@ router.post("/createImage", (req, res) => {
   Jimp.read(imageFile.data)
     .then(lenna => {
       lenna
-        .resize(200, Jimp.AUTO) // resize
+        .resize(pwidth, pheight) // resize
         .quality(80); // set JPEG quality
       lenna.getBufferAsync(Jimp.MIME_JPEG).then(imagebuf => {
         const newImage = new Image({

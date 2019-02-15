@@ -16,11 +16,10 @@ class Dashboard extends Component {
   }
   render() {
     const userrole = this.props.auth.user.role;
+    const { isAuthenticated, user } = this.props.auth; // shorthand
     return (
       <div>
-        <h3 style={{ textAlign: "center" }}>
-          Dispatch Advertisements Dashboard
-        </h3>
+        <h3 style={{ textAlign: "center" }}>Dashboard: {user.name}</h3>
 
         {userrole === "admin" ? <Advertisers /> : null}
         {/* <Advertisers />  */}

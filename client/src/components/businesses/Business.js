@@ -376,7 +376,8 @@ class Business extends Component {
                               {...getInputProps({
                                 placeholder: "Search Business Names ...",
                                 className:
-                                  "location-search-input form-control form-control-sm"
+                                  "location-search-input form-control form-control-sm",
+                                autoComplete: "nope"
                               })}
                             />
                             <div className="autocomplete-dropdown-container">
@@ -386,20 +387,20 @@ class Business extends Component {
                                   ? "suggestion-item--active"
                                   : "suggestion-item";
                                 // inline style for demonstration purpose
-                                const style = suggestion.active
-                                  ? {
-                                      backgroundColor: "#c0c0c0",
-                                      cursor: "pointer"
-                                    }
-                                  : {
-                                      backgroundColor: "#ffffff",
-                                      cursor: "pointer"
-                                    };
+                                // const style = suggestion.active
+                                //   ? {
+                                //       backgroundColor: "#c0c0c0",
+                                //       cursor: "pointer"
+                                //     }
+                                //   : {
+                                //       backgroundColor: "#ffffff",
+                                //       cursor: "pointer"
+                                //     };
                                 return (
                                   <div
                                     {...getSuggestionItemProps(suggestion, {
-                                      className,
-                                      style
+                                      className
+                                      // style
                                     })}
                                   >
                                     <span>{suggestion.description}</span>

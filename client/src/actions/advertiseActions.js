@@ -60,7 +60,7 @@ export const getBusinessPhotos = userid => dispatch => {
   console.log("setting loading to true in getbusinessphotos");
   dispatch({
     type: SET_IS_LOADING,
-    payload: { isloading: true, page: "business" }
+    payload: { isloading: true, page: "photos" }
   });
   let link = "/api/business/allphotos/" + userid;
   axios

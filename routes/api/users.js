@@ -14,6 +14,8 @@ const validateLoginInput = require("../../validation/login");
 const Advertiser = require("../../models/Advertiser");
 const Image = require("../../models/Image");
 
+const photoHelper = require("../../config/photoHelper");
+
 // @route   GET api/users/test
 // @desc    Tests users route
 // @access  Public
@@ -29,6 +31,13 @@ router.post("/register", (req, res) => {
   if (!isValid) {
     return res.status(400).json(errors);
   }
+
+  const lwidth = photoHelper.logoWidth;
+  let lheight = photoHelper.logoHeight;
+  if (lheight == -1) {
+    lheight = Jimp.AUTO;
+  }
+
   if (!req.files) {
     let errors = {};
     errors.noimage = "Please select an image file";
@@ -58,7 +67,7 @@ router.post("/register", (req, res) => {
           newAdvertiser.save().then(user => {
             Jimp.read(imageFile.data).then(lenna => {
               lenna
-                .resize(200, Jimp.AUTO) // resize
+                .resize(lwidth, lheight) // resize
                 .quality(80); // set JPEG quality
 
               lenna
@@ -198,6 +207,12 @@ router.post("/modify", (req, res) => {
     return res.status(400).json(errors);
   }
 
+  const lwidth = photoHelper.logoWidth;
+  let lheight = photoHelper.logoHeight;
+  if (lheight == -1) {
+    lheight = Jimp.AUTO;
+  }
+
   let id = req.body.id;
   let query = { _id: id };
   // console.log("query", query);
@@ -219,7 +234,7 @@ router.post("/modify", (req, res) => {
     console.log("update image ", query);
     Jimp.read(imageFile.data).then(lenna => {
       lenna
-        .resize(200, Jimp.AUTO) // resize
+        .resize(lwidth, lheight) // resize
         .quality(80);
       lenna
         .getBufferAsync(Jimp.MIME_JPEG)
